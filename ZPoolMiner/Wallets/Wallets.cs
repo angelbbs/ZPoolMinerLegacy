@@ -109,7 +109,7 @@ namespace ZPoolMiner.Wallets
                         //ConfigManager.GeneralConfig.PayoutCurrency = _coin;
                         //ConfigManager.GeneralConfig.WorkerName = _worker;
                     }
-                    ConfigManager.GeneralConfigFileCommit();
+                    //ConfigManager.GeneralConfigFileCommit();
                     WalletDataList.Sort((x, y) => x.Coin.CompareTo(y.Coin));
                     string _json = JsonConvert.SerializeObject(WalletDataList, Formatting.Indented);
                     Helpers.WriteAllTextWithBackup("configs\\wallets.json", _json);

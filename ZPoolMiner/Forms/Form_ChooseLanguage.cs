@@ -181,6 +181,9 @@ namespace ZPoolMiner.Forms
                         ConfigManager.GeneralConfig.Wallet = "";//??
                         ConfigManager.GeneralConfig.PayoutCurrency = "";
                         ConfigManager.GeneralConfig.WorkerName = "";
+                        ConfigManager.GeneralConfig.Platform = "ZPool";
+                        ConfigManager.GeneralConfig.ForkFixVersion = 1.0;
+                        ConfigManager.GeneralConfig.ServiceLocation = 1;
                         ConfigManager.GeneralConfigFileCommit();
                         foreach (string dirPath in Directory.GetDirectories(destinationPathTemp, "*.*", SearchOption.AllDirectories))
                         {
@@ -209,6 +212,7 @@ namespace ZPoolMiner.Forms
                     {
                         //wrong dir
                     }
+                    Helpers.ConsolePrint("Start", "Import previous Miner Legacy Fork Fix configs");
                 }
                 else
                 {
@@ -216,7 +220,7 @@ namespace ZPoolMiner.Forms
                 }
             }
             ConfigManager.GeneralConfig.Language = (LanguageType)comboBox_Languages.SelectedIndex;
-            ConfigManager.GeneralConfigFileCommit();
+            //ConfigManager.GeneralConfigFileCommit();
         }
 
         public static void CopyDirectory(string sourcePath, string destinationPath)

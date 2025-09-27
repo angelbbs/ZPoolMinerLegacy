@@ -50,8 +50,8 @@ namespace ZPoolMiner
         public static string githubAllReleases => CheckDNS("https://api.github.com/repos/angelbbs/ZPoolMinerLegacy/releases");
         public static string githubDownload => CheckDNS("https://github.com0/angelbbs/ZPoolMinerLegacy/releases/download/Fork_Fix_");
         public static string gitlabReleases = ("https://gitlab.com/angelbbs/ZPoolMinerLegacy/-/releases");
-        public static string gitlabRepositoryTags => CheckDNS("https://gitlab.com/api/v4/projects/69397132/repository/tags");
-        public static string gitlabLastRelease => CheckDNS("https://gitlab.com/api/v4/projects/69397132/releases/");//?
+        public static string gitlabRepositoryTags => CheckDNS("https://gitlab.com/api/v4/projects/74816263/repository/tags");
+        public static string gitlabLastRelease => CheckDNS("https://gitlab.com/api/v4/projects/74816263/releases/");//?
 
         internal static bool inuse = false;
 

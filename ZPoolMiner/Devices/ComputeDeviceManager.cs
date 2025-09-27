@@ -1718,7 +1718,7 @@ break;
                     catch (Exception ex)
                     {
                         // TODO
-                        Helpers.ConsolePrint(Tag, "CudaDevicesDetection Exception: " + ex.Message);
+                        Helpers.ConsolePrint(Tag, "CudaDevicesDetection Exception: " + ex.ToString());
                     }
 
                     if (cudaDevicesDetection != null)

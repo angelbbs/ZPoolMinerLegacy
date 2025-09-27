@@ -102,6 +102,7 @@ namespace ZPoolMiner
 
             if (hasAdministrativeRight == false)
             {
+                Helpers.ConsolePrint("Main", "Try Administrator");
                 ProcessStartInfo processInfo = new ProcessStartInfo();
                 processInfo.Verb = "runas";
                 processInfo.FileName = Application.ExecutablePath;
@@ -119,7 +120,6 @@ namespace ZPoolMiner
             {
                 //Helpers.ConsolePrint("Main", "Administrator");
             }
-
             string conf = "";
             try
             {

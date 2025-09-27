@@ -49,6 +49,7 @@ namespace ZPoolMiner
     using System.Drawing.Drawing2D;
     using ZPoolMiner.Algorithms;
     using static ZPoolMiner.Program;
+    using System.Security.Principal;
 
     public partial class Form_Main : Form, Form_Loading.IAfterInitializationCaller, IMainFormRatesComunication
     {
@@ -242,6 +243,9 @@ namespace ZPoolMiner
         Bitmap shadowBmp = null;
         public Form_Main()
         {
+            WindowsPrincipal pricipal = new WindowsPrincipal(WindowsIdentity.GetCurrent());
+            bool hasAdministrativeRight = pricipal.IsInRole(WindowsBuiltInRole.Administrator);
+            Helpers.ConsolePrint("Start", "Run as Administrator: " + hasAdministrativeRight.ToString());
             if (this != null)
             {
                 Rectangle screenSize = System.Windows.Forms.Screen.PrimaryScreen.Bounds;
@@ -3258,9 +3262,8 @@ namespace ZPoolMiner
                 ManagementObjectCollection moc = searcher.Get();
                 foreach (ManagementObject mo in moc)
                 {
-
+                    /*
                     Process proc = Process.GetProcessById(Convert.ToInt32(mo["ProcessID"]));
-                    //Helpers.ConsolePrint("Closing", Convert.ToInt32(mo["ProcessID"]).ToString() + " " + proc.ProcessName);
                     if (!Convert.ToInt32(mo["ProcessID"]).ToString().Contains("ZPoolMinerLegacy"))
                     {
                         if (proc != null)
@@ -3268,7 +3271,7 @@ namespace ZPoolMiner
                             proc.Kill();
                         }
                     }
-
+                    */
 
                 }
                 Process mproc = Process.GetProcessById(mainproc.Id);
@@ -3290,8 +3293,9 @@ namespace ZPoolMiner
                 {
                     Helpers.ConsolePrint("Closing", ex.Message);
                 }
-
-                mproc.Kill();
+                this.BeginInvoke((Action)this.Close);
+                //mproc.Close();
+                //mproc.Kill();
             }
             catch (Exception ex)
             {
