@@ -1,0 +1,33 @@
+## Miner Legacy Fork Fix (for ZPool)
+
+[![GitHub release](https://img.shields.io/github/release/angelbbs/ZPoolMinerLegacy/all.svg)](https://github.com/angelbbs/ZPoolMinerLegacy/releases)
+[![GitHub Release Date](https://img.shields.io/github/release-date/angelbbs/ZPoolMinerLegacy.svg)](https://github.com/angelbbs/ZPoolMinerLegacy/releases)
+
+[![Github All Releases](https://img.shields.io/github/downloads/angelbbs/ZPoolMinerLegacy/total.svg)](https://github.com/angelbbs/ZPoolMinerLegacy/releases)
+## Download
+* **[Download latest release](https://github.com/angelbbs/ZPoolMinerLegacy/releases)**
+
+
+"Miner Legacy Fork Fix" is an free open source easy to use CPU & GPU cryptocurrency miner program with classic GUI for Windows.
+- Easy installer.
+- Support AMD, INTEL, NVIDIA GPUs and CPU.
+- Support wallets with guaranteed payouts coins.
+- Included most profitable miners programs.
+- Dual algorithms.
+- Fast benchmark - 1-2 min per algo.
+- Auto-switch between most profitable algorithms and coins taking into account the consumption of devices and the cost of electricity.
+- Tariff zones for electricity.
+- Limiting the maximum temperature of GPUs core and GPUs memory
+- GPU overclocking via MSI Afterburner.
+- Support overclocking profiles, benchmarks, miners additional parameters.
+- Program automatic update and backup.
+- Colors profiles.
+- Built-in watchdog.
+- Remote desktop viewer via browser;
+- REST API.
+- ......and many other options and features.
+
+- No development fees, no limit on the number of mining rigs, only mining in the benchmark mode takes place on the developer's wallet.
+<p align="center">
+<img src="https://raw.githubusercontent.com/angelbbs/ZPoolMinerLegacy/master/screenshot1.png">
+</p>
