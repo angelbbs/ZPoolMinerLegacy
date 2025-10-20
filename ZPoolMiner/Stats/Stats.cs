@@ -71,7 +71,7 @@ namespace ZPoolMiner.Stats
             {
                 foreach (var proxy in ProxyCheck.HttpsProxyList)
                 {
-                    if (proxy.Valid)
+                    if (proxy.tcpValid)
                     {
                         try
                         {
@@ -123,8 +123,9 @@ namespace ZPoolMiner.Stats
 
                 if (string.IsNullOrEmpty(responseFromServer))
                 {
-                    //Helpers.ConsolePrintError("GetPoolApiAsync", "All proxy unavailable");
-                    new Task(() => ProxyCheck.GetHttpsProxy()).Start();
+                    Helpers.ConsolePrintError("GetPoolApiAsync", "All proxy unavailable");
+                    //ProxyCheck.ProxyRotate();
+                    //new Task(() => ProxyCheck.GetProxy()).Start();
                 }
             } else
             {
@@ -161,8 +162,6 @@ namespace ZPoolMiner.Stats
             var uri = new Uri(url);
             string host = new Uri(url).Host;
             var responseFromServer = "";
-            Random r = new Random();
-            var id = "[" + r.Next(100, 999).ToString() + "] ";
             var watch = Stopwatch.StartNew();
             try
             {
@@ -173,7 +172,7 @@ namespace ZPoolMiner.Stats
                 {
                     if (log)
                     {
-                        Helpers.ConsolePrint("GetPoolApiData", id + "Try connect to " + url + " via proxy " +
+                        Helpers.ConsolePrint("GetPoolApiData", "Try connect to " + url + " via proxy " +
                         proxy.Ip + ":" + proxy.HTTPSPort.ToString());
                     }
                     var _proxy = new WebProxy
@@ -192,7 +191,7 @@ namespace ZPoolMiner.Stats
                 {
                     if (log)
                     {
-                        Helpers.ConsolePrint("GetPoolApiData", id + "Try connect to " + url);
+                        Helpers.ConsolePrint("GetPoolApiData", "Try connect to " + url);
                     }
                 }
                 using (httpClient)
@@ -220,7 +219,7 @@ namespace ZPoolMiner.Stats
                         {
                             if (log)
                             {
-                                Helpers.ConsolePrintError("GetPoolApiDataAsync", id + "Error! Not JSON from " + url +
+                                Helpers.ConsolePrintError("GetPoolApiDataAsync", "Error! Not JSON from " + url +
                                 "\r\n" + responseFromServer);
                             }
                             responseFromServer = "";
@@ -238,7 +237,7 @@ namespace ZPoolMiner.Stats
                     }
                     else
                     {
-                        Helpers.ConsolePrintError("GetPoolApiDataAsync", id + response.ReasonPhrase + ", " +
+                        Helpers.ConsolePrintError("GetPoolApiDataAsync", response.ReasonPhrase + ", " +
                             response.StatusCode.ToString() + ", " +
                             response.RequestMessage.ToString() + ", " +
                             response.Headers.ToString() + ", ");
@@ -255,11 +254,11 @@ namespace ZPoolMiner.Stats
                 watch.Stop();
                 if (viaProxy)
                 {
-                    Helpers.ConsolePrintError("GetPoolApiDataAsync", id + "Connection error in " + t.ToString() + " ms " + ex.Message + " " +
+                    Helpers.ConsolePrintError("GetPoolApiDataAsync", "Connection error in " + t.ToString() + " ms " + ex.Message + " " +
                     url + " " + proxy.Ip + ":" + proxy.HTTPSPort.ToString());
                 } else
                 {
-                    Helpers.ConsolePrintError("GetPoolApiDataAsync", id + "Connection error in " + t.ToString() + 
+                    Helpers.ConsolePrintError("GetPoolApiDataAsync", "Connection error in " + t.ToString() + 
                         " ms " + ex.Message + " " + url);
                 }
                 return "";
@@ -281,6 +280,7 @@ namespace ZPoolMiner.Stats
             double correction = 1.0;
             double adaptivecorrection = 1.0;
             List<Coin> coinlist = new List<Coin>();
+            List<AlgoCoin> only_directCoin = new();
             List<AlgoCoin> conversion_disabledCoin = new();
             List<AlgoCoin> zeroHashrateCoin = new();
             List<AlgoCoin> noBlockFoundCoin = new();
@@ -307,6 +307,7 @@ namespace ZPoolMiner.Stats
                 string ResponseFromAPI = await GetPoolApiAsync(link, 7);
                 if (ResponseFromAPI != null)
                 {
+                    //Helpers.ConsolePrint("************ " + link, ResponseFromAPI);
                     var APIdata = JObject.Parse(ResponseFromAPI);
                     foreach (var coinAPI in APIdata)
                     {
@@ -328,7 +329,8 @@ namespace ZPoolMiner.Stats
                         var has_price = coin.Value<int>("has_price");
                         var is_aux = coin.Value<int>("is_aux");
                         var error = coin.Value<string>("error");
-                        
+                        //testing
+                        //if (symbol.Equals("ZER")) estimate = estimate * 2;
                         Coin _coin = new();
                         _coin.name = name;
                         _coin.algo = algo;
@@ -435,6 +437,8 @@ namespace ZPoolMiner.Stats
                         {
                             if (c.Key.Equals(_coin.symbol) && c.Value.checkTime >= 15)//15 min checking
                             {
+                                //неправильно
+                                /*
                                 Helpers.ConsolePrint("Stats", "Actual hashrate is missing from zpool for 15 minutes for " + _coin.algo +
                                     "(" + c.Key + "). Temporary block");
                                 _coin.profit = _coin.profit / 100;
@@ -449,6 +453,7 @@ namespace ZPoolMiner.Stats
                                         //miningDevice.needSwitch = true;
                                     }
                                 }
+                                */
                             }
                         }
                         /*
@@ -461,6 +466,18 @@ namespace ZPoolMiner.Stats
                             _coin.tempBlock = true;
                         }
                         */
+                        if (_coin.only_direct == 1)
+                        {
+                            //Helpers.ConsolePrint("Stats", _coin.algo + " (" + _coin.symbol + ") conversion_disabled. Temporary block");
+                            AlgoCoin c = new();
+                            c.algo = _coin.algo;
+                            c.coin = _coin.symbol;
+                            only_directCoin.Add(c);
+                            _coin.tempBlock = true;
+                            _coin.profit = _coin.profit / 100;
+                            _coin.adaptive_profit = _coin.adaptive_profit / 100;
+                        }
+                        /*
                         if (_coin.conversion_disabled == 1)
                         {
                             //Helpers.ConsolePrint("Stats", _coin.algo + " (" + _coin.symbol + ") conversion_disabled. Temporary block");
@@ -472,7 +489,7 @@ namespace ZPoolMiner.Stats
                             _coin.profit = _coin.profit / 100;
                             _coin.adaptive_profit = _coin.adaptive_profit / 100;
                         }
-
+                        */
                         if (_coin._24h_blocks == 0 && !_coin.tempBlock)
                         {
                             //Helpers.ConsolePrint("Stats", _coin.algo + " (" + _coin.symbol + ") 24h_blocks. Temporary block");
@@ -485,7 +502,7 @@ namespace ZPoolMiner.Stats
                             _coin.adaptive_profit = _coin.adaptive_profit / 100;
                         }
 
-                        if (hashrate == 0 && !_coin.tempBlock && _coin._24h_blocks < 10)
+                        if (hashrate == 0 && !_coin.tempBlock && _coin._24h_blocks < 3)
                         {
                             //Helpers.ConsolePrint("Stats", _coin.algo + " (" + _coin.symbol + ") zero hashrate. Temporary block");
                             AlgoCoin zhc = new();
@@ -545,11 +562,39 @@ namespace ZPoolMiner.Stats
                     }
                 }
 
-                conversion_disabledCoin.Sort((x, y) => x.algo.CompareTo(y.algo));
-                
+                only_directCoin.Sort((x, y) => x.algo.CompareTo(y.algo));
                 string _algo = "";
                 string coins = "";
-                List<string> _conversion_disabledCoinCoinList = new();
+                List<string> _only_directCoinList = new();
+                foreach (var c in only_directCoin)
+                {
+                    if (_algo.IsNullOrEmpty())
+                    {
+                        _algo = c.algo;
+                    }
+                    if (c.algo.Equals(_algo))
+                    {
+                        coins = coins + c.coin + ", ";
+                    }
+                    else
+                    {
+                        _only_directCoinList.Add(_algo + "(" + coins.Substring(0, coins.Length - 2) + ")");
+                        //Helpers.ConsolePrint("Stats", _algo + " (" + coins.Substring(0, coins.Length - 2) + ") no autotrade. Disabled");
+                        coins = "";
+                        _algo = c.algo;
+                        coins = coins + c.coin + ", ";
+                    }
+                }
+                if (_only_directCoinList.Count > 0)
+                {
+                    Helpers.ConsolePrint("Stats", "Only Direct coins: " + string.Join(", ", _only_directCoinList) +
+                        " - Disabled");
+                }
+
+                conversion_disabledCoin.Sort((x, y) => x.algo.CompareTo(y.algo));
+                _algo = "";
+                coins = "";
+                List<string> _conversion_disabledCoinList = new();
                 foreach (var c in conversion_disabledCoin)
                 {
                     if (_algo.IsNullOrEmpty())
@@ -561,16 +606,16 @@ namespace ZPoolMiner.Stats
                         coins = coins + c.coin + ", ";
                     } else
                     {
-                        _conversion_disabledCoinCoinList.Add(_algo + "(" + coins.Substring(0, coins.Length - 2) + ")");
+                        _conversion_disabledCoinList.Add(_algo + "(" + coins.Substring(0, coins.Length - 2) + ")");
                         //Helpers.ConsolePrint("Stats", _algo + " (" + coins.Substring(0, coins.Length - 2) + ") no autotrade. Disabled");
                         coins = "";
                         _algo = c.algo;
                         coins = coins + c.coin + ", ";
                     }
                 }
-                if (_conversion_disabledCoinCoinList.Count > 0)
+                if (_conversion_disabledCoinList.Count > 0)
                 {
-                    Helpers.ConsolePrint("Stats", "Conversion disabled coins: " + string.Join(", ", _conversion_disabledCoinCoinList) + 
+                    Helpers.ConsolePrint("Stats", "Conversion disabled coins: " + string.Join(", ", _conversion_disabledCoinList) + 
                         " - Disabled");
                 }
 
@@ -1045,6 +1090,7 @@ namespace ZPoolMiner.Stats
                             }
 
                             double factorNow = _algoProperty.actualProfit / _algoProperty.localProfit;
+                            //factorNow = (1 + factorNow) / 2;
 
                             if (_algoProperty.ticks >= 15)
                             {

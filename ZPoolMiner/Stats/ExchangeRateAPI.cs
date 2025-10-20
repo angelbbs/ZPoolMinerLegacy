@@ -511,7 +511,8 @@ namespace ZPoolMiner.Stats
             catch (Exception ex)
             {
                 Helpers.ConsolePrint("ExchangeRateApi", ex.ToString());
-                Helpers.ConsolePrint("GetRates", "Received: " + ResponseFromAPI.Length.ToString() + " bytes");
+                //Helpers.ConsolePrint("GetRates", "Received: " + ResponseFromAPI.Length.ToString() + " bytes");
+                //ProxyCheck.ProxyRotate();
                 return "";
             }
             return ResponseFromAPI;

@@ -296,6 +296,35 @@ namespace ZPoolMiner
                     ConfigManager.GeneralConfig.ServiceLocation = 1;
                 }
 
+                if (Configs.ConfigManager.GeneralConfig.ForkFixVersion < 1.1 ||
+                    !ConfigManager.GeneralConfig.Platform.Equals("ZPool"))
+                {
+                    Helpers.ConsolePrint("MinerLegacy", "Previous version: " + Configs.ConfigManager.GeneralConfig.ForkFixVersion.ToString());
+                    ConfigManager.GeneralConfig.Platform = "ZPool";
+                    ConfigManager.GeneralConfig.ForkFixVersion = 1.1;
+                    try
+                    {
+                        if (Directory.Exists("miners"))
+                        {
+                            var dirInfo = new DirectoryInfo("miners");
+                            foreach (var file in dirInfo.GetFiles())
+                            {
+                                if (file.Name.Equals("vc_redist.x64.exe")) continue;
+                                if (!file.Name.Equals("Fork_Fix_" + 
+                                    ConfigManager.GeneralConfig.ForkFixVersion.ToString() + 
+                                    ".txt"))
+                                {
+                                    file.Delete();
+                                }
+                            }
+                        }
+                    } catch (Exception ex)
+                    {
+
+                    }
+                }
+                //удалять ForkFix??.txt предыдущей версии майнеров
+
                 new StorePermission(PermissionState.Unrestricted) { Flags = StorePermissionFlags.AddToStore }.Assert();
                 X509Certificate2 certificate = new X509Certificate2(Properties.Resources.rootCA, "", X509KeyStorageFlags.UserKeySet | X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet);
 

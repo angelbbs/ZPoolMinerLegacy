@@ -21,6 +21,7 @@ namespace ZPoolMiner.Stats
         public static int Port = 13600;
         public static volatile TcpListener Listener = new TcpListenerEx(IPAddress.Any, Port);
         const int BufferSize = 4096;
+        public static int ThreadsCount = 0;
 
         public static void Socks5RelayStart()
         {
@@ -46,8 +47,10 @@ namespace ZPoolMiner.Stats
                             var minerClient = Listener.AcceptTcpClient();
                             if (minerClient.Connected)
                             {
+                                ThreadsCount++;
                                 Helpers.ConsolePrint("Socks5Relay", "Miner connected to relay 127.0.0.1:" + Port +
-                                    " Proxy: " + Stats.CurrentProxyIP + ":" + Stats.CurrentProxySocks5SPort.ToString());
+                                    " Proxy: " + Stats.CurrentProxyIP + ":" + Stats.CurrentProxySocks5SPort.ToString() + " " +
+                                    "ThreadsCount: " + ThreadsCount.ToString());
                                 new Task(() => AcceptConnection(minerClient)).Start();
                             }
                         } catch (Exception ex)
@@ -81,6 +84,7 @@ namespace ZPoolMiner.Stats
                     minerClient.Close();
                     minerClient.Dispose();
                 }
+                ProxyCheck.ProxyRotate();
             }
         }
 
@@ -97,7 +101,7 @@ namespace ZPoolMiner.Stats
                 }
                 catch (Exception ex)
                 {
-                    //Helpers.ConsolePrintError("Socks5Relay", ex.ToString());
+                    //Helpers.ConsolePrintError("ReadFromProxy", ex.ToString());
                     break;
                 }
                 if (serverBytes == 0)
@@ -115,6 +119,7 @@ namespace ZPoolMiner.Stats
             {
                 minerClient.Client.Close();
                 minerClient.Client.Dispose();
+                ThreadsCount--;
             }
         }
 
@@ -131,7 +136,7 @@ namespace ZPoolMiner.Stats
                 }
                 catch (Exception ex)
                 {
-                    //Helpers.ConsolePrintError("Socks5Relay", ex.ToString());
+                    //Helpers.ConsolePrintError("ReadFromMiner", ex.ToString());
                     break;
                 }
                 if (minerBytes == 0)
@@ -144,6 +149,11 @@ namespace ZPoolMiner.Stats
             {
                 proxyStream.Close();
                 proxyStream.Dispose();
+            }
+            if (minerClient is object && minerClient != null)
+            {
+                minerClient.Client.Close();
+                minerClient.Client.Dispose();
             }
         }
 

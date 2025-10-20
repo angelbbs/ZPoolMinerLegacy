@@ -819,7 +819,8 @@ namespace ZPoolMiner.Miners
                     */
                     if (double.IsNaN(percDiff))//only for testing disabled algos
                     {
-                        //percDiff = 1;
+                        percDiff = 1;
+                        coinChanged = true;
                         //Helpers.ConsolePrint(Tag, "Run disabled algo");
                     }
                     if (percDiff > SwitchProfitabilityThreshold && coinChanged)
@@ -963,7 +964,7 @@ namespace ZPoolMiner.Miners
                         {
                             coinChanged = true;
                         }
-                        //if (!coinChanged)
+
                         if (device.DeviceCurrentMiningCoin.Equals(device.DeviceMostProfitableCoin))
                         {
                             Helpers.ConsolePrint(Tag, $"{device.Device.GetFullName()}: NO SWITCH." +
@@ -1110,7 +1111,7 @@ namespace ZPoolMiner.Miners
 
                 if (!needSwitch && !forceSwitch)
                 {
-                    //Helpers.ConsolePrint(Tag, "Not need switch.");
+                    Helpers.ConsolePrint(Tag, "Not need switch.");
                     AlgorithmSwitchingManager.SmaCheckTimerOnElapsedRun = false;
                     return;
                 }
@@ -1129,7 +1130,7 @@ namespace ZPoolMiner.Miners
                     }
                 }
                 */
-
+                /*
                 foreach (var pd in Enumerable.Reverse(profitableDevices).ToList())
                 {
                     if (coinFail.Contains(pd.Algorithm.CurrentMiningCoin) &&
@@ -1169,7 +1170,7 @@ namespace ZPoolMiner.Miners
                         }
                     }
                 }
-
+                */
                 Enumerable.Reverse(profitableDevices).ToList();
                 NewGrouping(profitableDevices);
             }
@@ -1183,6 +1184,54 @@ namespace ZPoolMiner.Miners
 
         private void NewGrouping(List<MiningPair> profitableDevices)
         {
+            /*
+             не переключилось
+             [2025-10-09 11:43:30] [INFO] [MiningSession] Will SWITCH. Profit diff is 40.28%, current threshold 5%
+[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 1
+[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 2
+[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 3
+[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 3
+[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 2
+[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 5
+[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 5
+[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 6
+[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 7
+[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 11
+[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 5
+[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 5
+[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 6
+[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 7
+[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 6
+[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 7
+[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 6
+[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 7
+[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 11
+[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 14
+
+            переключилось
+            [2025-10-09 11:58:30] [INFO] [MiningSession] Will SWITCH. Profit diff is 76.91%, current threshold 5%
+[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 1
+[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 2
+[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 3
+[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 3
+[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 2
+[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 5
+[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 5
+[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 6
+[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 8
+[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 9
+[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 10
+[2025-10-09 11:58:30] [INFO] [-MINER_ID(28)-DEVICE_IDs(NOT_SET)] NEW MINER CREATED
+[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 5
+[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 5
+[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 6
+[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 8
+[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 9
+[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 10
+[2025-10-09 11:58:30] [INFO] [-MINER_ID(29)-DEVICE_IDs(NOT_SET)] NEW MINER CREATED
+[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 13
+[2025-10-09 11:58:30] [INFO] [SWITCHING] Number of switches: 15 Uptime: 0 days 18:20:14
+             */
             // group new miners
             var newGroupedMiningPairs = new Dictionary<string, List<MiningPair>>();
 
@@ -1204,7 +1253,6 @@ namespace ZPoolMiner.Miners
                 // if device is not in any group create new group and check if other device should group
                 if (isInGroup == false)
                 {
-                    Helpers.ConsolePrint(Tag, "1");
                     var newGroup = new GroupedDevices();
                     var miningPairs = new List<MiningPair>()
                         {
@@ -1218,7 +1266,6 @@ namespace ZPoolMiner.Miners
                         var secondPair = profitableDevices[second];
                         if (GroupingLogic.ShouldGroup(firstPair, secondPair))
                         {
-                            Helpers.ConsolePrint(Tag, "2");
                             var secondDev = profitableDevices[second].Device;
                             newGroup.Add(secondDev.Uuid);
                             miningPairs.Add(profitableDevices[second]);
@@ -1240,29 +1287,25 @@ namespace ZPoolMiner.Miners
             {
                 if (newGroupedMiningPairs.ContainsKey(runningGroupKey) == false)
                 {
-                    Helpers.ConsolePrint(Tag, "3");
                     // runningGroupKey not in new group definately needs to be stopped and removed from curently running
                     toStopGroupMiners[runningGroupKey] = _runningGroupMiners[runningGroupKey];
                 }
                 else
                 {
-                    Helpers.ConsolePrint(Tag, "4");
                     // runningGroupKey is contained but needs to check if mining algorithm is changed
                     var miningPairs = newGroupedMiningPairs[runningGroupKey];
                     var newAlgoType = GetMinerPairAlgorithmType(miningPairs);
                     if (newAlgoType != AlgorithmType.NONE && newAlgoType != AlgorithmType.INVALID)
                     {
-                        Helpers.ConsolePrint(Tag, "5");
                         var _coinChanged = false;
                         foreach (var mPair in _runningGroupMiners[runningGroupKey].Miner.MiningSetup.MiningPairs)
                         {
                             if (mPair.Algorithm is Algorithm algo
                                 && algo.CurrentMiningCoin != algo.MostProfitCoin)
                             {
-                                Helpers.ConsolePrint(Tag, "6");
+                                /*
                                 if (coinFail.Contains(algo.CurrentMiningCoin))
                                 {
-                                    Helpers.ConsolePrint(Tag, "7");
                                     // mPair.Algorithm.CurrentMiningCoin = mPair.Algorithm.MostProfitCoin;
                                     newAlgoType = mPair.Device._CurrentProfitableAlgorithmType;
                                     algo.MostProfitCoin = algo.CurrentMiningCoin;
@@ -1272,8 +1315,8 @@ namespace ZPoolMiner.Miners
                                     mPair.Device._DeviceMostProfitableCoin = mPair.Device._DeviceCurrentMiningCoin;
                                 }
                                 else
+                                */
                                 {
-                                    Helpers.ConsolePrint(Tag, "8");
                                     _coinChanged = true;
                                     break;
                                 }
@@ -1283,7 +1326,6 @@ namespace ZPoolMiner.Miners
                         // if algoType valid and different from currently running update
                         if (newAlgoType != _runningGroupMiners[runningGroupKey].DualAlgorithmType || _coinChanged)
                         {
-                            Helpers.ConsolePrint(Tag, "9");
                             // remove current one and schedule to stop mining
                             toStopGroupMiners[runningGroupKey] = _runningGroupMiners[runningGroupKey];
 
@@ -1292,7 +1334,6 @@ namespace ZPoolMiner.Miners
 
                             if (newGroupMiner == null)
                             {
-                                Helpers.ConsolePrint(Tag, "10");
                                 newGroupMiner = new GroupMiner(miningPairs, runningGroupKey);
                             }
 
@@ -1300,7 +1341,6 @@ namespace ZPoolMiner.Miners
                         }
                         else
                         {
-                            Helpers.ConsolePrint(Tag, "11");
                             noChangeGroupMiners[runningGroupKey] = _runningGroupMiners[runningGroupKey];
                         }
                     }
@@ -1316,7 +1356,6 @@ namespace ZPoolMiner.Miners
                 var miningPairs = kvp.Value;
                 if (_runningGroupMiners.ContainsKey(key) == false)
                 {
-                    Helpers.ConsolePrint(Tag, "12");
                     var newGroupMiner = new GroupMiner(miningPairs, key);
                     toRunNewGroupMiners[key] = newGroupMiner;
                 }
@@ -1324,7 +1363,6 @@ namespace ZPoolMiner.Miners
 
             if ((toStopGroupMiners.Values.Count > 0) || (toRunNewGroupMiners.Values.Count > 0))
             {
-                Helpers.ConsolePrint(Tag, "13");
                 var stringBuilderPreviousAlgo = new StringBuilder();
                 var stringBuilderCurrentAlgo = new StringBuilder();
                 var stringBuilderNoChangeAlgo = new StringBuilder();
@@ -1354,7 +1392,6 @@ namespace ZPoolMiner.Miners
                             if (algo.PrimaryAlgorithmPoolID == device.MostProfitableAlgorithmType ||
                                 algo.SecondaryAlgorithmPoolID == device.MostProfitableAlgorithmType)
                             {
-                                Helpers.ConsolePrint(Tag, "14");
                                 algo.CurrentMiningCoin = toStart.Coin;
                             }
                         }
@@ -1382,7 +1419,6 @@ namespace ZPoolMiner.Miners
                 foreach (var noChange in noChangeGroupMiners.Values)
                     stringBuilderNoChangeAlgo.Append($"{noChange.DevicesInfoString}: {noChange.AlgorithmType}({noChange.Coin}), ");
             }
-
             AlgorithmSwitchingManager.SmaCheckTimerOnElapsedRun = false;
             _mainFormRatesComunication?.ForceMinerStatsUpdate();
         }
@@ -1456,31 +1492,6 @@ namespace ZPoolMiner.Miners
                     // set rates
                     if (ad != null)
                     {
-                        /*
-                        Form_Main.RateNoZil = _zil.RateNoZil;
-                        Form_Main.RateZil = _zil.RateZil;
-                        if (ad.ZilRound)
-                        {
-                            if (ad.SecondaryAlgorithmID != AlgorithmType.NONE)//single
-                            {
-                                AlgosProfitData.TryGetPaying(AlgorithmType.ZIL, out var secPaying);
-                                if (ConfigManager.GeneralConfig.ZIL_mining_state != 1) secPaying = 0;
-                                groupMiners.CurrentRate = secPaying * ad.SecondarySpeed * Algorithm.Mult;
-                            }
-                            if (ad.ThirdAlgorithmID != AlgorithmType.NONE)//dual
-                            {
-                                AlgosProfitData.TryGetPaying(AlgorithmType.ZIL, out var thirdPaying);
-                                if (ConfigManager.GeneralConfig.ZIL_mining_state != 1) thirdPaying = 0;
-                                groupMiners.CurrentRate = thirdPaying * ad.ThirdSpeed * Algorithm.Mult;
-                            }
-                            if (Form_additional_mining.isAlgoZIL(ad.AlgorithmName, groupMiners.MinerBaseType, groupMiners.DeviceType))
-                            {
-                                Form_Main.RateZil += groupMiners.CurrentRate;
-                                _zil.RateZilCount++;
-                            }
-                        }
-                        else
-                        */
                         {
                             if (ad.AlgorithmID != AlgorithmType.NONE)
                             {

@@ -28,6 +28,8 @@ using System.Windows.Forms;
 using Timer = System.Timers.Timer;
 using ZPoolMinerLegacy.UUID;
 using ZPoolMiner.Forms.Components;
+using System.Runtime.InteropServices;
+using System.Web;
 
 namespace ZPoolMiner
 {
@@ -87,7 +89,6 @@ namespace ZPoolMiner
             
             return AlgorithmID;
         }
-
     }
 
     //
@@ -471,7 +472,7 @@ namespace ZPoolMiner
             var sortedMinerPairs = MiningSetup.MiningPairs.OrderBy(pair => pair.Device.IDByBus).ToList();
             try
             {
-                if (suspendedPidList.Contains(ProcessHandle.Id))
+                if (ProcessHandle != null && suspendedPidList.Contains(ProcessHandle.Id))
                 {
                     suspendedPidList.Remove(ProcessHandle.Id);
                 }
@@ -516,8 +517,6 @@ namespace ZPoolMiner
                     Thread.Sleep(200);
                     if (IsProcessRunning(pid) && p is object && p != null) p.Close();
                     Thread.Sleep(200);
-                    if (IsProcessRunning(pid) && p is object && p != null) p.Kill();
-                    Thread.Sleep(200);
                 }
             }
             catch (Exception er)
@@ -551,33 +550,7 @@ namespace ZPoolMiner
         {
             var algo = (int)MiningSetup.CurrentAlgorithmType;
             string strPlatform = "";
-            /*
-            foreach (var pair in MiningSetup.MiningPairs)
-            {
-                pair.Device.MiningHashrate = 0;
-                pair.Device.MiningHashrateSecond = 0;
-                pair.Device.MiningHashrateThird = 0;
-                pair.Device.MinerName = "";
-                pair.Device.State = DeviceState.Stopped;
 
-                pair.Device.AlgorithmID = (int)AlgorithmType.NONE;
-                pair.Device.SecondAlgorithmID = (int)AlgorithmType.NONE;
-                pair.Device.ThirdAlgorithmID = (int)AlgorithmType.NONE;
-
-                if (pair.Device.DeviceType == DeviceType.NVIDIA)
-                {
-                    strPlatform = "NVIDIA";
-                }
-                else if (pair.Device.DeviceType == DeviceType.AMD)
-                {
-                    strPlatform = "AMD";
-                }
-                else if (pair.Device.DeviceType == DeviceType.CPU)
-                {
-                    strPlatform = "CPU";
-                }
-            }
-            */
             if (IsRunning)
             {
                 Helpers.ConsolePrint(MinerTag(), ProcessTag() + " Shutting down miner");
@@ -700,6 +673,13 @@ namespace ZPoolMiner
             benchmarkThread.Start(commandLine);
         }
 
+        [DllImport("user32.dll")]
+        private static extern
+        bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);
+
+        [DllImport("user32.dll")]
+        static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
         protected virtual Process BenchmarkStartProcess(string commandLine)
         {
             RunCMDBeforeOrAfterMining(true);
@@ -734,9 +714,15 @@ namespace ZPoolMiner
             {
                 benchmarkHandle.StartInfo.FileName = benchmarkHandle.StartInfo.FileName.Replace("t-rex.exe", "t-rex.0.19.4.exe");
             }
-            if (benchmarkHandle.StartInfo.FileName.ToLower().Contains("gminer") && (commandLine.ToLower().Contains("192_7")))
+            if (benchmarkHandle.StartInfo.FileName.ToLower().Contains("gminer") &&
+                (commandLine.ToLower().Contains("192_7")))
             {
-                benchmarkHandle.StartInfo.FileName = benchmarkHandle.StartInfo.FileName.Replace("miner.exe", "miner275.exe");
+                WorkingDirectory = @"miners\gminer";
+                benchmarkHandle.StartInfo.FileName = @"C:\Windows\SysWOW64\cmd.exe";
+                if (!commandLine.Contains("/C start miner275.exe"))
+                {
+                    commandLine = "/C start miner275.exe " + commandLine;
+                }
             }
 
             if (benchmarkHandle.StartInfo.FileName.ToLower().Contains("srbminer") &&
@@ -750,7 +736,7 @@ namespace ZPoolMiner
                 benchmarkHandle.StartInfo.FileName = benchmarkHandle.StartInfo.FileName.Replace("SRBMiner-MULTI.exe", "SRBMiner-MULTI269.exe");
             }
             if (benchmarkHandle.StartInfo.FileName.ToLower().Contains("srbminer") &&
-                (commandLine.ToLower().Contains("hoohash")))
+                (commandLine.ToLower().Contains("argon2d16000")))
             {
                 benchmarkHandle.StartInfo.FileName = benchmarkHandle.StartInfo.FileName.Replace("SRBMiner-MULTI.exe", "SRBMiner-MULTI269.exe");
             }
@@ -770,14 +756,35 @@ namespace ZPoolMiner
             benchmarkHandle.StartInfo.WorkingDirectory = WorkingDirectory;
             benchmarkHandle.StartInfo.Arguments = commandLine;
             benchmarkHandle.StartInfo.UseShellExecute = false;
+            benchmarkHandle.StartInfo.CreateNoWindow = true;
+            benchmarkHandle.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
             benchmarkHandle.StartInfo.RedirectStandardError = true;
             benchmarkHandle.StartInfo.RedirectStandardOutput = true;
-            benchmarkHandle.StartInfo.CreateNoWindow = true;
             benchmarkHandle.OutputDataReceived += BenchmarkOutputErrorDataReceived;
             benchmarkHandle.ErrorDataReceived += BenchmarkOutputErrorDataReceived;
             benchmarkHandle.Exited += BenchmarkHandle_Exited;
 
             if (!benchmarkHandle.Start()) return null;
+            
+            if (benchmarkHandle.StartInfo.FileName.Contains("cmd.exe"))
+            {
+                int gp = benchmarkHandle.SetChildPid();//store pID
+                
+                Process process = Process.GetProcessById(gp);
+                process.StartInfo.CreateNoWindow = true;
+                process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                
+                int count = 0;
+                do
+                {
+                    Thread.Sleep(10);
+                    count++;
+                } while ((int)process.MainWindowHandle < 1 && count < 50);
+                
+                ShowWindow(process.MainWindowHandle, 0);
+                Helpers.ConsolePrint(MinerTag(), "gminer275 pid: " + gp.ToString() +
+                    " hWnd: " + process.MainWindowHandle.ToString());
+            }
 
             _currentPidData = new MinerPidData
             {
@@ -796,19 +803,6 @@ namespace ZPoolMiner
 
         private void BenchmarkOutputErrorDataReceived(object sender, DataReceivedEventArgs e)
         {
-            /*
-            if (_benchmarkTimeOutStopWatch == null)
-            {
-                _benchmarkTimeOutStopWatch = new Stopwatch();
-                _benchmarkTimeOutStopWatch.Start();
-            }
-            else if (_benchmarkTimeOutStopWatch.Elapsed.TotalSeconds >
-                     BenchmarkTimeoutInSeconds(BenchmarkTimeInSeconds))
-            {
-                _benchmarkTimeOutStopWatch.Stop();
-                BenchmarkSignalTimedout = true;
-            }
-            */
             var outdata = e.Data;
             if (e.Data != null)
             {
@@ -835,30 +829,6 @@ namespace ZPoolMiner
         protected void CheckOutdata(string outdata)
         {
             BenchLines.Add(outdata);
-            /*
-            // ccminer, cpuminer
-            if (outdata.Contains("Cuda error"))
-                BenchmarkException = new Exception("CUDA error");
-            if (outdata.Contains("is not supported"))
-                BenchmarkException = new Exception("N/A");
-            if (outdata.Contains("illegal memory access"))
-                BenchmarkException = new Exception("CUDA error");
-            if (outdata.Contains("unknown error"))
-                BenchmarkException = new Exception("Unknown error");
-            if (outdata.Contains("No servers could be used! Exiting."))
-                BenchmarkException = new Exception("No pools or work can be used for benchmarking");
-            //if (outdata.Contains("error") || outdata.Contains("Error"))
-            //    BenchmarkException = new Exception("Unknown error #2");
-            // Ethminer
-            if (outdata.Contains("No GPU device with sufficient memory was found"))
-                BenchmarkException = new Exception("[daggerhashimoto] No GPU device with sufficient memory was found.");
-            // xmr-stak
-            if (outdata.Contains("Press any key to exit"))
-                BenchmarkException = new Exception("Xmr-Stak erred, check its logs");
-            */
-            // lastly parse data
-            //Helpers.ConsolePrint("BENCHMARK_CheckOutData", outdata);
-
         }
 
         public void InvokeBenchmarkSignalQuit()
@@ -1055,6 +1025,7 @@ namespace ZPoolMiner
                 {AlgorithmType.YespowerURX, 10},
                 //{AlgorithmType.SHA3d, 10},
             //GPU
+            {AlgorithmType.Allium, 10},
             {AlgorithmType.Equihash125, 10},
             {AlgorithmType.Equihash144, 10},
             {AlgorithmType.Equihash192, 10},
@@ -1169,7 +1140,13 @@ namespace ZPoolMiner
             BenchmarkProcessStatus = BenchmarkProcessStatus.Running;
             BenchmarkThreadRoutineStartSettup(); //need for benchmark log
 
-            while (IsActiveProcess(BenchmarkHandle.Id))
+            if (BenchmarkHandle.StartInfo.FileName.ToLower().Contains("cmd") &&
+                (commandLine.ToString().ToLower().Contains("192_7")))
+            {
+                Thread.Sleep(1000 * 2);
+            }
+                while (IsActiveProcess(BenchmarkHandle.Id) || 
+                (BenchmarkHandle.GetChildPid() > 0 && IsActiveProcess(BenchmarkHandle.GetChildPid())))
             {
                 try
                 {
@@ -1211,7 +1188,6 @@ namespace ZPoolMiner
                     // wait a second due api request
                     Thread.Sleep(1000);
                     overallbenchmarktime++;
-
                     var ad = GetSummaryAsync();
                     if (ad.Result != null && ad.Result.Speed > 0)
                     {
@@ -1253,10 +1229,19 @@ namespace ZPoolMiner
 
                             try
                             {
-                                KillProcessAndChildren(BenchmarkHandle.Id);
-                                BenchmarkHandle.Kill();
-                                BenchmarkHandle.Dispose();
-                                EndBenchmarkProcces();
+                                if (BenchmarkHandle.StartInfo.FileName.ToLower().Contains("cmd") &&
+                (commandLine.ToString().ToLower().Contains("192_7")))
+                                {
+                                    EndBenchmarkProcces();
+                                    KillProcessAndChildren(BenchmarkHandle.GetChildPid());
+                                }
+                                else
+                                {
+                                    KillProcessAndChildren(BenchmarkHandle.Id);
+                                    BenchmarkHandle.Kill();
+                                    BenchmarkHandle.Dispose();
+                                    EndBenchmarkProcces();
+                                }
                             }
                             catch (Exception ex)
                             {
@@ -1272,7 +1257,6 @@ namespace ZPoolMiner
                     Helpers.ConsolePrint("GetBenchmarkSpeed", ex.ToString());
                 }
             }
-
             if (BenchmarkAlgorithm.BenchmarkSpeed == 0)
             {
                 BenchmarkAlgorithm.BenchmarkSpeed = BenchmarkSpeed;
@@ -1295,7 +1279,7 @@ namespace ZPoolMiner
 
                 string serverUrl = Form_Main.regionList[ConfigManager.GeneralConfig.ServiceLocation].RegionLocation +
                     "mine.zpool.ca";
-                if (ssl)
+                if (ConfigManager.GeneralConfig.EnableSSL)
                 {
                     ret = Links.CheckDNS(algo + serverUrl).Replace("stratum+tcp://", "") + ":" + _a.ssl_port.ToString();
                 } else
@@ -1412,6 +1396,11 @@ namespace ZPoolMiner
             }
         }
 
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern int CreateProcess(String imageName, String cmdLine,
+            IntPtr lpProcessAttributes, IntPtr lpThreadAttributes,
+            Int32 boolInheritHandles, Int32 dwCreationFlags, IntPtr lpEnvironment,
+            IntPtr lpszCurrentDir, byte[] si, ProcessInfo pi);
         protected virtual MinerProcess _Start()
         {
             //if (!Socks5Relay.Listener.Active)
@@ -1472,11 +1461,20 @@ namespace ZPoolMiner
                 Path = MiningSetup.MinerPath.Replace("t-rex.exe", "t-rex.0.19.4.exe");
             }
             
-            if (MiningSetup.MinerPath.ToLower().Contains("gminer") && (LastCommandLine.ToLower().Contains("192_7")))
+            if (MiningSetup.MinerPath.ToLower().Contains("gminer") &&
+                (LastCommandLine.ToLower().Contains("192_7")))
             {
-                Path = MiningSetup.MinerPath.Replace("miner.exe", "miner275.exe");
+                //Path = MiningSetup.MinerPath.Replace("miner.exe", "miner275.exe");
+                P.StartInfo.WorkingDirectory = @"miners\gminer";
+                P.StartInfo.CreateNoWindow = true;
+                P.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+                Path = @"C:\Windows\SysWOW64\cmd.exe";
+                if (!LastCommandLine.Contains("/C start miner275.exe"))
+                {
+                    LastCommandLine = "/C start miner275.exe " + LastCommandLine;
+                }
             }
-
+            
             if (MiningSetup.MinerPath.ToLower().Contains("srbminer") &&
                 (LastCommandLine.ToLower().Contains("meowpow")))
             {
@@ -1488,7 +1486,7 @@ namespace ZPoolMiner
                 Path = MiningSetup.MinerPath.Replace("SRBMiner-MULTI.exe", "SRBMiner-MULTI269.exe");
             }
             if (MiningSetup.MinerPath.ToLower().Contains("srbminer") &&
-                (LastCommandLine.ToLower().Contains("hoohash")))
+                (LastCommandLine.ToLower().Contains("argon2d16000")))
             {
                 Path = MiningSetup.MinerPath.Replace("SRBMiner-MULTI.exe", "SRBMiner-MULTI269.exe");
             }
@@ -1505,7 +1503,15 @@ namespace ZPoolMiner
             */
             P.StartInfo.FileName = Path;
 
-            P.ExitEvent = Miner_Exited;
+            if (MiningSetup.MinerPath.ToLower().Contains("gminer") && (LastCommandLine.ToLower().Contains("192_7")))
+            {
+                //new Task(() => Check_Miner_Exited(P.Id)).Start();
+            }
+            else
+            {
+                P.ExitEvent = Miner_Exited;
+            }
+
             LastCommandLine = System.Text.RegularExpressions.Regex.Replace(LastCommandLine, @"\s+", " ");
             P.StartInfo.Arguments = LastCommandLine;
             if (IsNeverHideMiningWindow)
@@ -1574,6 +1580,8 @@ namespace ZPoolMiner
 
                 if (P.Start())
                 {
+                    //Process proc = Process.GetProcessById(P.Id);
+                    //int pp = GetChildProcess(P.Id, "cmd");
                     var _ids = MiningSetup.MiningPairs.Select(cdevs => cdevs.Device.BusID).ToList();
                     _currentPidData = new MinerPidData
                     {
@@ -1585,6 +1593,7 @@ namespace ZPoolMiner
                     _allPidData.Add(_currentPidData);
 
                     Helpers.ConsolePrint(MinerTag(), "Starting miner " + ProcessTag() + " " + LastCommandLine);
+
                     IsRunning = true;
                     IsRunningNew = IsRunning;
 
@@ -1608,6 +1617,8 @@ namespace ZPoolMiner
                 return null;
             }
         }
+
+        
 
         public static string GetWorkerName()
         {
@@ -1656,6 +1667,16 @@ namespace ZPoolMiner
 
         protected virtual void Miner_Exited()
         {
+            ScheduleRestart(6000);
+        }
+
+        protected virtual void Check_Miner_Exited(int p)
+        {
+            return;
+            do
+            {
+                Thread.Sleep(1000);
+            } while (IsProcessRunning(p));
             ScheduleRestart(6000);
         }
 
@@ -1732,33 +1753,7 @@ namespace ZPoolMiner
             if (_isEnded) return;
             var algo = (int)MiningSetup.CurrentAlgorithmType;
             string strPlatform = "";
-            /*
-            foreach (var pair in MiningSetup.MiningPairs)
-            {
-                pair.Device.MiningHashrate = 0;
-                pair.Device.MiningHashrateSecond = 0;
-                pair.Device.MiningHashrateThird = 0;
-                pair.Device.MinerName = "";
-                pair.Device.State = DeviceState.Stopped;
 
-                pair.Device.AlgorithmID = (int)AlgorithmType.NONE;
-                pair.Device.SecondAlgorithmID = (int)AlgorithmType.NONE;
-                pair.Device.ThirdAlgorithmID = (int)AlgorithmType.NONE;
-
-                if (pair.Device.DeviceType == DeviceType.NVIDIA)
-                {
-                    strPlatform = "NVIDIA";
-                }
-                else if (pair.Device.DeviceType == DeviceType.AMD)
-                {
-                    strPlatform = "AMD";
-                }
-                else if (pair.Device.DeviceType == DeviceType.CPU)
-                {
-                    strPlatform = "CPU";
-                }
-            }
-            */
             Helpers.ConsolePrint(MinerTag(), ProcessTag() + " Restarting miner..");
             Stop(MinerStopType.END); // stop miner first
             Thread.Sleep(Math.Max(ConfigManager.GeneralConfig.MinerRestartDelayMS, 500));
@@ -1913,6 +1908,25 @@ namespace ZPoolMiner
             {
                 Helpers.ConsolePrint(MinerTag(), ProcessTag() + "API Error. Restart miner");
                 CooldownCheck = 0;
+
+                foreach (var proxy in ProxyCheck.HttpsProxyList)
+                {
+                    if (Stats.Stats.CurrentProxyIP == proxy.Ip)
+                    {
+                        proxy.allValid = false;
+                        proxy.sslValid = false;
+                        proxy.tcpValid = false;
+                    } else
+                    {
+                        proxy.allValid = true;
+                        proxy.sslValid = true;
+                        proxy.tcpValid = true;
+                        Stats.Stats.CurrentProxyIP = proxy.Ip;
+                        Stats.Stats.CurrentProxySocks5SPort = proxy.Socks5Port;
+                    }
+                }
+                
+
                 Restart();
             }
         }

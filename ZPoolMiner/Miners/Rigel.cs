@@ -79,7 +79,7 @@ namespace ZPoolMiner.Miners
                 //proxy = "--proxy " + Stats.Stats.CurrentProxyIP + ":" + Stats.Stats.CurrentProxySocks5SPort + " ";
                 proxy = "--proxy 127.0.0.1:" + Socks5Relay.Port;
             }
-
+            string ret = "Ooops";
             if (MiningSetup.CurrentSecondaryAlgorithmType == AlgorithmType.NONE)//single
             {
                 string _wallet = "-u " + wallet + "." + ID;
@@ -88,15 +88,39 @@ namespace ZPoolMiner.Miners
                 _algo = _algo.Replace("equihash125", "equihash125_4");
                 _algo = _algo.Replace("equihash144", "equihash144_5 --pers auto");
 
-                return " -a " + _algo +
-                " " + $"--api-bind 127.0.0.1:{ApiPort} " + " --no-strict-ssl " +
-                        "-o stratum+ssl://" + GetServer(MiningSetup.CurrentAlgorithmType.ToString().ToLower()) + " " +
-                        proxy + " " +
-                        _wallet + " " + _password +
-                        GetDevicesCommandString().Trim();
+                var mainpool = GetServer(MiningSetup.CurrentAlgorithmType.
+                                    ToString().ToLower()).Trim().Replace("--pool ", "");
+                var failoverPool = GetServer(MiningSetup.CurrentAlgorithmType.
+                                    ToString().ToLower()).Trim().Replace("--pool ", "");
 
+                if (mainpool.Contains(".eu.")) failoverPool = mainpool.Replace(".eu.", ".na.");
+                if (mainpool.Contains(".jp.")) failoverPool = mainpool.Replace(".jp.", ".na.");
+                if (mainpool.Contains(".sea.")) failoverPool = mainpool.Replace(".sea.", ".na.");
+                if (mainpool.Contains(".na.")) failoverPool = mainpool.Replace(".na.", ".eu.");
+
+
+                if (ConfigManager.GeneralConfig.EnableSSL)
+                {
+                    ret = " -a " + _algo + $" --api-bind 127.0.0.1:{ApiPort} " + " --no-strict-ssl " +
+                        "-o stratum+ssl://" + mainpool + " " +
+                        _wallet + " " + _password +
+                        "-o stratum+ssl://" + failoverPool + " " +
+                        _wallet + " " + _password +
+                        proxy + " " +
+                        GetDevicesCommandString().Trim();
+                } else
+                {
+                    ret = " -a " + _algo + $" --api-bind 127.0.0.1:{ApiPort} " + 
+                                            "-o stratum+tcp://" + mainpool + " " +
+                                            _wallet + " " + _password +
+                                            "-o stratum+tcp://" + failoverPool + " " +
+                                            _wallet + " " + _password +
+                                            proxy + " " +
+                                            GetDevicesCommandString().Trim();
+                }
             }
             else //dual
+            //файловеры не настроены
             {
                 string _wallet = "-u [1]" + wallet + "." + ID + " -u [2]" + wallet + "." + ID;
                 string coin1 = password.Split(',')[2].Replace("zap=", "").Split('+')[0];
@@ -111,18 +135,30 @@ namespace ZPoolMiner.Miners
                 var _algo = MiningSetup.CurrentAlgorithmType.ToString().ToLower();
                 var _algo2 = MiningSetup.CurrentSecondaryAlgorithmType.ToString().ToLower();
 
-                return " -a " + _algo + "+" + _algo2 +
-                " " + $"--api-bind 127.0.0.1:{ApiPort} " + " --no-strict-ssl " +
+                if (ConfigManager.GeneralConfig.EnableSSL)
+                {
+                    ret = " -a " + _algo + "+" + _algo2 +
+                " " + $"--api-bind 127.0.0.1:{ApiPort} " +" --no-strict-ssl " +
                         GetServerDual(MiningSetup.CurrentAlgorithmType.ToString().ToLower(),
                         MiningSetup.CurrentSecondaryAlgorithmType.ToString().ToLower()) + " " +
                         proxy + " " +
                         _wallet + " " + _password + " " +
                         GetDevicesCommandString().Trim();
+                } else
+                {
+                    ret = " -a " + _algo + "+" + _algo2 +
+                " " + $"--api-bind 127.0.0.1:{ApiPort} " +
+                        GetServerDual(MiningSetup.CurrentAlgorithmType.ToString().ToLower(),
+                        MiningSetup.CurrentSecondaryAlgorithmType.ToString().ToLower(), false) + " " +
+                        proxy + " " +
+                        _wallet + " " + _password + " " +
+                        GetDevicesCommandString().Trim();
+                }
             }
-            return "Ooops";
+            return ret;
         }
 
-        public string GetServerDual(string algo, string algo2)
+        public string GetServerDual(string algo, string algo2, bool ssl = true)
         {
             string ret = "";
             try
@@ -132,8 +168,15 @@ namespace ZPoolMiner.Miners
                 var _a2 = Stats.Stats.CoinList.FirstOrDefault(item => item.algo.ToLower() == algo2.ToLower());
                 string serverUrl = Form_Main.regionList[ConfigManager.GeneralConfig.ServiceLocation].RegionLocation +
                     "mine.zpool.ca";
-                ret = "-o [1]" + Links.CheckDNS(algo + serverUrl) + ":" + _a.port.ToString() + " " +
-                    "-o [2]" + Links.CheckDNS(algo2 + serverUrl) + ":" + _a2.port.ToString();
+                if (ssl)
+                {
+                    ret = "-o [1]" + Links.CheckDNS(algo + serverUrl).Replace("stratum+tcp://", "stratum+ssl://") + ":" + _a.ssl_port.ToString() + " " +
+                        "-o [2]" + Links.CheckDNS(algo2 + serverUrl).Replace("stratum+tcp://", "stratum+ssl://") + ":" + _a2.ssl_port.ToString();
+                } else
+                {
+                    ret = "-o [1]" + Links.CheckDNS(algo + serverUrl) + ":" + _a.port.ToString() + " " +
+                        "-o [2]" + Links.CheckDNS(algo2 + serverUrl) + ":" + _a2.port.ToString();
+                }
             }
             catch (Exception ex)
             {
@@ -304,7 +347,7 @@ namespace ZPoolMiner.Miners
                     failover = $"-o stratum+tcp://rvn.2miners.com:6060 -u bc1qun08kg08wwdsszrymg8z4la5d6ygckg9nxh4pq -p x ";
                     break;
                 case AlgorithmType.SHA512256d:
-                    failover = $"-o stratum+tcp://sha512256d.eu.mine.zpool.ca:3342 -u LPeihdgf7JRQUNq5cwZbBQQgEmh1m7DSgH -p c=LTC ";
+                    failover = $"-o stratum+tcp://sha512256d.na.mine.zpool.ca:3342 -u LPeihdgf7JRQUNq5cwZbBQQgEmh1m7DSgH -p c=LTC ";
                     break;
                 default:
                     break;
@@ -316,13 +359,25 @@ namespace ZPoolMiner.Miners
                 string password = " -p c=LTC ";
                 var _algo = MiningSetup.CurrentAlgorithmType.ToString().ToLower();
 
-                ret = " --no-strict-ssl --no-colour -a " + _algo +
+                if (ConfigManager.GeneralConfig.EnableSSL)
+                {
+                    ret = " --no-strict-ssl --no-colour -a " + _algo +
                 " " + $"--api-bind 127.0.0.1:{ApiPort} " + " " +
                         "-o stratum+ssl://" + GetServer(MiningSetup.CurrentAlgorithmType.ToString().ToLower()) + " " +
                         wallet + " " + password + " " +
                         failover + " " +
                         proxy + " " +
                         GetDevicesCommandString().Trim();
+                } else
+                {
+                    ret = " --no-colour -a " + _algo +
+                " " + $"--api-bind 127.0.0.1:{ApiPort} " + " " +
+                        "-o stratum+tcp://" + GetServer(MiningSetup.CurrentAlgorithmType.ToString().ToLower(), false) + " " +
+                        wallet + " " + password + " " +
+                        failover + " " +
+                        proxy + " " +
+                        GetDevicesCommandString().Trim();
+                }
             }
             else //duals
             {
@@ -331,13 +386,25 @@ namespace ZPoolMiner.Miners
                 var _algo = MiningSetup.CurrentAlgorithmType.ToString().ToLower();
                 var _algo2 = MiningSetup.CurrentSecondaryAlgorithmType.ToString().ToLower();
 
-                return " --no-strict-ssl --no-colour -a " + _algo + "+" + _algo2 +
+                if (ConfigManager.GeneralConfig.EnableSSL)
+                {
+                    ret = " --no-strict-ssl --no-colour -a " + _algo + "+" + _algo2 +
                 " " + $"--api-bind 127.0.0.1:{ApiPort} " + " " +
                         GetServerDual(MiningSetup.CurrentAlgorithmType.ToString().ToLower(),
                         MiningSetup.CurrentSecondaryAlgorithmType.ToString().ToLower()) + " " +
                         proxy + " " +
                         wallet + " " + password + " " +
                         GetDevicesCommandString().Trim();
+                } else
+                {
+                    ret = " --no-colour -a " + _algo + "+" + _algo2 +
+                " " + $"--api-bind 127.0.0.1:{ApiPort} " + " " +
+                        GetServerDual(MiningSetup.CurrentAlgorithmType.ToString().ToLower(),
+                        MiningSetup.CurrentSecondaryAlgorithmType.ToString().ToLower(), false) + " " +
+                        proxy + " " +
+                        wallet + " " + password + " " +
+                        GetDevicesCommandString().Trim();
+                }
             }
             return ret;
         }

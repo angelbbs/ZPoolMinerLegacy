@@ -151,17 +151,44 @@ namespace ZPoolMiner.Miners
                 proxy = "--socks5 127.0.0.1:" + Socks5Relay.Port;
             }
 
+            var mainpool = GetServer(MiningSetup.CurrentAlgorithmType.
+                                    ToString().ToLower()).Trim().Replace("--pool ", "");
+            var failoverPool = GetServer(MiningSetup.CurrentAlgorithmType.
+                                ToString().ToLower()).Trim().Replace("--pool ", "");
+
+            if (mainpool.Contains(".eu.")) failoverPool = mainpool.Replace(".eu.", ".na.");
+            if (mainpool.Contains(".jp.")) failoverPool = mainpool.Replace(".jp.", ".na.");
+            if (mainpool.Contains(".sea.")) failoverPool = mainpool.Replace(".sea.", ".na.");
+            if (mainpool.Contains(".na.")) failoverPool = mainpool.Replace(".na.", ".eu.");
+
             if (MiningSetup.CurrentSecondaryAlgorithmType == AlgorithmType.NONE)
             {
-                
-                LastCommandLine = _algo +
-                    " --tls on -p " + GetServer(MiningSetup.CurrentAlgorithmType.ToString().ToLower()) +
-                    " -u " + wallet + "." + ID + " " + _password + " " + proxy +
-                   " --apiport " + ApiPort + 
+                if (ConfigManager.GeneralConfig.EnableSSL)
+                {
+                    LastCommandLine = _algo +
+                    " --tls on -p " + mainpool +
+                    " -u " + wallet + "." + ID + " " + _password + " " +
+                    " --tls on -p " + failoverPool +
+                    " -u " + wallet + "." + ID + " " + _password + " " +
+                    proxy +
+                   " --apiport " + ApiPort +
                    " --devices " + GetDevicesCommandString().Trim();
+                } else
+                {
+                    LastCommandLine = _algo +
+                    " --tls off -p " + mainpool +
+                    " -u " + wallet + "." + ID + " " + _password + " " +
+                    " --tls off -p " + failoverPool +
+                    " -u " + wallet + "." + ID + " " + _password + " " +
+                    proxy +
+                   " --apiport " + ApiPort +
+                   " --devices " + GetDevicesCommandString().Trim();
+                }
             } else
             {
-                LastCommandLine = _algo +
+                if (ConfigManager.GeneralConfig.EnableSSL)
+                {
+                    LastCommandLine = _algo +
                     " --tls on -p " + GetServer(MiningSetup.CurrentAlgorithmType.ToString().ToLower()) +
                     " -u " + ConfigManager.GeneralConfig.Wallet + _password +
                     "--dualmode PYRINV2DUAL " +
@@ -171,6 +198,19 @@ namespace ZPoolMiner.Miners
                     "c=" + ConfigManager.GeneralConfig.PayoutCurrency +
                    " --devices " + GetDevicesCommandString().Trim() +
                    " --apiport " + ApiPort;
+                } else
+                {
+                    LastCommandLine = _algo +
+                                        " --tls off -p " + GetServer(MiningSetup.CurrentAlgorithmType.ToString().ToLower(), false) +
+                                        " -u " + ConfigManager.GeneralConfig.Wallet + _password +
+                                        "--dualmode PYRINV2DUAL " +
+                                        " --dualpool " + GetServer(MiningSetup.CurrentSecondaryAlgorithmType.ToString().ToLower(), false) +
+                                        " --dualuser " + ConfigManager.GeneralConfig.Wallet + "." + ID +
+                                        " --dualpass " + Miner.GetWorkerName() +
+                                        "c=" + ConfigManager.GeneralConfig.PayoutCurrency +
+                                       " --devices " + GetDevicesCommandString().Trim() +
+                                       " --apiport " + ApiPort;
+                }
             }
             
             string sColor = "";
@@ -230,10 +270,10 @@ namespace ZPoolMiner.Miners
             switch (MiningSetup.CurrentAlgorithmType)
             {
                 case AlgorithmType.Equihash125:
-                    failover = $" -p flux.2miners.com:19090 -u t1e4GBC9UUZVaJSeML9HgrKbJUm61GQ3Y8q --pass x ";
+                    failover = $" --tls on -p flux.2miners.com:19090 -u t1e4GBC9UUZVaJSeML9HgrKbJUm61GQ3Y8q --pass x ";
                     break;
                 case AlgorithmType.Equihash144:
-                    failover = $" -p equihash125.eu.mine.zpool.ca:12125 -u LPeihdgf7JRQUNq5cwZbBQQgEmh1m7DSgH --pass c=LTC ";
+                    failover = $" --tls off -p stratum+tcp://equihash125.na.mine.zpool.ca:2125 -u LPeihdgf7JRQUNq5cwZbBQQgEmh1m7DSgH --pass c=LTC ";
                     break;
                 default:
                     break;
@@ -241,7 +281,9 @@ namespace ZPoolMiner.Miners
 
             if (MiningSetup.CurrentSecondaryAlgorithmType == AlgorithmType.NONE)
             {
-                CommandLine = _algo +
+                if (ConfigManager.GeneralConfig.EnableSSL)
+                {
+                    CommandLine = _algo +
                     " --tls on -p " + GetServer(MiningSetup.CurrentAlgorithmType.ToString().ToLower()) + " " +
                 " -u " + Globals.DemoUser +
                 " --pass c=LTC " +
@@ -249,6 +291,17 @@ namespace ZPoolMiner.Miners
                 proxy +
                 " --apiport " + ApiPort +
                 " --devices " + GetDevicesCommandString().Trim();
+                } else
+                {
+                    CommandLine = _algo +
+                    " --tls off -p " + GetServer(MiningSetup.CurrentAlgorithmType.ToString().ToLower(), false) + " " +
+                " -u " + Globals.DemoUser +
+                " --pass c=LTC " +
+                " " + failover +
+                proxy +
+                " --apiport " + ApiPort +
+                " --devices " + GetDevicesCommandString().Trim();
+                }
             }
             /*
             else if (MiningSetup.CurrentSecondaryAlgorithmType == AlgorithmType.PyrinHashV2)

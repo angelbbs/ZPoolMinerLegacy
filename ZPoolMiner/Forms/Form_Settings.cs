@@ -495,6 +495,7 @@ namespace ZPoolMiner.Forms
 
             groupBoxConnection.Text = International.GetText("FormSettings_Tab_Advanced_Group_Connection");
             checkBoxEnableProxy.Text = International.GetText("FormSettings_Tab_Advanced_checkBoxEnableProxy");
+            checkBoxEnableSSL.Text = International.GetText("FormSettings_Tab_Advanced_checkBoxEnableSSL");
             //checkBoxProxyAsFailover.Text = International.GetText("FormSettings_Tab_Advanced_ProxyAsFailover");
             //checkBoxStale.Text = International.GetText("FormSettings_Tab_Advanced_StaleProxy");
             
@@ -905,6 +906,7 @@ namespace ZPoolMiner.Forms
                 checkBox_ABDefault_program_closing.CheckedChanged += GeneralCheckBoxes_CheckedChanged;
                 checkBox_ABMinimize.CheckedChanged += GeneralCheckBoxes_CheckedChanged;
                 checkBoxEnableProxy.CheckedChanged += GeneralCheckBoxes_CheckedChanged;
+                checkBoxEnableSSL.CheckedChanged += GeneralCheckBoxes_CheckedChanged;
                 checkBox_suspendMining.CheckedChanged += GeneralCheckBoxes_CheckedChanged;
                 //checkBoxProxyAsFailover.CheckedChanged += GeneralCheckBoxes_CheckedChanged;
                 //checkBoxStale.CheckedChanged += GeneralCheckBoxes_CheckedChanged;
@@ -1053,6 +1055,7 @@ namespace ZPoolMiner.Forms
                 checkBox_ABDefault_program_closing.Checked = ConfigManager.GeneralConfig.ABDefaultProgramClosing;
                 checkBox_ABMinimize.Checked = ConfigManager.GeneralConfig.ABMinimize;
                 checkBoxEnableProxy.Checked = ConfigManager.GeneralConfig.EnableProxy;
+                checkBoxEnableSSL.Checked = ConfigManager.GeneralConfig.EnableSSL;
                 //checkBoxProxyAsFailover.Checked = ConfigManager.GeneralConfig.ProxyAsFailover;
                 //checkBoxStale.Checked = ConfigManager.GeneralConfig.StaleProxy;
 
@@ -1584,6 +1587,7 @@ namespace ZPoolMiner.Forms
             ConfigManager.GeneralConfig.ABDefaultProgramClosing = checkBox_ABDefault_program_closing.Checked;
             ConfigManager.GeneralConfig.ABMinimize = checkBox_ABMinimize.Checked;
             ConfigManager.GeneralConfig.EnableProxy = checkBoxEnableProxy.Checked;
+            ConfigManager.GeneralConfig.EnableSSL = checkBoxEnableSSL.Checked;
 
             if (checkBox_LogToFile.Checked)
             {
@@ -3530,7 +3534,9 @@ namespace ZPoolMiner.Forms
             groupBoxSelectedAlgorithmSettings.Text = string.Format(International.GetText("AlgorithmsListView_GroupBox"),
                 International.GetText("AlgorithmsListView_GroupBox_NONE"));
             fieldBoxBenchmarkSpeed.EntryText = "";
+            fieldBoxBenchmarkSpeed.Enabled = false;
             secondaryFieldBoxBenchmarkSpeed.EntryText = "";
+            secondaryFieldBoxBenchmarkSpeed.Enabled = false;
             field_PowerUsage.EntryText = "";
             richTextBoxExtraLaunchParameters.Text = "";
         }
@@ -3605,10 +3611,12 @@ namespace ZPoolMiner.Forms
                     //secondaryFieldBoxBenchmarkSpeed.EntryText = ParseDoubleDefault(dualAlgo.SecondaryBenchmarkSpeed);
                     secondaryFieldBoxBenchmarkSpeed.EntryText = ParseDoubleDefault(algorithm.BenchmarkSecondarySpeed);
                     secondaryFieldBoxBenchmarkSpeed.Enabled = true;
+                    fieldBoxBenchmarkSpeed.Enabled = true;
                 }
                 else
                 {
                     secondaryFieldBoxBenchmarkSpeed.EntryText = "";
+                    fieldBoxBenchmarkSpeed.Enabled = true;
                     secondaryFieldBoxBenchmarkSpeed.Enabled = false;
                 }
                 Update();
@@ -3838,6 +3846,11 @@ namespace ZPoolMiner.Forms
         private void checkBoxShowEffort_CheckedChanged(object sender, EventArgs e)
         {
             //ConfigManager.GeneralConfig.ShowEffort = checkBoxShowEffort.Checked;
+        }
+
+        private void checkBoxEnableSSL_CheckedChanged(object sender, EventArgs e)
+        {
+            ConfigManager.GeneralConfig.EnableSSL = checkBoxEnableSSL.Checked;
         }
     }
 }

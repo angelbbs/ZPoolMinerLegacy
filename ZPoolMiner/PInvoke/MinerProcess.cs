@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Management;
 using System.Runtime.InteropServices;
 using System.Threading;
 //ReSharper disable All
@@ -188,7 +189,7 @@ namespace ZPoolMiner
                 var err = Marshal.GetLastWin32Error();
                 Helpers.ConsolePrint("Start", "Failed to start process (" + StartInfo.FileName + " " + StartInfo.Arguments + ")" +
                     ", err=" + err + ". Restart program");
-                Form_Main.MakeRestart(0);
+                Form_Main.MakeRestart(10);
             }
 
             CloseHandle(sInfo.hStdError);
@@ -200,6 +201,16 @@ namespace ZPoolMiner
 
             Id = pInfo.ProcessId;
 
+            if (StartInfo.FileName.Contains("cmd.exe"))
+            {
+                int pp = -1;
+                do
+                {
+                    pp = GetChildProcess(Id);
+                    if (pp > 0) break;
+                } while (true);
+                Id = pp;
+            }
             if (ExitEvent != null)
             {
                 _bRunning = true;
@@ -208,6 +219,31 @@ namespace ZPoolMiner
             }
 
             return true;
+        }
+
+        public int GetChildProcess(int ProcessId, string fname = "miner275")
+        {
+            Process[] localByName = Process.GetProcessesByName(fname);
+            foreach (var processName in localByName)
+            {
+                int t = Process.GetProcessById(processName.Id).Id;
+                int p = GetParentProcess(t);
+                if (p == ProcessId)
+                {
+                    return t;
+                }
+            }
+            return -1;
+        }
+        private int GetParentProcess(int Id)
+        {
+            int parentPid = 0;
+            using (ManagementObject mo = new ManagementObject("win32_process.handle='" + Id.ToString() + "'"))
+            {
+                mo.Get();
+                parentPid = Convert.ToInt32(mo["ParentProcessId"]);
+            }
+            return parentPid;
         }
 
         public void Kill()

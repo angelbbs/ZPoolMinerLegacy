@@ -130,6 +130,7 @@ namespace ZPoolMiner.Configs.Data
         public bool ABDefaultProgramClosing = false;
         public bool ABMinimize = false;
         public bool EnableProxy = false;
+        public bool EnableSSL = false;
         public bool ProxyAsFailover = false;
         public bool StaleProxy = false;
         public int RelayPort = 13600;

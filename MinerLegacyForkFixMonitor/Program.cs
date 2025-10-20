@@ -102,6 +102,9 @@ namespace MinerLegacyForkFixMonitor
                             Helpers.ConsolePrint("Monitor", "Starting ERROR");
                             Process.Start("ZPoolMinerLegacy.exe");
                         }
+                    } else
+                    {
+                        Helpers.ConsolePrint("Monitor", "ZPoolMinerLegacy.exe not exist");
                     }
                     //mainproc.Kill();
                     break;

@@ -57,12 +57,16 @@ namespace ZPoolMiner.Miners
                     return "";
                 }
 
-
-
-                ret = "--give-up-limit 1 --retry-time 1 --pool " +
-                    //Links.CheckDNS(algo + serverUrl) + ":" + _a.port.ToString() + " --retry-time 1 ";
-                    Links.CheckDNS(algo + serverUrl).Replace("stratum+tcp://", "stratum+ssl://") +
-                    ":" + _a.ssl_port.ToString();
+                if (ConfigManager.GeneralConfig.EnableSSL)
+                {
+                    ret = "--pool " +
+                        Links.CheckDNS(algo + serverUrl).Replace("stratum+tcp://", "stratum+ssl://") +
+                        ":" + _a.ssl_port.ToString();
+                } else
+                {
+                    ret = "--pool " +
+                        Links.CheckDNS(algo + serverUrl) + ":" + _a.port.ToString();
+                }
             }
             catch (Exception ex)
             {
@@ -103,31 +107,39 @@ namespace ZPoolMiner.Miners
             string proxy = "";
             if (ConfigManager.GeneralConfig.EnableProxy)
             {
-                //proxy = "--proxy " + Stats.Stats.CurrentProxyIP + ":" + Stats.Stats.CurrentProxySocks5SPort + " ";
                 proxy = "--proxy 127.0.0.1:" + Socks5Relay.Port;
             }
 
             var extras = ExtraLaunchParametersParser.ParseForMiningSetup(MiningSetup, devtype);
             try
             {
-                string _wallet = "--wallet " + wallet + "." + ID;
-                string _password = " --password " + password;
                 var _algo = MiningSetup.CurrentAlgorithmType.ToString().ToLower();
                 _algo = _algo.Replace("sha512256d", "sha512_256d_radiant");
                 _algo = _algo.Replace("argon2d16000", "argon2d_16000");
                 _algo = _algo.Replace("interchained", "yespowerinterchained");
 
+                var mainpool = GetServer(MiningSetup.CurrentAlgorithmType.
+                                    ToString().ToLower()).Trim().Replace("--pool ", "");
+                var failoverPool = GetServer(MiningSetup.CurrentAlgorithmType.
+                                    ToString().ToLower()).Trim().Replace("--pool ", "");
+
+                if (mainpool.Contains(".eu.")) failoverPool = mainpool.Replace(".eu.", ".na.");
+                if (mainpool.Contains(".jp.")) failoverPool = mainpool.Replace(".jp.", ".na.");
+                if (mainpool.Contains(".sea.")) failoverPool = mainpool.Replace(".sea.", ".na.");
+                if (mainpool.Contains(".na.")) failoverPool = mainpool.Replace(".na.", ".eu.");
+
                 if (MiningSetup.CurrentSecondaryAlgorithmType == AlgorithmType.NONE)
                 {
                     return " --algorithm " + _algo + " " +
-                disablePlatform + $"--api-enable --api-port {ApiPort} {extras} " +
-                        GetServer(MiningSetup.CurrentAlgorithmType.ToString().ToLower()) + " " +
+                        disablePlatform + $"--api-enable --api-port {ApiPort} {extras} " +
+                        $"--pool {mainpool},{failoverPool} " + 
+                        $"--wallet {wallet}.{ID},{wallet}.{ID} --password {password}" + " " +
                         proxy + " " +
-                        _wallet + " " + _password +
-                        " --gpu-id " +
+                        " --give-up-limit 1 --retry-time 1 --gpu-id " +
                         GetDevicesCommandString().Trim();
                 } else
                 {
+                    /*
                     var _algo2 = MiningSetup.CurrentSecondaryAlgorithmType.ToString().ToLower();
                     _algo2 = _algo2.Replace("sha512256d", "sha512_256d_radiant");
 
@@ -144,6 +156,7 @@ namespace ZPoolMiner.Miners
                         " " + disablePlatform + $"--api-enable --api-port {ApiPort} {extras} " +
                         " --gpu-id " +
                         GetDevicesCommandString().Trim();
+                    */
                 }
 
             } catch (Exception ex)
@@ -216,7 +229,7 @@ namespace ZPoolMiner.Miners
             _algo = _algo.Replace("argon2d16000", "argon2d_16000");
             _algo = _algo.Replace("interchained", "yespowerinterchained");
 
-            string mainWallet = Globals.DemoUser;
+            string demoWallet = Globals.DemoUser;
             string failoverPool = "";
             string failoverWallet = "";
             string failoverPassword = "";
@@ -226,119 +239,133 @@ namespace ZPoolMiner.Miners
             switch (MiningSetup.CurrentAlgorithmType)
             {
                 case AlgorithmType.VerusHash:
-                    failoverPool = ",stratum+ssl://pool.hashvault.pro:443";
-                    failoverWallet = ",RX8dEm1eqgmXmUm4iQ1Vg5LRaxuzophkTJ";
+                    failoverPool = "stratum+ssl://pool.hashvault.pro:443";
+                    failoverWallet = "RX8dEm1eqgmXmUm4iQ1Vg5LRaxuzophkTJ";
+                    break;
+                case AlgorithmType.Argon2d16000:
+                    failoverPool = "stratum+tcp://argon2d16000.mine.zpool.ca:4241";
+                    failoverWallet = Globals.DemoUser;
                     break;
                 case AlgorithmType.Flex:
-                    failoverPool = ",stratum+tcp://flex.eu.mine.zpool.ca:3340";
-                    failoverWallet = $",{Globals.DemoUser}";
+                    failoverPool = "stratum+tcp://flex.mine.zpool.ca:3340";
+                    failoverWallet = Globals.DemoUser;
                     break;
                 case AlgorithmType.Ghostrider:
-                    failoverPool = ",stratum+tcp://ghostrider.eu.mine.zpool.ca:5354";
-                    failoverWallet = $",{Globals.DemoUser}";
+                    failoverPool = "stratum+tcp://ghostrider.na.mine.zpool.ca:5354";
+                    failoverWallet = Globals.DemoUser;
                     break;
                 case AlgorithmType.Mike:
-                    failoverPool = ",stratum+tcp://mike.eu.mine.zpool.ca:5356";
-                    failoverWallet = $",{Globals.DemoUser}";
+                    failoverPool = "stratum+tcp://mike.mine.na.zpool.ca:5356";
+                    failoverWallet = Globals.DemoUser;
                     break;
                 case AlgorithmType.Minotaurx:
-                    failoverPool = ",stratum+tcp://minotaurx.eu.mine.zpool.ca:7019";
-                    failoverWallet = $",{Globals.DemoUser}";
+                    failoverPool = "stratum+tcp://minotaurx.na.mine.zpool.ca:7019";
+                    failoverWallet = Globals.DemoUser;
                     break;
                 case AlgorithmType.Xelisv2_Pepew:
-                    failoverPool = ",stratum+tcp://xelisv2-pepew.eu.mine.zpool.ca:4833";
-                    failoverWallet = $",{Globals.DemoUser}";
+                    failoverPool = "stratum+tcp://xelisv2-pepew.na.mine.zpool.ca:4833";
+                    failoverWallet = Globals.DemoUser;
                     break;
                 case AlgorithmType.Yespower:
-                    failoverPool = ",stratum+tcp://yespower.eu.mine.zpool.ca:6234";
-                    failoverWallet = $",{Globals.DemoUser}";
+                    failoverPool = "stratum+tcp://yespower.mine.na.zpool.ca:6234";
+                    failoverWallet = Globals.DemoUser;
+                    break;
+                case AlgorithmType.YespowerEQPAY:
+                    failoverPool = "stratum+tcp://yespowereqpay.na.mine.zpool.ca:6249";
+                    failoverWallet = Globals.DemoUser;
                     break;
                 case AlgorithmType.YespowerLTNCG:
-                    failoverPool = ",stratum+tcp://yespowerLTNCG.eu.mine.zpool.ca:6245";
-                    failoverWallet = $",{Globals.DemoUser}";
+                    failoverPool = "stratum+tcp://yespowerLTNCG.na.mine.zpool.ca:6245";
+                    failoverWallet = Globals.DemoUser;
                     break;
                 case AlgorithmType.YespowerMGPC:
-                    failoverPool = ",stratum+tcp://yespowerMGPC.eu.mine.zpool.ca:6247";
-                    failoverWallet = $",{Globals.DemoUser}";
+                    failoverPool = "stratum+tcp://yespowerMGPC.na.mine.zpool.ca:6247";
+                    failoverWallet = Globals.DemoUser;
                     break;
-                    /*
-                case AlgorithmType.YespowerR16:
-                    failoverPool = ",stratum+tcp://yespowerR16.eu.mine.zpool.ca:6534";
-                    failoverWallet = $",{Globals.DemoUser}";
-                    break;
-                    */
                 case AlgorithmType.YespowerSUGAR:
-                    failoverPool = ",stratum+tcp://yespowerSUGAR.eu.mine.zpool.ca:6241";
-                    failoverWallet = $",{Globals.DemoUser}";
+                    failoverPool = "stratum+tcp://yespowerSUGAR.na.mine.zpool.ca:6241";
+                    failoverWallet = Globals.DemoUser;
                     break;
                 case AlgorithmType.YespowerTIDE:
-                    failoverPool = ",stratum+tcp://yespowerTIDE.eu.mine.zpool.ca:6239";
-                    failoverWallet = $",{Globals.DemoUser}";
+                    failoverPool = "stratum+tcp://yespowerTIDE.na.mine.zpool.ca:6239";
+                    failoverWallet = Globals.DemoUser;
                     break;
                 case AlgorithmType.YespowerURX:
-                    failoverPool = ",stratum+tcp://yespowerURX.eu.mine.zpool.ca:6236";
-                    failoverWallet = $",{Globals.DemoUser}";
+                    failoverPool = "stratum+tcp://yespowerURX.na.mine.zpool.ca:6236";
+                    failoverWallet = Globals.DemoUser;
                     break;
                 case AlgorithmType.YespowerADVC:
-                    failoverPool = ",stratum+tcp://yespowerADVC.eu.mine.zpool.ca:6248";
-                    failoverWallet = $",{Globals.DemoUser}";
+                    failoverPool = "stratum+tcp://yespowerADVC.na.mine.zpool.ca:6248";
+                    failoverWallet = Globals.DemoUser;
+                    break;
+                case AlgorithmType.Interchained:
+                    failoverPool = "stratum+tcp://interchained.na.mine.zpool.ca:6250";
+                    failoverWallet = Globals.DemoUser;
                     break;
                 case AlgorithmType.Yescrypt:
-                    failoverPool = ",stratum+tcp://yescrypt.eu.mine.zpool.ca:6233";
-                    failoverWallet = $",{Globals.DemoUser}";
+                    failoverPool = "stratum+tcp://yescrypt.mine.na.zpool.ca:6233";
+                    failoverWallet = Globals.DemoUser;
                     break;
                 case AlgorithmType.YescryptR8:
-                    failoverPool = ",stratum+tcp://yescryptR8.eu.mine.zpool.ca:6323";
-                    failoverWallet = $",{Globals.DemoUser}";
+                    failoverPool = "stratum+tcp://yescryptR8.na.mine.zpool.ca:6323";
+                    failoverWallet = Globals.DemoUser;
                     break;
                 case AlgorithmType.YescryptR16:
-                    failoverPool = ",stratum+tcp://yescryptR16.eu.mine.zpool.ca:6333";
-                    failoverWallet = $",{Globals.DemoUser}";
+                    failoverPool = "stratum+tcp://yescryptR16.na.mine.zpool.ca:6333";
+                    failoverWallet = Globals.DemoUser;
                     break;
                 case AlgorithmType.YescryptR32:
-                    failoverPool = ",stratum+tcp://yescryptR32.eu.mine.zpool.ca:6343";
-                    failoverWallet = $",{Globals.DemoUser}";
+                    failoverPool = "stratum+tcp://yescryptR32.na.mine.zpool.ca:6343";
+                    failoverWallet = Globals.DemoUser;
                     break;
                 case AlgorithmType.Power2b:
-                    failoverPool = ",stratum+tcp://power2b.eu.mine.zpool.ca:6242";
-                    failoverWallet = $",{Globals.DemoUser}";
+                    failoverPool = "stratum+tcp://power2b.mine.na.zpool.ca:6242";
+                    failoverWallet = Globals.DemoUser;
                     break;
                 case AlgorithmType.RinHash:
-                    failoverPool = ",stratum+tcp://pool.rplant.xyz:7148";
-                    failoverWallet = $",rin1xxxxxxxxx1";//fake
+                    failoverPool = "stratum+tcp://rinhash.na.mine.zpool.ca:7444";
+                    failoverWallet = Globals.DemoUser;
                     break;
 
                 case AlgorithmType.VertHash:
-                    failoverPool = ",stratum+tcp://verthash.eu.mine.zpool.ca:6144";
-                    failoverWallet = $",{Globals.DemoUser}";
+                    failoverPool = "stratum+tcp://verthash.na.mine.zpool.ca:6144";
+                    failoverWallet = Globals.DemoUser;
                     break;
                 case AlgorithmType.FiroPow:
-                    failoverPool = ",stratum+tcp://firopow.eu.mine.zpool.ca:1326";
-                    failoverWallet = $",{Globals.DemoUser}";
+                    failoverPool = "stratum+tcp://firopow.na.mine.zpool.ca:1326";
+                    failoverWallet = Globals.DemoUser;
+                    break;
+                case AlgorithmType.SccPow:
+                    failoverPool = "stratum+tcp://sccpow.na.mine.zpool.ca:1328";
+                    failoverWallet = Globals.DemoUser;
                     break;
                 case AlgorithmType.HeavyHash:
-                    failoverPool = ",stratum+tcp://heavyhash.eu.mine.zpool.ca:5138";
-                    failoverWallet = $",{Globals.DemoUser}";
+                    failoverPool = "stratum+tcp://heavyhash.na.mine.zpool.ca:5138";
+                    failoverWallet = Globals.DemoUser;
                     break;
                 case AlgorithmType.KawPow:
-                    failoverPool = ",stratum+tcp://rvn.2miners.com:6060";
-                    failoverWallet = $",bc1qun08kg08wwdsszrymg8z4la5d6ygckg9nxh4pq";
+                    failoverPool = "stratum+tcp://rvn.2miners.com:6060";
+                    failoverWallet = "bc1qun08kg08wwdsszrymg8z4la5d6ygckg9nxh4pq";
                     break;
                 case AlgorithmType.Meraki:
-                    failoverPool = ",stratum+tcp://meraki.eu.mine.zpool.ca:3387";
-                    failoverWallet = $",{Globals.DemoUser}";
+                    failoverPool = "stratum+tcp://meraki.na.mine.zpool.ca:3387";
+                    failoverWallet = Globals.DemoUser;
                     break;
                 case AlgorithmType.Curve:
-                    failoverPool = ",stratum+tcp://curve.eu.mine.zpool.ca:4633";
-                    failoverWallet = $",{Globals.DemoUser}";
+                    failoverPool = "stratum+tcp://curve.na.mine.zpool.ca:4633";
+                    failoverWallet = Globals.DemoUser;
                     break;
                 case AlgorithmType.PhiHash:
-                    failoverPool = ",stratum+tcp://eu.neuropool.net:10110";
-                    failoverWallet = $",PmM5d7PbhocvoUgFK3E1tdNBeN1hU2ipXs";//exbitron
+                    failoverPool = "stratum+tcp://eu.neuropool.net:10110";
+                    failoverWallet = "PmM5d7PbhocvoUgFK3E1tdNBeN1hU2ipXs";//exbitron
                     break;
                 case AlgorithmType.MeowPow:
-                    failoverPool = ",stratum+tcp://meowpow.eu.mine.zpool.ca:1327";
-                    failoverWallet = $",{Globals.DemoUser}";
+                    failoverPool = "stratum+tcp://meowpow.na.mine.zpool.ca:1327";
+                    failoverWallet = Globals.DemoUser;
+                    break;
+                case AlgorithmType.SHA512256d:
+                    failoverPool = "stratum+tcp://sha512256d.na.mine.zpool.ca:3342";
+                    failoverWallet = Globals.DemoUser;
                     break;
                 default:
                     break;
@@ -348,29 +375,37 @@ namespace ZPoolMiner.Miners
             {
                 /*
                 case AlgorithmType.HooHash:
-                    failoverPool2 = ",stratum+tcp://nushypool.com:40012";
+                    failoverPool2 = "stratum+tcp://nushypool.com:40012";
                     failoverWallet2 = $",hoosat:qzuy0ydzzmw82ffa8j30m724w4cmwnxk9864meytpkgs0y502pmwzk886446m";
                     break;
                 default:
                     break;
                 */
             }
-            //,mc=* без этого не работает бенч meraki
+            var mainpool = GetServer(MiningSetup.CurrentAlgorithmType.
+                ToString().ToLower()).Trim().Replace("--pool ", "");
+            if (mainpool.Contains(".na.") ||
+                mainpool.Contains(".jp.") ||
+                mainpool.Contains(".sea."))
+            {
+                mainpool = mainpool.Replace(".na.", ".eu.");
+                mainpool = mainpool.Replace(".jp.", ".eu.");
+                mainpool = mainpool.Replace(".sea.", ".eu.");
+            }
+            var comma = ",";
             if (MiningSetup.CurrentSecondaryAlgorithmType == AlgorithmType.NONE)
             {
-                var mainpool = GetServer(MiningSetup.CurrentAlgorithmType.ToString().ToLower()).Trim();
                 if (mainpool.Contains("error"))
                 {
-                    mainpool = " --pool " + failoverPool.Replace(",", "");
+                    comma = "";
+                    mainpool = failoverPool;
                     failoverPool = "";
-                    mainWallet = "";
-                    failoverWallet = failoverWallet.Replace(",", "");
+                    demoWallet = "";
                 }
 
                 return " " + disablePlatform + "--algorithm " + _algo + " " +
-                    mainpool + failoverPool + " " +
-                    //$"--wallet {mainWallet}{failoverWallet} --password c=LTC{failoverPassword},mc=*" + " " +
-                    $"--wallet {mainWallet}{failoverWallet} --password c=LTC{failoverPassword}" + " " +
+                    "--pool " + mainpool + comma + failoverPool + " " +
+                    $"--wallet {demoWallet}{comma}{failoverWallet} --password c=LTC{failoverPassword}" + " " +
                     proxy + " " +
                     $"--api-enable --api-port {ApiPort} {extras}" + " --give-up-limit 1 --retry-time 1 --gpu-id " +
                     GetDevicesCommandString().Trim();
@@ -381,13 +416,13 @@ namespace ZPoolMiner.Miners
                 _algo2 = _algo2.Replace("sha512256d", "sha512_256d_radiant");
 
                 return " " + disablePlatform + "--algorithm " + _algo + " " +
-                     GetServer(MiningSetup.CurrentAlgorithmType.ToString().ToLower()).Trim() + failoverPool + " " +
+                     "--pool " + mainpool + comma + failoverPool + " " +
                     //$"--wallet {Globals.DemoUser}{failoverWallet} --password c=LTC{failoverPassword},mc=*" + " " +
-                    $"--wallet {Globals.DemoUser}{failoverWallet} --password c=LTC{failoverPassword}" + " " +
+                    $"--wallet {Globals.DemoUser}{comma}{failoverWallet} --password c=LTC{failoverPassword}" + " " +
                     "--algorithm " + _algo2 + " " +
-                    GetServer(MiningSetup.CurrentSecondaryAlgorithmType.ToString().ToLower()).Trim() + failoverPool2 + " " +
+                    GetServer(MiningSetup.CurrentSecondaryAlgorithmType.ToString().ToLower()).Trim() + "," + failoverPool2 + " " +
                     //$"--wallet {Globals.DemoUser}{failoverWallet2} --password c=LTC{failoverPassword2},mc=*" + " " +
-                    $"--wallet {Globals.DemoUser}{failoverWallet2} --password c=LTC{failoverPassword2}" + " " +
+                    $"--wallet {Globals.DemoUser},{failoverWallet2} --password c=LTC{failoverPassword2}" + " " +
                      proxy + " " +
                     $"--api-enable --api-port {ApiPort} {extras}" + " --give-up-limit 1 --retry-time 1 --gpu-id " +
                     GetDevicesCommandString().Trim();
@@ -610,9 +645,9 @@ namespace ZPoolMiner.Miners
                 //Helpers.ConsolePrint("API error", ex.ToString());
                 CurrentMinerReadStatus = MinerApiReadStatus.READ_SPEED_ZERO;
                 ad.Speed = 0;
+                GC.Collect();
                 return ad;
             }
-
             ad.Speed = totalsMain;
             ad.SecondarySpeed = totalsSecond;
             ad.ThirdSpeed = 0;
@@ -629,7 +664,7 @@ namespace ZPoolMiner.Miners
                 ad.SecondarySpeed = 0;
                 ad.SecondaryAlgorithmID = AlgorithmType.NONE;
             }
-
+            GC.Collect();
             Thread.Sleep(1);
             return ad;
         }

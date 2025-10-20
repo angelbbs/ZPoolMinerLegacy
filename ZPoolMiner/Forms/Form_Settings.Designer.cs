@@ -88,7 +88,6 @@ namespace ZPoolMiner.Forms
             this.groupBoxWallets = new System.Windows.Forms.GroupBox();
             this.buttonDeleteWallet = new System.Windows.Forms.Button();
             this.buttonAddWallet = new System.Windows.Forms.Button();
-            this.walletsListView1 = new ZPoolMiner.Forms.Components.WalletsListView();
             this.tabPagePower = new System.Windows.Forms.TabPage();
             this.groupBox_additionally = new System.Windows.Forms.GroupBox();
             this.checkBox_Show_Total_Power = new System.Windows.Forms.CheckBox();
@@ -195,16 +194,11 @@ namespace ZPoolMiner.Forms
             this.groupBoxSelectedAlgorithmSettings = new System.Windows.Forms.GroupBox();
             this.groupBoxExtraLaunchParameters = new System.Windows.Forms.GroupBox();
             this.richTextBoxExtraLaunchParameters = new System.Windows.Forms.TextBox();
-            this.fieldBoxBenchmarkSpeed = new ZPoolMiner.Forms.Components.Field();
             this.checkBox_Disable_extra_launch_parameter_checking = new System.Windows.Forms.CheckBox();
-            this.field_PowerUsage = new ZPoolMiner.Forms.Components.Field();
-            this.secondaryFieldBoxBenchmarkSpeed = new ZPoolMiner.Forms.Components.Field();
             this.button_Lite_Algo = new System.Windows.Forms.Button();
             this.button_ZIL_additional_mining = new System.Windows.Forms.Button();
             this.checkBoxHideUnused = new System.Windows.Forms.CheckBox();
             this.groupBoxAlgorithmSettings = new System.Windows.Forms.GroupBox();
-            this.algorithmsListView1 = new ZPoolMiner.Forms.Components.AlgorithmsListView();
-            this.devicesListViewEnableControl1 = new ZPoolMiner.Forms.Components.DevicesListViewEnableControl();
             this.tabPageOverClock = new System.Windows.Forms.TabPage();
             this.checkBox_AB_maintaining = new System.Windows.Forms.CheckBox();
             this.checkBoxHideUnused2 = new System.Windows.Forms.CheckBox();
@@ -214,8 +208,6 @@ namespace ZPoolMiner.Forms
             this.checkBox_ABMinimize = new System.Windows.Forms.CheckBox();
             this.checkBox_ABEnableOverclock = new System.Windows.Forms.CheckBox();
             this.groupBoxOverClockSettings = new System.Windows.Forms.GroupBox();
-            this.algorithmsListViewOverClock1 = new ZPoolMiner.Forms.Components.AlgorithmsListViewOverClock();
-            this.devicesListViewEnableControl2 = new ZPoolMiner.Forms.Components.DevicesListViewEnableControl();
             this.tabPageAbout = new System.Windows.Forms.TabPage();
             this.groupBoxBackup = new System.Windows.Forms.GroupBox();
             this.checkBox_BackupBeforeUpdate = new System.Windows.Forms.CheckBox();
@@ -230,7 +222,6 @@ namespace ZPoolMiner.Forms
             this.linkLabelNewVersion2 = new System.Windows.Forms.LinkLabel();
             this.buttonUpdate = new System.Windows.Forms.Button();
             this.buttonCheckNewVersion = new System.Windows.Forms.Button();
-            this.progressBarUpdate = new ProgressBarSample.TextProgressBar();
             this.groupBoxInfo = new System.Windows.Forms.GroupBox();
             this.checkBoxHistory = new System.Windows.Forms.CheckBox();
             this.buttonHistory = new System.Windows.Forms.Button();
@@ -238,6 +229,16 @@ namespace ZPoolMiner.Forms
             this.buttonLicence = new System.Windows.Forms.Button();
             this.label_profile = new System.Windows.Forms.Label();
             this.comboBox_profile = new System.Windows.Forms.ComboBox();
+            this.checkBoxEnableSSL = new System.Windows.Forms.CheckBox();
+            this.walletsListView1 = new ZPoolMiner.Forms.Components.WalletsListView();
+            this.fieldBoxBenchmarkSpeed = new ZPoolMiner.Forms.Components.Field();
+            this.field_PowerUsage = new ZPoolMiner.Forms.Components.Field();
+            this.secondaryFieldBoxBenchmarkSpeed = new ZPoolMiner.Forms.Components.Field();
+            this.algorithmsListView1 = new ZPoolMiner.Forms.Components.AlgorithmsListView();
+            this.devicesListViewEnableControl1 = new ZPoolMiner.Forms.Components.DevicesListViewEnableControl();
+            this.algorithmsListViewOverClock1 = new ZPoolMiner.Forms.Components.AlgorithmsListViewOverClock();
+            this.devicesListViewEnableControl2 = new ZPoolMiner.Forms.Components.DevicesListViewEnableControl();
+            this.progressBarUpdate = new ProgressBarSample.TextProgressBar();
             this.tabControlGeneral.SuspendLayout();
             this.tabPageGeneral.SuspendLayout();
             this.groupBoxConnection.SuspendLayout();
@@ -396,6 +397,7 @@ namespace ZPoolMiner.Forms
             // 
             // groupBoxConnection
             // 
+            this.groupBoxConnection.Controls.Add(this.checkBoxEnableSSL);
             this.groupBoxConnection.Controls.Add(this.checkBoxEnableProxy);
             this.groupBoxConnection.Location = new System.Drawing.Point(6, 364);
             this.groupBoxConnection.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
@@ -1057,15 +1059,6 @@ namespace ZPoolMiner.Forms
             this.buttonAddWallet.Text = "Add wallet";
             this.buttonAddWallet.UseVisualStyleBackColor = true;
             this.buttonAddWallet.Click += new System.EventHandler(this.buttonAddWallet_Click);
-            // 
-            // walletsListView1
-            // 
-            this.walletsListView1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.walletsListView1.Location = new System.Drawing.Point(7, 19);
-            this.walletsListView1.Name = "walletsListView1";
-            this.walletsListView1.Size = new System.Drawing.Size(646, 181);
-            this.walletsListView1.TabIndex = 0;
             // 
             // tabPagePower
             // 
@@ -2353,18 +2346,6 @@ namespace ZPoolMiner.Forms
             this.richTextBoxExtraLaunchParameters.Size = new System.Drawing.Size(259, 32);
             this.richTextBoxExtraLaunchParameters.TabIndex = 17;
             // 
-            // fieldBoxBenchmarkSpeed
-            // 
-            this.fieldBoxBenchmarkSpeed.AutoSize = true;
-            this.fieldBoxBenchmarkSpeed.BackColor = System.Drawing.Color.Transparent;
-            this.fieldBoxBenchmarkSpeed.EntryText = "";
-            this.fieldBoxBenchmarkSpeed.LabelText = "Benchmark Speed (H/s):";
-            this.fieldBoxBenchmarkSpeed.Location = new System.Drawing.Point(7, 16);
-            this.fieldBoxBenchmarkSpeed.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
-            this.fieldBoxBenchmarkSpeed.Name = "fieldBoxBenchmarkSpeed";
-            this.fieldBoxBenchmarkSpeed.Size = new System.Drawing.Size(269, 26);
-            this.fieldBoxBenchmarkSpeed.TabIndex = 1;
-            // 
             // checkBox_Disable_extra_launch_parameter_checking
             // 
             this.checkBox_Disable_extra_launch_parameter_checking.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -2377,30 +2358,6 @@ namespace ZPoolMiner.Forms
             this.checkBox_Disable_extra_launch_parameter_checking.Text = "Disable extra launch parameter checking";
             this.checkBox_Disable_extra_launch_parameter_checking.UseVisualStyleBackColor = true;
             this.checkBox_Disable_extra_launch_parameter_checking.CheckedChanged += new System.EventHandler(this.checkBox_Disable_extra_launch_parameter_checking_CheckedChanged);
-            // 
-            // field_PowerUsage
-            // 
-            this.field_PowerUsage.AutoSize = true;
-            this.field_PowerUsage.BackColor = System.Drawing.Color.Transparent;
-            this.field_PowerUsage.EntryText = "";
-            this.field_PowerUsage.LabelText = "Power Usage (W):";
-            this.field_PowerUsage.Location = new System.Drawing.Point(7, 68);
-            this.field_PowerUsage.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
-            this.field_PowerUsage.Name = "field_PowerUsage";
-            this.field_PowerUsage.Size = new System.Drawing.Size(269, 26);
-            this.field_PowerUsage.TabIndex = 15;
-            // 
-            // secondaryFieldBoxBenchmarkSpeed
-            // 
-            this.secondaryFieldBoxBenchmarkSpeed.AutoSize = true;
-            this.secondaryFieldBoxBenchmarkSpeed.BackColor = System.Drawing.Color.Transparent;
-            this.secondaryFieldBoxBenchmarkSpeed.EntryText = "";
-            this.secondaryFieldBoxBenchmarkSpeed.LabelText = "Secondary Speed (H/s):";
-            this.secondaryFieldBoxBenchmarkSpeed.Location = new System.Drawing.Point(7, 42);
-            this.secondaryFieldBoxBenchmarkSpeed.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
-            this.secondaryFieldBoxBenchmarkSpeed.Name = "secondaryFieldBoxBenchmarkSpeed";
-            this.secondaryFieldBoxBenchmarkSpeed.Size = new System.Drawing.Size(269, 26);
-            this.secondaryFieldBoxBenchmarkSpeed.TabIndex = 16;
             // 
             // button_Lite_Algo
             // 
@@ -2449,36 +2406,6 @@ namespace ZPoolMiner.Forms
             this.groupBoxAlgorithmSettings.TabStop = false;
             this.groupBoxAlgorithmSettings.Text = "Algorithm settings for selected device:";
             this.groupBoxAlgorithmSettings.Paint += new System.Windows.Forms.PaintEventHandler(this.groupBoxAlgorithmSettings_Paint);
-            // 
-            // algorithmsListView1
-            // 
-            this.algorithmsListView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.algorithmsListView1.AutoValidate = System.Windows.Forms.AutoValidate.EnablePreventFocusChange;
-            this.algorithmsListView1.BackColor = System.Drawing.SystemColors.Control;
-            this.algorithmsListView1.BenchmarkCalculation = null;
-            this.algorithmsListView1.IsInBenchmark = false;
-            this.algorithmsListView1.Location = new System.Drawing.Point(6, 19);
-            this.algorithmsListView1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.algorithmsListView1.Name = "algorithmsListView1";
-            this.algorithmsListView1.Size = new System.Drawing.Size(645, 215);
-            this.algorithmsListView1.TabIndex = 2;
-            // 
-            // devicesListViewEnableControl1
-            // 
-            this.devicesListViewEnableControl1.BackColor = System.Drawing.SystemColors.Control;
-            this.devicesListViewEnableControl1.BenchmarkCalculation = null;
-            this.devicesListViewEnableControl1.FirstColumnText = "Enabled";
-            this.devicesListViewEnableControl1.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.devicesListViewEnableControl1.IsInBenchmark = false;
-            this.devicesListViewEnableControl1.IsMining = false;
-            this.devicesListViewEnableControl1.Location = new System.Drawing.Point(8, 8);
-            this.devicesListViewEnableControl1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.devicesListViewEnableControl1.Name = "devicesListViewEnableControl1";
-            this.devicesListViewEnableControl1.SaveToGeneralConfig = false;
-            this.devicesListViewEnableControl1.Size = new System.Drawing.Size(360, 180);
-            this.devicesListViewEnableControl1.TabIndex = 397;
             // 
             // tabPageOverClock
             // 
@@ -2594,34 +2521,6 @@ namespace ZPoolMiner.Forms
             this.groupBoxOverClockSettings.TabStop = false;
             this.groupBoxOverClockSettings.Text = "Overclock settings for selected device:";
             this.groupBoxOverClockSettings.Paint += new System.Windows.Forms.PaintEventHandler(this.groupBoxOverClockSettings_Paint);
-            // 
-            // algorithmsListViewOverClock1
-            // 
-            this.algorithmsListViewOverClock1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.algorithmsListViewOverClock1.BackColor = System.Drawing.SystemColors.Control;
-            this.algorithmsListViewOverClock1.ComunicationInterface = null;
-            this.algorithmsListViewOverClock1.Location = new System.Drawing.Point(6, 19);
-            this.algorithmsListViewOverClock1.Name = "algorithmsListViewOverClock1";
-            this.algorithmsListViewOverClock1.Size = new System.Drawing.Size(645, 215);
-            this.algorithmsListViewOverClock1.TabIndex = 399;
-            // 
-            // devicesListViewEnableControl2
-            // 
-            this.devicesListViewEnableControl2.BackColor = System.Drawing.SystemColors.Control;
-            this.devicesListViewEnableControl2.BenchmarkCalculation = null;
-            this.devicesListViewEnableControl2.FirstColumnText = "Enabled";
-            this.devicesListViewEnableControl2.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.devicesListViewEnableControl2.IsInBenchmark = false;
-            this.devicesListViewEnableControl2.IsMining = false;
-            this.devicesListViewEnableControl2.Location = new System.Drawing.Point(8, 8);
-            this.devicesListViewEnableControl2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.devicesListViewEnableControl2.Name = "devicesListViewEnableControl2";
-            this.devicesListViewEnableControl2.SaveToGeneralConfig = false;
-            this.devicesListViewEnableControl2.Size = new System.Drawing.Size(360, 180);
-            this.devicesListViewEnableControl2.TabIndex = 398;
-            this.devicesListViewEnableControl2.Load += new System.EventHandler(this.devicesListViewEnableControl2_Load);
             // 
             // tabPageAbout
             // 
@@ -2797,20 +2696,6 @@ namespace ZPoolMiner.Forms
             this.buttonCheckNewVersion.UseVisualStyleBackColor = true;
             this.buttonCheckNewVersion.Click += new System.EventHandler(this.buttonCheckNewVersion_Click);
             // 
-            // progressBarUpdate
-            // 
-            this.progressBarUpdate.CustomText = "";
-            this.progressBarUpdate.Location = new System.Drawing.Point(549, 14);
-            this.progressBarUpdate.Margin = new System.Windows.Forms.Padding(0);
-            this.progressBarUpdate.Name = "progressBarUpdate";
-            this.progressBarUpdate.ProgressColor = System.Drawing.Color.Green;
-            this.progressBarUpdate.Size = new System.Drawing.Size(105, 23);
-            this.progressBarUpdate.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
-            this.progressBarUpdate.TabIndex = 396;
-            this.progressBarUpdate.TextColor = System.Drawing.Color.Black;
-            this.progressBarUpdate.TextFont = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.progressBarUpdate.VisualMode = ProgressBarSample.ProgressBarDisplayMode.Percentage;
-            // 
             // groupBoxInfo
             // 
             this.groupBoxInfo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -2901,6 +2786,135 @@ namespace ZPoolMiner.Forms
             this.comboBox_profile.TabIndex = 359;
             this.comboBox_profile.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.comboBox_profile_DrawItem);
             this.comboBox_profile.SelectedIndexChanged += new System.EventHandler(this.comboBox_profile_SelectedIndexChanged);
+            // 
+            // checkBoxEnableSSL
+            // 
+            this.checkBoxEnableSSL.AutoSize = true;
+            this.checkBoxEnableSSL.Location = new System.Drawing.Point(190, 19);
+            this.checkBoxEnableSSL.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.checkBoxEnableSSL.Name = "checkBoxEnableSSL";
+            this.checkBoxEnableSSL.Size = new System.Drawing.Size(132, 17);
+            this.checkBoxEnableSSL.TabIndex = 406;
+            this.checkBoxEnableSSL.Text = "Using SSL connection";
+            this.checkBoxEnableSSL.UseVisualStyleBackColor = true;
+            this.checkBoxEnableSSL.CheckedChanged += new System.EventHandler(this.checkBoxEnableSSL_CheckedChanged);
+            // 
+            // walletsListView1
+            // 
+            this.walletsListView1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.walletsListView1.Location = new System.Drawing.Point(7, 19);
+            this.walletsListView1.Name = "walletsListView1";
+            this.walletsListView1.Size = new System.Drawing.Size(646, 181);
+            this.walletsListView1.TabIndex = 0;
+            // 
+            // fieldBoxBenchmarkSpeed
+            // 
+            this.fieldBoxBenchmarkSpeed.AutoSize = true;
+            this.fieldBoxBenchmarkSpeed.BackColor = System.Drawing.Color.Transparent;
+            this.fieldBoxBenchmarkSpeed.EntryText = "";
+            this.fieldBoxBenchmarkSpeed.LabelText = "Benchmark Speed (H/s):";
+            this.fieldBoxBenchmarkSpeed.Location = new System.Drawing.Point(7, 16);
+            this.fieldBoxBenchmarkSpeed.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
+            this.fieldBoxBenchmarkSpeed.Name = "fieldBoxBenchmarkSpeed";
+            this.fieldBoxBenchmarkSpeed.Size = new System.Drawing.Size(269, 26);
+            this.fieldBoxBenchmarkSpeed.TabIndex = 1;
+            // 
+            // field_PowerUsage
+            // 
+            this.field_PowerUsage.AutoSize = true;
+            this.field_PowerUsage.BackColor = System.Drawing.Color.Transparent;
+            this.field_PowerUsage.EntryText = "";
+            this.field_PowerUsage.LabelText = "Power Usage (W):";
+            this.field_PowerUsage.Location = new System.Drawing.Point(7, 68);
+            this.field_PowerUsage.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
+            this.field_PowerUsage.Name = "field_PowerUsage";
+            this.field_PowerUsage.Size = new System.Drawing.Size(269, 26);
+            this.field_PowerUsage.TabIndex = 15;
+            // 
+            // secondaryFieldBoxBenchmarkSpeed
+            // 
+            this.secondaryFieldBoxBenchmarkSpeed.AutoSize = true;
+            this.secondaryFieldBoxBenchmarkSpeed.BackColor = System.Drawing.Color.Transparent;
+            this.secondaryFieldBoxBenchmarkSpeed.EntryText = "";
+            this.secondaryFieldBoxBenchmarkSpeed.LabelText = "Secondary Speed (H/s):";
+            this.secondaryFieldBoxBenchmarkSpeed.Location = new System.Drawing.Point(7, 42);
+            this.secondaryFieldBoxBenchmarkSpeed.Margin = new System.Windows.Forms.Padding(3, 0, 3, 0);
+            this.secondaryFieldBoxBenchmarkSpeed.Name = "secondaryFieldBoxBenchmarkSpeed";
+            this.secondaryFieldBoxBenchmarkSpeed.Size = new System.Drawing.Size(269, 26);
+            this.secondaryFieldBoxBenchmarkSpeed.TabIndex = 16;
+            // 
+            // algorithmsListView1
+            // 
+            this.algorithmsListView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.algorithmsListView1.AutoValidate = System.Windows.Forms.AutoValidate.EnablePreventFocusChange;
+            this.algorithmsListView1.BackColor = System.Drawing.SystemColors.Control;
+            this.algorithmsListView1.BenchmarkCalculation = null;
+            this.algorithmsListView1.IsInBenchmark = false;
+            this.algorithmsListView1.Location = new System.Drawing.Point(6, 19);
+            this.algorithmsListView1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.algorithmsListView1.Name = "algorithmsListView1";
+            this.algorithmsListView1.Size = new System.Drawing.Size(645, 215);
+            this.algorithmsListView1.TabIndex = 2;
+            // 
+            // devicesListViewEnableControl1
+            // 
+            this.devicesListViewEnableControl1.BackColor = System.Drawing.SystemColors.Control;
+            this.devicesListViewEnableControl1.BenchmarkCalculation = null;
+            this.devicesListViewEnableControl1.FirstColumnText = "Enabled";
+            this.devicesListViewEnableControl1.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.devicesListViewEnableControl1.IsInBenchmark = false;
+            this.devicesListViewEnableControl1.IsMining = false;
+            this.devicesListViewEnableControl1.Location = new System.Drawing.Point(8, 8);
+            this.devicesListViewEnableControl1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.devicesListViewEnableControl1.Name = "devicesListViewEnableControl1";
+            this.devicesListViewEnableControl1.SaveToGeneralConfig = false;
+            this.devicesListViewEnableControl1.Size = new System.Drawing.Size(360, 180);
+            this.devicesListViewEnableControl1.TabIndex = 397;
+            // 
+            // algorithmsListViewOverClock1
+            // 
+            this.algorithmsListViewOverClock1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.algorithmsListViewOverClock1.BackColor = System.Drawing.SystemColors.Control;
+            this.algorithmsListViewOverClock1.ComunicationInterface = null;
+            this.algorithmsListViewOverClock1.Location = new System.Drawing.Point(6, 19);
+            this.algorithmsListViewOverClock1.Name = "algorithmsListViewOverClock1";
+            this.algorithmsListViewOverClock1.Size = new System.Drawing.Size(645, 215);
+            this.algorithmsListViewOverClock1.TabIndex = 399;
+            // 
+            // devicesListViewEnableControl2
+            // 
+            this.devicesListViewEnableControl2.BackColor = System.Drawing.SystemColors.Control;
+            this.devicesListViewEnableControl2.BenchmarkCalculation = null;
+            this.devicesListViewEnableControl2.FirstColumnText = "Enabled";
+            this.devicesListViewEnableControl2.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.devicesListViewEnableControl2.IsInBenchmark = false;
+            this.devicesListViewEnableControl2.IsMining = false;
+            this.devicesListViewEnableControl2.Location = new System.Drawing.Point(8, 8);
+            this.devicesListViewEnableControl2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.devicesListViewEnableControl2.Name = "devicesListViewEnableControl2";
+            this.devicesListViewEnableControl2.SaveToGeneralConfig = false;
+            this.devicesListViewEnableControl2.Size = new System.Drawing.Size(360, 180);
+            this.devicesListViewEnableControl2.TabIndex = 398;
+            this.devicesListViewEnableControl2.Load += new System.EventHandler(this.devicesListViewEnableControl2_Load);
+            // 
+            // progressBarUpdate
+            // 
+            this.progressBarUpdate.CustomText = "";
+            this.progressBarUpdate.Location = new System.Drawing.Point(549, 14);
+            this.progressBarUpdate.Margin = new System.Windows.Forms.Padding(0);
+            this.progressBarUpdate.Name = "progressBarUpdate";
+            this.progressBarUpdate.ProgressColor = System.Drawing.Color.Green;
+            this.progressBarUpdate.Size = new System.Drawing.Size(105, 23);
+            this.progressBarUpdate.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
+            this.progressBarUpdate.TabIndex = 396;
+            this.progressBarUpdate.TextColor = System.Drawing.Color.Black;
+            this.progressBarUpdate.TextFont = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.progressBarUpdate.VisualMode = ProgressBarSample.ProgressBarDisplayMode.Percentage;
             // 
             // Form_Settings
             // 
@@ -3196,5 +3210,6 @@ namespace ZPoolMiner.Forms
         private System.Windows.Forms.TextBox textBox_GPUmem;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label_GPUmem;
+        private System.Windows.Forms.CheckBox checkBoxEnableSSL;
     }
 }

@@ -29,6 +29,7 @@ namespace ZPoolMiner.Miners
         {
         }
 
+        /*
         private string GetServer(string algo)
         {
             string ret = "";
@@ -48,6 +49,7 @@ namespace ZPoolMiner.Miners
             }
             return ret;
         }
+        */
         public override void Start(string wallet, string ID, string password)
         {
             if (!IsInit)
@@ -69,11 +71,24 @@ namespace ZPoolMiner.Miners
                 proxy = "--proxy 127.0.0.1:" + Socks5Relay.Port;
             }
 
+            var mainpool = GetServer(MiningSetup.CurrentAlgorithmType.
+                                    ToString().ToLower()).Trim();
+            var failoverPool = GetServer(MiningSetup.CurrentAlgorithmType.
+                                ToString().ToLower()).Trim();
+
+            if (mainpool.Contains(".eu.")) failoverPool = mainpool.Replace(".eu.", ".na.");
+            if (mainpool.Contains(".jp.")) failoverPool = mainpool.Replace(".jp.", ".na.");
+            if (mainpool.Contains(".sea.")) failoverPool = mainpool.Replace(".sea.", ".na.");
+            if (mainpool.Contains(".na.")) failoverPool = mainpool.Replace(".na.", ".eu.");
+
+
             LastCommandLine = " --algo " + _algo +
             " " + apiBind +
-                    GetServer(MiningSetup.CurrentAlgorithmType.ToString().ToLower()) + " " +
-                    proxy + " " +
-                    _wallet + " " + _password +
+                    " -o " + mainpool + " " +
+                   _wallet + " " + _password +
+                   " -o " + failoverPool + " " +
+                   _wallet + " " + _password +
+                    //proxy + " " +//not supported
                     " -d " + GetDevicesCommandString() + " --no-watchdog " +
                 ExtraLaunchParametersParser.ParseForMiningSetup(MiningSetup, DeviceType.NVIDIA) + " ";
 
@@ -229,6 +244,7 @@ namespace ZPoolMiner.Miners
         }
         public override async Task<ApiData> GetSummaryAsync()
         {
+            ad = new ApiData(MiningSetup.CurrentAlgorithmType, MiningSetup.CurrentSecondaryAlgorithmType);
             CurrentMinerReadStatus = MinerApiReadStatus.NONE;
             string resp = null;
             var sortedMinerPairs = MiningSetup.MiningPairs.OrderBy(pair => pair.Device.IDByBus).ToList();
@@ -262,8 +278,6 @@ namespace ZPoolMiner.Miners
                 ad.ThirdSpeed = 0;
                 return ad;
             }
-
-            ad = new ApiData(MiningSetup.CurrentAlgorithmType, MiningSetup.CurrentSecondaryAlgorithmType);
 
             if (resp != null)
             {

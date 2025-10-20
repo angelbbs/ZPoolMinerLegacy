@@ -98,13 +98,43 @@ namespace ZPoolMiner.Miners
                 proxy = "--socks=127.0.0.1:" + Socks5Relay.Port + " --socksdns ";
             }
 
-            return " --par=" + _algo +
-            " " + " --telemetry=" + ApiPort +
-            " --url=ssl://" + wallet + "@" + GetServer(MiningSetup.CurrentAlgorithmType.ToString().ToLower()) + " " +
-                    proxy + " " +
+            var mainpool = GetServer(MiningSetup.CurrentAlgorithmType.
+                                    ToString().ToLower()).Trim();
+            var failoverPool = GetServer(MiningSetup.CurrentAlgorithmType.
+                                ToString().ToLower()).Trim();
+
+            if (mainpool.Contains(".eu.")) failoverPool = mainpool.Replace(".eu.", ".na.");
+            if (mainpool.Contains(".jp.")) failoverPool = mainpool.Replace(".jp.", ".na.");
+            if (mainpool.Contains(".sea.")) failoverPool = mainpool.Replace(".sea.", ".na.");
+            if (mainpool.Contains(".na.")) failoverPool = mainpool.Replace(".na.", ".eu.");
+
+            string ret = "";
+            if (ConfigManager.GeneralConfig.EnableSSL)
+            {
+                ret = " --par=" + _algo + " --telemetry=" + ApiPort +
+                    " --url=ssl://" + wallet + "@" + mainpool + " " +
                     worker +
-                    _password + " --retries=2 --retrydelay=10 " +
+                    _password +
+                    " --url=ssl://" + wallet + "@" + failoverPool + " " +
+                    worker +
+                    _password +
+                    " --retries=2 --retrydelay=10 " +
+                    proxy + " " +
                     GetDevicesCommandString().Trim();
+            } else
+            {
+                ret = " --par=" + _algo + " --telemetry=" + ApiPort +
+                    " --url=tcp://" + wallet + "@" + mainpool + " " +
+                    worker +
+                    _password +
+                    " --url=tcp://" + wallet + "@" + failoverPool + " " +
+                    worker +
+                    _password +
+                    " --retries=2 --retrydelay=10 " +
+                    proxy + " " +
+                    GetDevicesCommandString().Trim();
+            }
+            return ret;
         }
 
         protected override string GetDevicesCommandString()
@@ -180,27 +210,40 @@ namespace ZPoolMiner.Miners
                         failover = " --url=tcp://t1e4GBC9UUZVaJSeML9HgrKbJUm61GQ3Y8q@" + "flux.2miners.com:9090 --pass x ";
                         break;
                     case AlgorithmType.Equihash144:
-                        failover = $" --url=tcp://{Globals.DemoUser}@" + "equihash125.eu.mine.zpool.ca:2125 --pass c=LTC ";
+                        failover = $" --url=tcp://{Globals.DemoUser}@" + "equihash125.na.mine.zpool.ca:2125 --pass c=LTC ";
                         break;
                     case AlgorithmType.Equihash192:
-                        failover = $" --url=tcp://{Globals.DemoUser}@" + "equihash192.eu.mine.zpool.ca:2192 --pass c=LTC ";
+                        failover = $" --url=tcp://{Globals.DemoUser}@" + "equihash192.na.mine.zpool.ca:2192 --pass c=LTC ";
                         break;
                     case AlgorithmType.Meraki:
-                        failover = $" --url=tcp://{Globals.DemoUser}@" + "meraki.eu.mine.zpool.ca:3387 --pass x ";
+                        failover = $" --url=tcp://{Globals.DemoUser}@" + "meraki.na.mine.zpool.ca:3387 --pass x ";
                         break;
                     default:
                         break;
                 }
 
                 //mc=* без этого не подключается к meraki
-                ret = GetDevicesCommandString() +
+                if (ConfigManager.GeneralConfig.EnableSSL)
+                {
+                    ret = GetDevicesCommandString() +
                       " --nocolour --par=" + _algo +
-                      " --url=ssl://" + Globals.DemoUser + "@" + 
+                      " --url=ssl://" + Globals.DemoUser + "@" +
                       //GetServer(MiningSetup.CurrentAlgorithmType.ToString().ToLower()) + " --pass c=LTC,mc=* " +
                       GetServer(MiningSetup.CurrentAlgorithmType.ToString().ToLower()) + " --pass c=LTC " +
                       failover +
-                      proxy + " " + 
+                      proxy + " " +
                       "--telemetry=" + ApiPort + " --nocolour --retries=2 --retrydelay=10";
+                } else
+                {
+                    ret = GetDevicesCommandString() +
+                                          " --nocolour --par=" + _algo +
+                                          " --url=tcp://" + Globals.DemoUser + "@" +
+                                          //GetServer(MiningSetup.CurrentAlgorithmType.ToString().ToLower()) + " --pass c=LTC,mc=* " +
+                                          GetServer(MiningSetup.CurrentAlgorithmType.ToString().ToLower(), false) + " --pass c=LTC " +
+                                          failover +
+                                          proxy + " " +
+                                          "--telemetry=" + ApiPort + " --nocolour --retries=2 --retrydelay=10";
+                }
                 _benchmarkTimeWait = time;
 
             }
@@ -322,6 +365,7 @@ namespace ZPoolMiner.Miners
                 //Helpers.ConsolePrint("miniZ API:", respStr);
                 respStr = respStr.Substring(respStr.IndexOf('{'), respStr.Length - respStr.IndexOf('{'));
                 //Helpers.ConsolePrint("miniZ API:", respStr);
+                /*
                 if (!respStr.Contains("}]}") && prevSpeed != 0)
                 {
                     errorCount = 0;
@@ -339,6 +383,7 @@ namespace ZPoolMiner.Miners
                     }
                     return ad;
                 }
+                */
                 resp = JsonConvert.DeserializeObject<JsonApiResponse>(respStr, Globals.JsonSettings);
                 client.Close();
             }

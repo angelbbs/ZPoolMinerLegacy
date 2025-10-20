@@ -88,6 +88,8 @@ namespace ZPoolMiner.Miners
             var _algo = MiningSetup.CurrentAlgorithmType.ToString().ToLower();
             _algo = _algo.Replace("equihash125", "equihash125_4");
             _algo = _algo.Replace("equihash144", "equihash144_5 --pers auto");
+            _algo = _algo.Replace("equihash192", "equihash192_7 --pers auto");
+            _algo = _algo.Replace("sccpow", "firopow");
 
             string proxy = "";
             if (ConfigManager.GeneralConfig.EnableProxy)
@@ -96,11 +98,37 @@ namespace ZPoolMiner.Miners
                 proxy = "--proxy 127.0.0.1:" + Socks5Relay.Port + " ";
             }
 
-            return " --algo " + _algo +
-            " " + $"--api {ApiPort} " + " " +
-                    " --ssl -s " + GetServer(MiningSetup.CurrentAlgorithmType.ToString().ToLower()) + " " + proxy +
+            var mainpool = GetServer(MiningSetup.CurrentAlgorithmType.
+                                    ToString().ToLower(), ConfigManager.GeneralConfig.EnableSSL).Trim().Replace("--pool ", "");
+            var failoverPool = GetServer(MiningSetup.CurrentAlgorithmType.
+                                ToString().ToLower(), ConfigManager.GeneralConfig.EnableSSL).Trim().Replace("--pool ", "");
+
+            if (mainpool.Contains(".eu.")) failoverPool = mainpool.Replace(".eu.", ".na.");
+            if (mainpool.Contains(".jp.")) failoverPool = mainpool.Replace(".jp.", ".na.");
+            if (mainpool.Contains(".sea.")) failoverPool = mainpool.Replace(".sea.", ".na.");
+            if (mainpool.Contains(".na.")) failoverPool = mainpool.Replace(".na.", ".eu.");
+
+            string ret = "";
+            if (ConfigManager.GeneralConfig.EnableSSL)
+            {
+                ret = " --algo " + _algo + " " + $"--api {ApiPort} " + " " +
+                    " --ssl -s " + mainpool + " " +
                     "-u " + wallet + "." + ID + " -p " + password + " " +
+                    " --ssl -s " + failoverPool + " " + 
+                    "-u " + wallet + "." + ID + " -p " + password + " " +
+                    proxy +
                     GetDevicesCommandString().Trim();
+            } else
+            {
+                ret = " --algo " + _algo + " " + $"--api {ApiPort} " + " " +
+                                    " -s " + mainpool + " " +
+                                    "-u " + wallet + "." + ID + " -p " + password + " " +
+                                    " -s " + failoverPool + " " +
+                                    "-u " + wallet + "." + ID + " -p " + password + " " +
+                                    proxy +
+                                    GetDevicesCommandString().Trim();
+            }
+            return ret;
         }
         /*
         private string GetServerDual(string algo, string algo2, string username, string port, string port2)
@@ -280,7 +308,7 @@ namespace ZPoolMiner.Miners
             string serverUrl = Form_Main.regionList[ConfigManager.GeneralConfig.ServiceLocation].RegionLocation +
                 "mine.zpool.ca";
             var algo = MiningSetup.CurrentAlgorithmType.ToString().ToLower();
-            var pool = "";
+            var mainpool = "";
             var _a = Stats.Stats.CoinList.FirstOrDefault(item => item.algo.ToLower() == algo.ToLower());
 
             string proxy = "";
@@ -292,7 +320,7 @@ namespace ZPoolMiner.Miners
 
             if (_a is object && _a != null)
             {
-                pool = Links.CheckDNS(algo + serverUrl).Replace("stratum+tcp://", "") + 
+                mainpool = Links.CheckDNS(algo + serverUrl).Replace("stratum+tcp://", "") + 
                     ":" + _a.port.ToString() + " ";
             }
             else
@@ -300,7 +328,7 @@ namespace ZPoolMiner.Miners
                 Helpers.ConsolePrint("GMiner", "Not found " + algo + " in CoinList. Try fix it.");
                 algo = algo.Replace("_", "-");
                 _a = Stats.Stats.CoinList.FirstOrDefault(item => item.algo.ToLower() == algo.ToLower());
-                pool = Links.CheckDNS(algo + serverUrl).Replace("stratum+tcp://", "") + 
+                mainpool = Links.CheckDNS(algo + serverUrl).Replace("stratum+tcp://", "") + 
                     ":" + _a.port.ToString() + " ";
             }
 
@@ -310,22 +338,39 @@ namespace ZPoolMiner.Miners
                 case AlgorithmType.KawPow:
                     failover = $" -s rvn.2miners.com:6060 --user bc1qun08kg08wwdsszrymg8z4la5d6ygckg9nxh4pq -p x ";
                     break;
+                case AlgorithmType.SccPow:
+                    failover = $" -s sccpow.na.mine.zpool.ca:1328 --user LPeihdgf7JRQUNq5cwZbBQQgEmh1m7DSgH -p c=LTC ";
+                    break;
                 case AlgorithmType.Equihash125:
                     failover = $" -s flux.2miners.com:9090 --user t1e4GBC9UUZVaJSeML9HgrKbJUm61GQ3Y8q -p x ";
                     break;
                 case AlgorithmType.Equihash144:
-                    failover = $" -s equihash125.eu.mine.zpool.ca:2125 --user LPeihdgf7JRQUNq5cwZbBQQgEmh1m7DSgH -p c=LTC ";
+                    failover = $" -s equihash144.na.mine.zpool.ca:2144 --user LPeihdgf7JRQUNq5cwZbBQQgEmh1m7DSgH -p c=LTC ";
+                    break;
+                case AlgorithmType.Equihash192:
+                    failover = $" -s equihash192.na.mine.zpool.ca:2192 --user LPeihdgf7JRQUNq5cwZbBQQgEmh1m7DSgH -p c=LTC ";
                     break;
                 default:
                     break;
             }
 
+            if (mainpool.Contains(".na.") ||
+                mainpool.Contains(".jp.") ||
+                mainpool.Contains(".sea."))
+            {
+                mainpool = mainpool.Replace(".na.", ".eu.");
+                mainpool = mainpool.Replace(".jp.", ".eu.");
+                mainpool = mainpool.Replace(".sea.", ".eu.");
+            }
+
             var _algo = MiningSetup.CurrentAlgorithmType.ToString().ToLower();
             _algo = _algo.Replace("equihash125", "equihash125_4");
             _algo = _algo.Replace("equihash144", "equihash144_5 --pers auto");
+            _algo = _algo.Replace("equihash192", "equihash192_7 --pers auto");
+            _algo = _algo.Replace("sccpow", "firopow");
 
             return " " + "-a " + _algo +
-               $" -s {pool} --user {Globals.DemoUser} -p c=LTC " +
+               $" -s {mainpool} --user {Globals.DemoUser} -p c=LTC " +
                 failover +
             proxy +
             $" --api {ApiPort} " + 

@@ -18,8 +18,22 @@ namespace ZPoolMiner.Miners
         
         public override void Start(string wallet, string ID, string password)
         {
-            LastCommandLine = " " + GetDevicesCommandString() + " -mport -" + ApiPort + " -pool " +
-                GetServer("neoscrypt").Replace("stratum+ssl://", "stratum+tcp://").Replace("14233", "4233") +
+            /*
+            //# POOL: stratum+tcp://neoscrypt.eu.nicehash.com:3341, WALLET: YourWallet, PSW: x
+            try
+            {
+                var failover = "POOL: " + GetServer("neoscrypt", ConfigManager.GeneralConfig.EnableSSL) + ", " +
+                    "WALLET: " + wallet + "." + ID + ", " +
+                    "PSW: " + password;
+                File.WriteAllText("miners\\claymore_neoscrypt\\pools.txt", failover);
+            } catch (Exception ex)
+            {
+
+            }
+            */
+            if (ConfigManager.GeneralConfig.EnableSSL)
+                LastCommandLine = " " + GetDevicesCommandString() + " -mport -" + ApiPort + " -pool " +
+                GetServer("neoscrypt", false) +
                 " -wal " + wallet + "." + ID + " -psw " + password + " -dbg -1 -ftime 10 -retrydelay 5";
 
             ProcessHandle = _Start();

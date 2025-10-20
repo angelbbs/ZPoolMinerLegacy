@@ -134,8 +134,20 @@ namespace ZPoolMiner.Miners
             var _algo = MiningSetup.CurrentAlgorithmType.ToString().ToLower();
             _algo = _algo.Replace("karlsenhash", "karlsen");
 
+            var mainpool = GetServer(MiningSetup.CurrentAlgorithmType.
+                                    ToString().ToLower()).Trim();
+            var failoverPool = GetServer(MiningSetup.CurrentAlgorithmType.
+                                ToString().ToLower()).Trim();
+
+            if (mainpool.Contains(".eu.")) failoverPool = mainpool.Replace(".eu.", ".na.");
+            if (mainpool.Contains(".jp.")) failoverPool = mainpool.Replace(".jp.", ".na.");
+            if (mainpool.Contains(".sea.")) failoverPool = mainpool.Replace(".sea.", ".na.");
+            if (mainpool.Contains(".na.")) failoverPool = mainpool.Replace(".na.", ".eu.");
+
             LastCommandLine = sc + "" + "-a " + _algo + " " +
-            "-o stratum+tcp://" + GetServer(MiningSetup.CurrentAlgorithmType.ToString().ToLower()) +
+            "-o stratum+tcp://" + mainpool +
+            _wallet + " " + _password +
+            "-o stratum+tcp://" + failoverPool +
             _wallet + " " + _password +
             apiBind + apiBind2 + " " +
             ExtraLaunchParametersParser.ParseForMiningSetup(MiningSetup, DeviceType.AMD) +
@@ -184,8 +196,21 @@ namespace ZPoolMiner.Miners
             var _algo = MiningSetup.CurrentAlgorithmType.ToString().ToLower();
             _algo = _algo.Replace("karlsenhash", "karlsen");
 
+            var mainpool = GetServer(MiningSetup.CurrentAlgorithmType.
+                                    ToString().ToLower()).Trim();
+            var failoverPool = GetServer(MiningSetup.CurrentAlgorithmType.
+                                ToString().ToLower()).Trim();
+
+            if (mainpool.Contains(".eu.")) failoverPool = mainpool.Replace(".eu.", ".na.");
+            if (mainpool.Contains(".jp.")) failoverPool = mainpool.Replace(".jp.", ".na.");
+            if (mainpool.Contains(".sea.")) failoverPool = mainpool.Replace(".sea.", ".na.");
+            if (mainpool.Contains(".na.")) failoverPool = mainpool.Replace(".na.", ".eu.");
+
+
             CommandLine = sc + "" + "-a " + _algo + " " +
-            " -o stratum+tcp://" + GetServer(MiningSetup.CurrentAlgorithmType.ToString().ToLower()) + " " +
+            " -o stratum+tcp://" + mainpool + " " +
+            wallet + " " + password +
+            " -o stratum+tcp://" + failoverPool + " " +
             wallet + " " + password +
                               apiBind +
                               " " +

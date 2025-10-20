@@ -98,6 +98,10 @@ namespace ZPoolMiner.Devices.Algorithms
                             {
                                 ExtraLaunchParameters = "--max-rejected-shares 100 --cpu-threads " + (Environment.ProcessorCount).ToString()
                             },
+                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.YespowerADVC, "YespowerADVC")
+                            {
+                                ExtraLaunchParameters = "--max-rejected-shares 100 --cpu-threads " + (Environment.ProcessorCount).ToString()
+                            },
                             new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.YespowerEQPAY, "YespowerEQPAY")
                             {
                                 ExtraLaunchParameters = "--max-rejected-shares 100 --cpu-threads " + (Environment.ProcessorCount).ToString()
@@ -126,11 +130,6 @@ namespace ZPoolMiner.Devices.Algorithms
                             {
                                 ExtraLaunchParameters = "--max-rejected-shares 100 --cpu-threads " + (Environment.ProcessorCount).ToString()
                             },
-                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.YespowerADVC, "YespowerADVC")
-                            {
-                                ExtraLaunchParameters = "--max-rejected-shares 100 --cpu-threads " + (Environment.ProcessorCount).ToString()
-                            },
-                                                        
                             new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.Yescrypt, "Yescrypt")
                             {
                             ExtraLaunchParameters = "--max-rejected-shares 100 --cpu-threads " + (ComputeDeviceManager.CoresCount).ToString()
@@ -190,6 +189,10 @@ namespace ZPoolMiner.Devices.Algorithms
                             */
                             
                             new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.FiroPow, "FiroPow")
+                            {
+                                ExtraLaunchParameters = "--max-rejected-shares 100"
+                            },
+                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.SccPow, "SccPow")
                             {
                                 ExtraLaunchParameters = "--max-rejected-shares 100"
                             },
@@ -254,10 +257,12 @@ namespace ZPoolMiner.Devices.Algorithms
             {
                 MinerBaseType.lolMiner,
                         new List<Algorithm>() {
+                            /*
                             new Algorithm(MinerBaseType.lolMiner, AlgorithmType.Equihash125, "Equihash125")
                             {
                                 ExtraLaunchParameters = ""
                             },
+                            */
                             new Algorithm(MinerBaseType.lolMiner, AlgorithmType.Equihash144, "Equihash144")
                             {
                                 ExtraLaunchParameters = ""
@@ -297,36 +302,15 @@ namespace ZPoolMiner.Devices.Algorithms
                             {
                                 ExtraLaunchParameters = "--max-rejected-shares 100"
                             },
-                            /*
-                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.SHA3d, "SHA3d")
-                            {
-                            },
-                            */
-                            /*
-                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.SHA512256d, "SHA512256d")
-                            {
-                                ExtraLaunchParameters = "--max-rejected-shares 100"
-                            },
-                            */
-                            
                             new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.Curve, "Curve")
                             {
                                 ExtraLaunchParameters = "--max-rejected-shares 100"
                             },
-                            /*
-                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.Ethash, "Ethash")
-                            {
-                                ExtraLaunchParameters = "--max-rejected-shares 100"
-                            },
-                            */
-                            /*
-                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.Ethashb3, "Ethashb3")
-                            {
-                                ExtraLaunchParameters = "--max-rejected-shares 100"
-                            },
-                            */
-                            
                             new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.FiroPow, "FiroPow")
+                            {
+                                ExtraLaunchParameters = "--max-rejected-shares 100"
+                            },
+                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.SccPow, "SccPow")
                             {
                                 ExtraLaunchParameters = "--max-rejected-shares 100"
                             },
@@ -348,61 +332,19 @@ namespace ZPoolMiner.Devices.Algorithms
                             {
                                 ExtraLaunchParameters = "--max-rejected-shares 100"
                             },
-                            /*
-                             //unstable
-                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.NxlHash, "NxlHash")
-                            {
-                                ExtraLaunchParameters = "--max-rejected-shares 100"
-                            },
-                            */
-                            /*
-                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.PyrinHashV2, "PyrinHashV2")
-                            {
-                                ExtraLaunchParameters = "--max-rejected-shares 100"
-                            },
-                            */
-                            /*
-                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.Yescrypt, "Yescrypt")
-                            {
-                            },
-                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.YescryptR16, "YescryptR16")
-                            {
-                            },
-                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.YescryptR32, "YescryptR32")
-                            {
-                            },
-                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.YescryptR8, "YescryptR8")
-                            {
-                            },
-                            */
-                            /*
-                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.HooHash, "HooHash")
-                            {
-                                ExtraLaunchParameters = "--max-rejected-shares 100"
-                            },
-                            */
-                            
                             new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.MeowPow, "MeowPow")
                             {
                                 ExtraLaunchParameters = "--max-rejected-shares 100"
                             },
                             /*
+                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.SHA512256d, "SHA512256d")
+                            {
+                                ExtraLaunchParameters = "--max-rejected-shares 100"
+                            },
+                            */
+                            /*
                             new DualAlgorithm(MinerBaseType.SRBMiner, AlgorithmType.KarlsenHashV2,
                                 AlgorithmType.HooHash, "KarlsenHashV2+HooHash")
-                            {
-                                ExtraLaunchParameters = "--max-rejected-shares 100"
-                            },
-                            */
-                            /*
-                            new DualAlgorithm(MinerBaseType.SRBMiner, AlgorithmType.Ethashb3,
-                                AlgorithmType.SHA256dt, "Ethashb3+SHA256dt")
-                            {
-                                ExtraLaunchParameters = "--max-rejected-shares 100"
-                            },
-                            */
-                            /*
-                            new DualAlgorithm(MinerBaseType.SRBMiner, AlgorithmType.KarlsenHashV2,
-                                AlgorithmType.PyrinHashV2, "KarlsenHashV2+PyrinHashV2")
                             {
                                 ExtraLaunchParameters = "--max-rejected-shares 100"
                             },
@@ -421,17 +363,17 @@ namespace ZPoolMiner.Devices.Algorithms
                     {
                     },
                     */
+                    /*
                     new Algorithm(MinerBaseType.GMiner, AlgorithmType.Equihash125, "Equihash125")
                     {
                     },
+                    */
                     new Algorithm(MinerBaseType.GMiner, AlgorithmType.Equihash144, "Equihash144")
                     {
                     },
-                    /*
-                    new Algorithm(MinerBaseType.GMiner, AlgorithmType.FiroPow, "FiroPow")
+                    new Algorithm(MinerBaseType.GMiner, AlgorithmType.Equihash192, "Equihash192")//2.75
                     {
                     },
-                    */
                 }
             },
             {
@@ -452,10 +394,12 @@ namespace ZPoolMiner.Devices.Algorithms
             {
                 MinerBaseType.lolMiner,
                         new List<Algorithm>() {
+                            /*
                             new Algorithm(MinerBaseType.lolMiner, AlgorithmType.Equihash125, "Equihash125")
                             {
                                 ExtraLaunchParameters = ""
                             },
+                            */
                             new Algorithm(MinerBaseType.lolMiner, AlgorithmType.Equihash144, "Equihash144")
                             {
                                 ExtraLaunchParameters = ""
@@ -522,9 +466,11 @@ namespace ZPoolMiner.Devices.Algorithms
             },
             { MinerBaseType.miniZ,
                         new List<Algorithm>() {
+                            /*
                             new Algorithm(MinerBaseType.miniZ, AlgorithmType.Equihash125, "Equihash125")
                             {
                             },
+                            */
                             new Algorithm(MinerBaseType.miniZ, AlgorithmType.Equihash144, "Equihash144")
                             {
                             },
@@ -591,6 +537,10 @@ namespace ZPoolMiner.Devices.Algorithms
                             */
                             
                             new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.FiroPow, "FiroPow")
+                            {
+                                ExtraLaunchParameters = "--max-rejected-shares 100"
+                            },
+                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.SccPow, "SccPow")
                             {
                                 ExtraLaunchParameters = "--max-rejected-shares 100"
                             },
@@ -700,9 +650,11 @@ namespace ZPoolMiner.Devices.Algorithms
 
             { MinerBaseType.miniZ,
                         new List<Algorithm>() {
+                            /*
                             new Algorithm(MinerBaseType.miniZ, AlgorithmType.Equihash125, "Equihash125")
                             {
                             },
+                            */
                             new Algorithm(MinerBaseType.miniZ, AlgorithmType.Equihash144, "Equihash144")
                             {
                             },
@@ -738,17 +690,21 @@ namespace ZPoolMiner.Devices.Algorithms
                     {
                     },
                     */
+                    /*
                     new Algorithm(MinerBaseType.GMiner, AlgorithmType.Equihash125, "Equihash125")
                     {
                     },
+                    */
                     new Algorithm(MinerBaseType.GMiner, AlgorithmType.Equihash144, "Equihash144")
                     {
                     },
-                    /*
+                    
                     new Algorithm(MinerBaseType.GMiner, AlgorithmType.Equihash192, "Equihash192")//2.75
                     {
                     },
-                    */
+                    new Algorithm(MinerBaseType.GMiner, AlgorithmType.SccPow, "SccPow")
+                    {
+                    },
                     /*
                     //иногда нет хешрейта
                     new Algorithm(MinerBaseType.GMiner, AlgorithmType.FiroPow, "FiroPow")
@@ -772,10 +728,12 @@ namespace ZPoolMiner.Devices.Algorithms
             {
                 MinerBaseType.lolMiner,
                         new List<Algorithm>() {
+                            /*
                             new Algorithm(MinerBaseType.lolMiner, AlgorithmType.Equihash125, "Equihash125")
                             {
                                 ExtraLaunchParameters = ""
                             },
+                            */
                             new Algorithm(MinerBaseType.lolMiner, AlgorithmType.Equihash144, "Equihash144")
                             {
                                 ExtraLaunchParameters = ""
@@ -843,12 +801,12 @@ namespace ZPoolMiner.Devices.Algorithms
                         ExtraLaunchParameters = "--no-tui --dag-reset-mclock off"
                     },
                     */
-                    
+                    /*
                     new Algorithm(MinerBaseType.Rigel, AlgorithmType.SHA512256d, "SHA512256d")
                     {
                         ExtraLaunchParameters = "--no-tui"
                     },
-                    
+                    */
                     //duals
                     /*
                     new DualAlgorithm(MinerBaseType.Rigel, AlgorithmType.Ethash, AlgorithmType.KarlsenHash,

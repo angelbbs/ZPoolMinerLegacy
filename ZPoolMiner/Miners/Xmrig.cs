@@ -96,12 +96,21 @@ namespace ZPoolMiner.Miners
             string ret = "";
             try
             {
-                algo = algo.Replace("-", "_");
-                var _a = Stats.Stats.CoinList.FirstOrDefault(item => item.algo.ToLower() == algo.ToLower());
-
-                string serverUrl = Form_Main.regionList[ConfigManager.GeneralConfig.ServiceLocation].RegionLocation +
-                    "mine.zpool.ca";
-                ret = "-o " + Links.CheckDNS(algo + serverUrl).Replace("stratum+tcp://", "stratum+ssl://") + ":" + _a.ssl_port.ToString();
+                if (ConfigManager.GeneralConfig.EnableSSL)
+                {
+                    algo = algo.Replace("-", "_");
+                    var _a = Stats.Stats.CoinList.FirstOrDefault(item => item.algo.ToLower() == algo.ToLower());
+                    string serverUrl = Form_Main.regionList[ConfigManager.GeneralConfig.ServiceLocation].RegionLocation +
+                        "mine.zpool.ca";
+                    ret = "-o " + Links.CheckDNS(algo + serverUrl).Replace("stratum+tcp://", "stratum+ssl://") + ":" + _a.ssl_port.ToString();
+                } else
+                {
+                    algo = algo.Replace("-", "_");
+                    var _a = Stats.Stats.CoinList.FirstOrDefault(item => item.algo.ToLower() == algo.ToLower());
+                    string serverUrl = Form_Main.regionList[ConfigManager.GeneralConfig.ServiceLocation].RegionLocation +
+                        "mine.zpool.ca";
+                    ret = "-o " + Links.CheckDNS(algo + serverUrl) + ":" + _a.port.ToString();
+                }
             }
             catch (Exception ex)
             {

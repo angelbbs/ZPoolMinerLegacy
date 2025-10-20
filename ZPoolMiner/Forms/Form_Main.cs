@@ -1066,7 +1066,13 @@ namespace ZPoolMiner
             Application.DoEvents();
             Helpers.SetDefaultEnvironmentVariables();
             new Task(() => FlushCache()).Start();
-
+            /*
+            var pc = ProxyChecker.CheckProxies("193.106.150.178");
+            Helpers.ConsolePrint("******************", "HTTPS Proxy IP: " + pc.Ip +
+                " Speed: " + pc.tcpSpeed.ToString() + " tcpValid: " + pc.tcpValid.ToString());
+            Helpers.ConsolePrint("******************", "SOCKS5 Proxy IP: " + pc.Ip +
+                " Speed: " + pc.sslSpeed.ToString() + " sslValid: " + pc.sslValid.ToString());
+            */
             ZoneSchedule1 = ConfigManager.GeneralConfig.ZoneSchedule1;
             ZoneSchedule2 = ConfigManager.GeneralConfig.ZoneSchedule2;
             ZoneSchedule3 = ConfigManager.GeneralConfig.ZoneSchedule3;
@@ -1250,7 +1256,7 @@ namespace ZPoolMiner
 
             _loadingScreen.SetValueAndMsg(26, "Checking proxy");
             //new Task(() => Stats.ProxyCheck.GetHttpsProxy()).Start();
-            Stats.ProxyCheck.GetHttpsProxy();
+            Stats.ProxyCheck.GetProxy();
 
             _loadingScreen.SetValueAndMsg(28, International.GetText("Form_Main_loadtext_GetBalance"));
             //_getBalanceTimer = new Timer();

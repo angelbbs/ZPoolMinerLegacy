@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Management;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -137,6 +138,50 @@ namespace ZPoolMiner.Devices
                 }
                 ResumeThread(pOpenThread);
             }
+        }
+        private static int _ChildPid = -1;
+        public static int SetChildPid(this Process process) 
+        {
+            _ChildPid = -1;
+            if (process.StartInfo.FileName.Contains("cmd.exe"))
+            {
+                int count = 0;
+                do
+                {
+                    _ChildPid = GetChildProcess(process.Id, "miner275");
+                    if (_ChildPid > 0) break;
+                    count++;
+                } while (count < 200);
+            }
+            return _ChildPid;
+        }
+        public static int GetChildPid(this Process process)
+        {
+            return _ChildPid;
+        }
+        private static int GetChildProcess(int ProcessId, string fname = "miner")
+        {
+            Process[] localByName = Process.GetProcessesByName(fname);
+            foreach (var processName in localByName)
+            {
+                int t = Process.GetProcessById(processName.Id).Id;
+                int p = GetParentProcess(t);
+                if (p == ProcessId)
+                {
+                    return t;
+                }
+            }
+            return -1;
+        }
+        private static int GetParentProcess(int Id)
+        {
+            int parentPid = 0;
+            using (ManagementObject mo = new ManagementObject("win32_process.handle='" + Id.ToString() + "'"))
+            {
+                mo.Get();
+                parentPid = Convert.ToInt32(mo["ParentProcessId"]);
+            }
+            return parentPid;
         }
 
         [DllImport("ntdll.dll", PreserveSig = false)]

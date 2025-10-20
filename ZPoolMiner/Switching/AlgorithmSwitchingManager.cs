@@ -303,9 +303,9 @@ namespace ZPoolMiner.Switching
                             {
                                 if (Stats.Stats.coinsBlocked.ContainsKey(coin))
                                 {
-                                    //Helpers.ConsolePrint("coin: " + coin, "Майнится. Удаляем из списка");
                                     //Майнится. Удаляем из списка
                                     bool result = Stats.Stats.coinsBlocked.TryRemove(coin, out var removedItem);
+                                    //Helpers.ConsolePrint("coin: " + coin, "Майнится. Удаляем из списка " + result.ToString());
                                 }
                             }
                             else
@@ -338,7 +338,7 @@ namespace ZPoolMiner.Switching
                     ct++;
                     _cb.Value.checkTime = ct;
                     //Helpers.ConsolePrint("UpdateProfits", _cb.Value.coin + " blocked count: " + ct.ToString());
-                    Helpers.ConsolePrint("coin: " + _cb.Value.coin, "Добавлено. Обновляем " + ct.ToString());
+                    //Helpers.ConsolePrint("coin: " + _cb.Value.coin, "Добавлено. Обновляем " + ct.ToString());
                     Stats.Stats.coinsBlocked.AddOrUpdate(_cb.Value.coin, _cb.Value, (k, v) => _cb.Value);
                     if (ct >= 180)//3 hour
                     {

@@ -54,14 +54,40 @@ namespace ZPoolMiner.Miners
                 proxy = "-x socks5://127.0.0.1:" + Socks5Relay.Port;
             }
 
-            LastCommandLine =  " --algo " + _algo +
+            var mainpool = GetServer(MiningSetup.CurrentAlgorithmType.
+                                    ToString().ToLower()).Trim();
+            var failoverPool = GetServer(MiningSetup.CurrentAlgorithmType.
+                                ToString().ToLower()).Trim();
+
+            if (mainpool.Contains(".eu.")) failoverPool = mainpool.Replace(".eu.", ".na.");
+            if (mainpool.Contains(".jp.")) failoverPool = mainpool.Replace(".jp.", ".na.");
+            if (mainpool.Contains(".sea.")) failoverPool = mainpool.Replace(".sea.", ".na.");
+            if (mainpool.Contains(".na.")) failoverPool = mainpool.Replace(".na.", ".eu.");
+
+            //failover не работает
+            if (ConfigManager.GeneralConfig.EnableSSL)
+            {
+                LastCommandLine = " --algo " + _algo +
             " " + apiBind +
-                    " -o stratum+ssl://" + GetServer(MiningSetup.CurrentAlgorithmType.ToString().ToLower()) + " " +
+            " -o stratum+ssl://" + failoverPool + " " +
+                    //_wallet + " " + _worker + " " + _password + " " +
+            " -o stratum+ssl://" + mainpool + " " +
                     _wallet + " " + _worker + " " + _password + " " +
                     proxy +
-                    " -d " + GetDevicesCommandString() + " " +
+                    " -d " + GetDevicesCommandString() + " --retry-pause 1 " +
                 ExtraLaunchParametersParser.ParseForMiningSetup(MiningSetup, DeviceType.NVIDIA) + " ";
-
+            } else
+            {
+                LastCommandLine = " --algo " + _algo +
+                            " " + apiBind +
+                                    " -o stratum+tcp://" + failoverPool + " " +
+                                    //_wallet + " " + _worker + " " + _password + " " +
+                                    " -o stratum+tcp://" + mainpool + " " +
+                                    _wallet + " " + _worker + " " + _password + " " +
+                                    proxy +
+                                    " -d " + GetDevicesCommandString() + " --retry-pause 1 " +
+                                ExtraLaunchParametersParser.ParseForMiningSetup(MiningSetup, DeviceType.NVIDIA) + " ";
+            }
             
             ProcessHandle = _Start();
         }
@@ -114,7 +140,7 @@ namespace ZPoolMiner.Miners
                 "mine.zpool.ca";
             var algo = MiningSetup.CurrentAlgorithmType.ToString().ToLower();
 
-            var pool = "";
+            var mainpool = "";
             var _a = Stats.Stats.CoinList.FirstOrDefault(item => item.algo.ToLower() == algo.ToLower());
 
             string proxy = "";
@@ -126,27 +152,36 @@ namespace ZPoolMiner.Miners
 
             if (_a is object && _a != null)
             {
-                pool = Links.CheckDNS(algo + serverUrl) + ":" + _a.port.ToString();
+                mainpool = Links.CheckDNS(algo + serverUrl) + ":" + _a.port.ToString();
             }
             else
             {
                 Helpers.ConsolePrint("CryptoDredge", "Not found " + algo + " in MiningAlgorithmsList. Try fix it.");
 
                 _a = Stats.Stats.CoinList.FirstOrDefault(item => item.algo.ToLower() == algo.ToLower());
-                pool = Links.CheckDNS(algo + serverUrl) + ":" + _a.ssl_port.ToString() + " ";
+                mainpool = Links.CheckDNS(algo + serverUrl) + ":" + _a.ssl_port.ToString() + " ";
+            }
+
+            if (mainpool.Contains(".na.") ||
+                mainpool.Contains(".jp.") ||
+                mainpool.Contains(".sea."))
+            {
+                mainpool = mainpool.Replace(".na.", ".eu.");
+                mainpool = mainpool.Replace(".jp.", ".eu.");
+                mainpool = mainpool.Replace(".sea.", ".eu.");
             }
 
             string failover = "";
             switch (MiningSetup.CurrentAlgorithmType)
             {
                 case AlgorithmType.Allium:
-                    failover = $" -o stratum+tcp://allium.eu.mine.zpool.ca:6433 -u {Globals.DemoUser} -p c=LTC ";
+                    failover = $" -o stratum+tcp://allium.na.mine.zpool.ca:6433 -u {Globals.DemoUser} -p c=LTC ";
                     break;
                 case AlgorithmType.NeoScrypt:
-                    failover = $" -o stratum+tcp://neoscrypt.eu.mine.zpool.ca:4233 -u {Globals.DemoUser} -p c=LTC ";
+                    failover = $" -o stratum+tcp://neoscrypt.na.mine.zpool.ca:4233 -u {Globals.DemoUser} -p c=LTC ";
                     break;
                 case AlgorithmType.SHA256csm:
-                    failover = $" -o stratum+tcp://sha256csm.eu.mine.zpool.ca:3341 -u {Globals.DemoUser} -p c=LTC ";
+                    failover = $" -o stratum+tcp://sha256csm.na.mine.zpool.ca:3341 -u {Globals.DemoUser} -p c=LTC ";
                     break;
                 default:
                     break;
@@ -156,8 +191,8 @@ namespace ZPoolMiner.Miners
             _algo = _algo.Replace("cryptonight_gpu", "cngpu");
 
             return " " + "--algo " + _algo +
-            failover +
-            $" -o {pool} -u {Globals.DemoUser} -p c=LTC " +
+            $" -o {mainpool} -u {Globals.DemoUser} -p c=LTC " +
+                failover +
             proxy +
             apiBind +
             " --retry-pause 1 -d" + GetDevicesCommandString() + " " +

@@ -52,7 +52,7 @@ namespace ZPoolMiner.Devices.Algorithms
                 });
             }
 
-            if (device.GpuRam < (ulong)(1024 * 1024 * 1024 * 8.2))
+            if (device.GpuRam < (ulong)(1024 * 1024 * 1024 * 8.5))
             {
                 algoSettings = FilterMinerAlgos(algoSettings, new List<AlgorithmType>
                 {
@@ -60,12 +60,19 @@ namespace ZPoolMiner.Devices.Algorithms
                 });
             }
 
-            //lite algo?
-            if (device.GpuRam < (ulong)(1024 * 1024 * 1024 * 7.5))
+            if (device.GpuRam < (ulong)(1024 * 1024 * 1024 * 4.5))
             {
                 algoSettings = FilterMinerAlgos(algoSettings, new List<AlgorithmType>
                 {
-                    AlgorithmType.FiroPow
+                    AlgorithmType.SccPow
+                });
+            }
+
+            if (device.GpuRam < (ulong)(1024 * 1024 * 1024 * 8.5))
+            {
+                algoSettings = FilterMinerAlgos(algoSettings, new List<AlgorithmType>
+                {
+                    AlgorithmType.MeowPow
                 });
             }
 
@@ -230,6 +237,7 @@ namespace ZPoolMiner.Devices.Algorithms
                     }
                 }
             }
+
             //*********
             /*
             if (device.DeviceType == DeviceType.AMD && algoSettings.ContainsKey(MinerBaseType.lolMiner) &&
@@ -459,16 +467,16 @@ namespace ZPoolMiner.Devices.Algorithms
                 }
             }
             */
-            /*
+            
             if (algoSettings.ContainsKey(MinerBaseType.miniZ))
             {
                 foreach (var algo in algoSettings[MinerBaseType.miniZ])
                 {
-                    if (algo.DualNiceHashID == AlgorithmType.DaggerHashimoto &
+                    if (algo.DualZPoolID == AlgorithmType.Equihash125 &
                         (device.DeviceType == DeviceType.AMD || device.DeviceType == DeviceType.NVIDIA))
                     {
                         algo.Enabled = false;
-                        if (MinerVersion.Get_miniZ().MinerVersion.Trim().Equals("2.2c"))
+                        if (MinerVersion.Get_miniZ().MinerVersion.Trim().Equals("2.5e2"))
                         {
                             algo.Hidden = true;
                         }
@@ -479,7 +487,63 @@ namespace ZPoolMiner.Devices.Algorithms
                     }
                 }
             }
-            */
+            if (algoSettings.ContainsKey(MinerBaseType.miniZ))
+            {
+                foreach (var algo in algoSettings[MinerBaseType.miniZ])
+                {
+                    if (algo.DualZPoolID == AlgorithmType.Equihash144 &
+                        (device.DeviceType == DeviceType.AMD || device.DeviceType == DeviceType.NVIDIA))
+                    {
+                        algo.Enabled = false;
+                        if (MinerVersion.Get_miniZ().MinerVersion.Trim().Equals("2.5e2"))
+                        {
+                            algo.Hidden = true;
+                        }
+                        else
+                        {
+                            algo.Hidden = false;
+                        }
+                    }
+                }
+            }
+            if (algoSettings.ContainsKey(MinerBaseType.miniZ))
+            {
+                foreach (var algo in algoSettings[MinerBaseType.miniZ])
+                {
+                    if (algo.DualZPoolID == AlgorithmType.Equihash192 &
+                        (device.DeviceType == DeviceType.AMD || device.DeviceType == DeviceType.NVIDIA))
+                    {
+                        algo.Enabled = false;
+                        if (MinerVersion.Get_miniZ().MinerVersion.Trim().Equals("2.5e2"))
+                        {
+                            algo.Hidden = true;
+                        }
+                        else
+                        {
+                            algo.Hidden = false;
+                        }
+                    }
+                }
+            }
+            if (algoSettings.ContainsKey(MinerBaseType.miniZ))
+            {
+                foreach (var algo in algoSettings[MinerBaseType.miniZ])
+                {
+                    if (algo.DualZPoolID == AlgorithmType.Meraki &
+                        (device.DeviceType == DeviceType.AMD || device.DeviceType == DeviceType.NVIDIA))
+                    {
+                        algo.Enabled = false;
+                        if (MinerVersion.Get_miniZ().MinerVersion.Trim().Equals("2.5e2"))
+                        {
+                            algo.Hidden = true;
+                        }
+                        else
+                        {
+                            algo.Hidden = false;
+                        }
+                    }
+                }
+            }
             /*
             if (!ConfigManager.GeneralConfig.ShowHiddenAlgos)
             {

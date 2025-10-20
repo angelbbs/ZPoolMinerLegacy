@@ -15,9 +15,9 @@ namespace ZPoolMiner.Stats
         public static List<ProxyChecker.Proxy> HttpsProxyList = new();
         public static List<ProxyChecker.Proxy> HTTPSInvalidProxyList = new();
         public static ProxyChecker.Proxy CurrentHttpsProxy = new();
-        public static void GetHttpsProxy()
+        public static void GetProxy()
         {
-            Helpers.ConsolePrint("GetHttpsProxy", "Start check https proxy");
+            //Helpers.ConsolePrint("GetHttpsProxy", "Start check https proxy");
             /*
             try
             {
@@ -97,23 +97,35 @@ namespace ZPoolMiner.Stats
             }
             */
             ProxyChecker.Proxy proxy = new();
-            
             proxy.Ip = "193.106.150.178";
             proxy.HTTPSPort = 13150;
             proxy.Socks5Port = 13155;
-            proxy.Valid = true;
-            proxy.Speed = 1; 
-            
+            proxy.tcpValid = true;
+            proxy.sslValid = true;
+            proxy.allValid = true;
+            //proxy.Speed = 0;
             HttpsProxyList.Add(proxy);
-
+            /*
+            proxy = new();
+            proxy.Ip = "94.231.123.82";
+            proxy.HTTPSPort = 13150;
+            proxy.Socks5Port = 13155;
+            proxy.tcpValid = true;
+            proxy.sslValid = true;
+            proxy.allValid = true;
+            proxy.Speed = 1;
+            HttpsProxyList.Add(proxy);
+            */
             proxy = new();
             proxy.Ip = "31.58.171.225";
             proxy.HTTPSPort = 13150;
             proxy.Socks5Port = 13155;
-            proxy.Valid = true;
-            proxy.Speed = 2;
+            proxy.tcpValid = false;
+            proxy.sslValid = true;
+            proxy.allValid = true;
+            //proxy.Speed = 1;
             HttpsProxyList.Add(proxy);
-            
+
             /*
             proxy.Ip = "192.168.1.110";
             proxy.HTTPSPort = 13150;
@@ -122,10 +134,11 @@ namespace ZPoolMiner.Stats
             proxy.Speed = 1;
             HttpsProxyList.Add(proxy);
             */
-
-            Stats.CurrentProxyIP = HttpsProxyList[0].Ip;
-            Stats.CurrentProxySocks5SPort = HttpsProxyList[0].Socks5Port;
-            HttpsProxyList = HttpsProxyList.OrderBy(s => s.Speed).ToList();
+            Stats.CurrentProxyIP = ProxyCheck.HttpsProxyList[0].Ip;
+            Stats.CurrentProxyHTTPSPort = ProxyCheck.HttpsProxyList[0].HTTPSPort;
+            Stats.CurrentProxySocks5SPort = ProxyCheck.HttpsProxyList[0].Socks5Port;
+            Helpers.ConsolePrintError("GetProxy", "Set to " + Stats.CurrentProxyIP + " proxy");
+            //HttpsProxyList = HttpsProxyList.OrderBy(s => s.sslSpeed).ToList();
             /*
             foreach (var p in HttpsProxyList)
             {
@@ -133,6 +146,17 @@ namespace ZPoolMiner.Stats
             }
             Helpers.ConsolePrint("GetHttpsProxy", "Valid " + HttpsProxyList.Count.ToString() + " of " + _HttpsProxyList.Count.ToString());
             */
+        }
+        public static void ProxyRotate()
+        {
+            //переключение на другой прокси
+            var first = ProxyCheck.HttpsProxyList[0];
+            ProxyCheck.HttpsProxyList.RemoveAt(0);
+            ProxyCheck.HttpsProxyList.Add(first);
+            Stats.CurrentProxyIP = ProxyCheck.HttpsProxyList[0].Ip;
+            Stats.CurrentProxyHTTPSPort = ProxyCheck.HttpsProxyList[0].HTTPSPort;
+            Stats.CurrentProxySocks5SPort = ProxyCheck.HttpsProxyList[0].Socks5Port;
+            Helpers.ConsolePrintError("ProxyRotate", "Switch to " + Stats.CurrentProxyIP + " proxy");
         }
     }
 }
