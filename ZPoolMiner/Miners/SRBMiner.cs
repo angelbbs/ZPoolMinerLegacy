@@ -298,6 +298,10 @@ namespace ZPoolMiner.Miners
                     failoverPool = "stratum+tcp://yespowerADVC.na.mine.zpool.ca:6248";
                     failoverWallet = Globals.DemoUser;
                     break;
+                case AlgorithmType.YespowerR16:
+                    failoverPool = "stratum+tcp://yespowerr16.na.mine.zpool.ca:6534";
+                    failoverWallet = Globals.DemoUser;
+                    break;
                 case AlgorithmType.Interchained:
                     failoverPool = "stratum+tcp://interchained.na.mine.zpool.ca:6250";
                     failoverWallet = Globals.DemoUser;

@@ -51,13 +51,26 @@ namespace ZPoolMiner.Devices.Algorithms
                     AlgorithmType.MeowPow
                 });
             }
-
+            /*
             if (device.GpuRam < (ulong)(1024 * 1024 * 1024 * 8.5))
             {
                 algoSettings = FilterMinerAlgos(algoSettings, new List<AlgorithmType>
                 {
                     AlgorithmType.FiroPow
                 });
+            }
+            */
+
+            if (device.GpuRam < (ulong)(1024 * 1024 * 1024 * 10.5))
+            {
+                foreach (var algo in algoSettings[MinerBaseType.SRBMiner])
+                {
+                    if (algo.DualZPoolID == AlgorithmType.FiroPow)
+                    {
+                        algo.Enabled = false;
+                        algo.Hidden = true;
+                    }
+                }
             }
 
             if (device.GpuRam < (ulong)(1024 * 1024 * 1024 * 4.5))
@@ -467,7 +480,7 @@ namespace ZPoolMiner.Devices.Algorithms
                 }
             }
             */
-            
+            /*
             if (algoSettings.ContainsKey(MinerBaseType.miniZ))
             {
                 foreach (var algo in algoSettings[MinerBaseType.miniZ])
@@ -544,6 +557,7 @@ namespace ZPoolMiner.Devices.Algorithms
                     }
                 }
             }
+            */
             /*
             if (!ConfigManager.GeneralConfig.ShowHiddenAlgos)
             {

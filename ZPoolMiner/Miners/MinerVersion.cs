@@ -1303,6 +1303,10 @@ namespace ZPoolMiner.Miners
             {
                 miner = miner + " 0.23.0";
             }
+            else if (miner.ToLower().Contains("cryptodredge") && (algo.ToLower().Contains("hmq1725")))
+            {
+                miner = miner + " 0.23.0";
+            }
             else if (miner.ToLower().Contains("srbminer") &&
               (algo.ToLower().Contains("meowpow")))
             {
@@ -1315,6 +1319,11 @@ namespace ZPoolMiner.Miners
             }
             else if (miner.ToLower().Contains("srbminer") &&
               (algo.ToLower().Contains("hoohash")))
+            {
+                miner = miner + " 2.6.9";
+            }
+            else if (miner.ToLower().Contains("srbminer") &&
+              (algo.ToLower().Contains("argon")))
             {
                 miner = miner + " 2.6.9";
             }

@@ -118,6 +118,10 @@ namespace ZPoolMiner.Devices.Algorithms
                             {
                                 ExtraLaunchParameters = "--max-rejected-shares 100 --cpu-threads " + (Environment.ProcessorCount).ToString()
                             },
+                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.YespowerR16, "YespowerR16")
+                            {
+                                ExtraLaunchParameters = "--max-rejected-shares 100 --cpu-threads " + (Environment.ProcessorCount).ToString()
+                            },
                             new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.YespowerSUGAR, "YespowerSUGAR")
                             {
                                 ExtraLaunchParameters = "--max-rejected-shares 100 --cpu-threads " + (Environment.ProcessorCount).ToString()
@@ -336,6 +340,28 @@ namespace ZPoolMiner.Devices.Algorithms
                             {
                                 ExtraLaunchParameters = "--max-rejected-shares 100"
                             },
+                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.Yescrypt, "Yescrypt")
+                            {
+                                ExtraLaunchParameters = "--max-rejected-shares 100"
+                            },
+                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.YescryptR8, "YescryptR8")
+                            {
+                                ExtraLaunchParameters = "--max-rejected-shares 100"
+                            },
+                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.YescryptR16, "YescryptR16")
+                            {
+                                ExtraLaunchParameters = "--max-rejected-shares 100"
+                            },
+                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.YescryptR32, "YescryptR32")
+                            {
+                                ExtraLaunchParameters = "--max-rejected-shares 100"
+                            },
+                            /*
+                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.Argon2d16000, "Argon2d16000")
+                            {
+                                ExtraLaunchParameters = "--max-rejected-shares 100"
+                            },
+                            */
                             /*
                             new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.SHA512256d, "SHA512256d")
                             {
@@ -480,21 +506,13 @@ namespace ZPoolMiner.Devices.Algorithms
                             
                             new Algorithm(MinerBaseType.miniZ, AlgorithmType.KawPow, "KawPow")
                             {
-                            },
+                            }
+                            //почему-то под программой не запускается
                             /*
-                            //не работает
-                            new Algorithm(MinerBaseType.miniZ, AlgorithmType.EvrProgPow, "EvrProgPow")
-                            {
-                            },
-                            */
-                            /*
-                            new Algorithm(MinerBaseType.miniZ, AlgorithmType.Ethashb3, "Ethashb3")
-                            {
-                            },
-                            */
                             new Algorithm(MinerBaseType.miniZ, AlgorithmType.Meraki, "Meraki")
                             {
                             }
+                            */
                         }
             },
         }.ConcatDictList(All, Gpu);
@@ -610,7 +628,7 @@ namespace ZPoolMiner.Devices.Algorithms
                             //new Algorithm(MinerBaseType.CryptoDredge, AlgorithmType.Cryptonight_GPU, "Cryptonight_GPU"),
                             new Algorithm(MinerBaseType.CryptoDredge, AlgorithmType.Allium, "Allium"),
                             new Algorithm(MinerBaseType.CryptoDredge, AlgorithmType.SHA256csm, "SHA256csm"),
-                            //new Algorithm(MinerBaseType.CryptoDredge, AlgorithmType.FiroPow, "FiroPow")
+                            new Algorithm(MinerBaseType.CryptoDredge, AlgorithmType.Hmq1725, "Hmq1725")
                         }
             },
             { MinerBaseType.Nanominer,
@@ -660,16 +678,13 @@ namespace ZPoolMiner.Devices.Algorithms
                             },
                             new Algorithm(MinerBaseType.miniZ, AlgorithmType.Equihash192, "Equihash192")
                             {
-                            },
-                            
+                            }
+                            //почему-то под программой не запускается
                             /*
-                            new Algorithm(MinerBaseType.miniZ, AlgorithmType.Ethashb3, "Ethashb3")
-                            {
-                            },
-                            */
                             new Algorithm(MinerBaseType.miniZ, AlgorithmType.Meraki, "Meraki")
                             {
                             }
+                            */
                         }
             },
 

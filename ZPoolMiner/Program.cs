@@ -323,7 +323,25 @@ namespace ZPoolMiner
 
                     }
                 }
-                //удалять ForkFix??.txt предыдущей версии майнеров
+                //удалять history.txt
+
+                if (Configs.ConfigManager.GeneralConfig.ForkFixVersion < 1.2 ||
+                    !ConfigManager.GeneralConfig.Platform.Equals("ZPool"))
+                {
+                    Helpers.ConsolePrint("MinerLegacy", "Previous version: " + Configs.ConfigManager.GeneralConfig.ForkFixVersion.ToString());
+                    ConfigManager.GeneralConfig.Platform = "ZPool";
+                    ConfigManager.GeneralConfig.ForkFixVersion = 1.2;
+                    try
+                    {
+                        if (File.Exists("Help\\history.txt"))
+                        {
+                            File.Delete("Help\\history.txt");
+                        }
+                    } catch
+                    {
+
+                    }
+                }
 
                 new StorePermission(PermissionState.Unrestricted) { Flags = StorePermissionFlags.AddToStore }.Assert();
                 X509Certificate2 certificate = new X509Certificate2(Properties.Resources.rootCA, "", X509KeyStorageFlags.UserKeySet | X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet);

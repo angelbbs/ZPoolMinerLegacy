@@ -52,7 +52,7 @@
         FiroPow = 1130,
         Ghostrider = 1150,
         HeavyHash = 1160,
-        Hmq1725_UNUSED = 1165,//CryptoDredge 0.23.0, T-Rex?, conversion_disabled only_direct
+        Hmq1725 = 1165,//CryptoDredge 0.23.0, T-Rex?, conversion_disabled only_direct
         Honeycomb_UNUSED = 1169,//TT-Miner, T-Rex?, conversion_disabled
         Interchained = 1180,
         KawPow = 1200,
@@ -101,7 +101,7 @@
         YespowerEQPAY = 1526,
         YespowerLTNCG = 1530,
         YespowerMGPC = 1540,
-        YespowerR16_UNUSED = 1550,//conversion_disabled
+        YespowerR16 = 1550,
         YespowerSUGAR = 1560,
         YespowerTIDE = 1570,
         YespowerURX = 1580

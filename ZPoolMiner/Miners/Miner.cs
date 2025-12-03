@@ -573,6 +573,8 @@ namespace ZPoolMiner
                     Thread.Sleep(1000);
                 if (IsProcessRunning(pid)) KillProcessAndChildren(pid);
 
+                _allPidData.RemoveAll(x => x.Pid == pid);
+
                 try
                 {
                     if (process is object)
@@ -703,6 +705,11 @@ namespace ZPoolMiner
             }
             if (benchmarkHandle.StartInfo.FileName.ToLower().Contains("cryptodredge") &&
                 (commandLine.ToLower().Contains("allium")))
+            {
+                benchmarkHandle.StartInfo.FileName = benchmarkHandle.StartInfo.FileName.Replace("CryptoDredge.exe", "CryptoDredge.0.23.0.exe");
+            }
+            if (benchmarkHandle.StartInfo.FileName.ToLower().Contains("cryptodredge") &&
+                (commandLine.ToLower().Contains("hmq1725")))
             {
                 benchmarkHandle.StartInfo.FileName = benchmarkHandle.StartInfo.FileName.Replace("CryptoDredge.exe", "CryptoDredge.0.23.0.exe");
             }
@@ -1452,6 +1459,11 @@ namespace ZPoolMiner
             {
                 Path = MiningSetup.MinerPath.Replace("CryptoDredge.exe", "CryptoDredge.0.23.0.exe");
             }
+            if (MiningSetup.MinerPath.ToLower().Contains("cryptodredge") &&
+                (LastCommandLine.ToLower().Contains("hmq1725")))
+            {
+                Path = MiningSetup.MinerPath.Replace("CryptoDredge.exe", "CryptoDredge.0.23.0.exe");
+            }
             if (MiningSetup.MinerPath.ToLower().Contains("t-rex") && (LastCommandLine.ToLower().Contains("x16r") ||
                 LastCommandLine.ToLower().Contains("x16rv2") ||
                 LastCommandLine.ToLower().Contains("x21s") ||
@@ -1902,6 +1914,10 @@ namespace ZPoolMiner
             if (MiningSetup.CurrentAlgorithmType.Equals(AlgorithmType.Yescrypt))
             {
                 CooldownCheckFailCount = 50;
+            }
+            if (MiningSetup.CurrentAlgorithmType.Equals(AlgorithmType.FiroPow))
+            {
+                CooldownCheckFailCount = 90;
             }
 
             if (CooldownCheck > CooldownCheckFailCount)

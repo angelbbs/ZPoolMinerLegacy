@@ -126,8 +126,10 @@ namespace ZPoolMiner.Stats
         private static void ReadFromMiner(TcpClient minerClient, Stream minerStream, Stream proxyStream)
         {
             var message = new byte[BufferSize];
+            int count = 0;
             while (true)
             {
+                count++;
                 int minerBytes = 0;
                 try
                 {
@@ -143,6 +145,15 @@ namespace ZPoolMiner.Stats
                 {
                     break;
                 }
+
+                if (message[0] == 5 && message[1] == 1 && message[2] == 0 && message[3] == 3)
+                {
+                    //ParsePacketPoolPort(message);
+                }
+                if (message[0] == 5 && message[1] == 1 && message[2] == 0 && message[3] == 1)
+                {
+                    ParsePacketPort(message, minerStream, proxyStream);
+                }
             }
 
             if (proxyStream is object && proxyStream != null)
@@ -157,6 +168,46 @@ namespace ZPoolMiner.Stats
             }
         }
 
+        private static void ParsePacketPoolPort(byte[] message)
+        {
+            var pool = new byte[128];
+            int length = message[4];
+            Array.ConstrainedCopy(message, 5, pool, 0, length);
+            var _pool = Encoding.ASCII.GetString(pool).Split((char)0)[0]; 
+            int port1 = BitConverter.ToInt32(new byte[] { message[length + 5], 0, 0, 0 }, 0);
+            int port2 = BitConverter.ToInt32(new byte[] { message[length + 6], 0, 0, 0 }, 0);
+
+            Helpers.ConsolePrint("Socks5Relay", "Miner connected througt proxy to: "
+                + _pool + ":" + (port1 * 256 + port2).ToString());
+        }
+        private static void ParsePacketPort(byte[] message, Stream minerStream, Stream proxyStream)
+        {
+            int pool1 = BitConverter.ToInt32(new byte[] { message[4], 0, 0, 0 }, 0);
+            int pool2 = BitConverter.ToInt32(new byte[] { message[5], 0, 0, 0 }, 0);
+            int pool3 = BitConverter.ToInt32(new byte[] { message[6], 0, 0, 0 }, 0);
+            int pool4 = BitConverter.ToInt32(new byte[] { message[7], 0, 0, 0 }, 0);
+
+            int port1 = BitConverter.ToInt32(new byte[] { message[8], 0, 0, 0 }, 0);
+            int port2 = BitConverter.ToInt32(new byte[] { message[9], 0, 0, 0 }, 0);
+            /*
+            Helpers.ConsolePrint("Socks5Relay", "Miner connected througt proxy to: " +
+                pool1.ToString() + "." + pool2.ToString() + "." +
+                pool3.ToString() + "." + pool4.ToString() + ":" +
+                (port1 * 256 + port2).ToString() + " port");
+            */
+            if (port1+port2 == 0)
+            {
+                Helpers.ConsolePrint("Socks5Relay", "Miner connected througt proxy to zero port! Disconnecting");
+                try
+                {
+                    proxyStream.Close();
+                    minerStream.Close();
+                } catch (Exception ex)
+                {
+
+                }
+            }
+        }
         public static bool CheckRelayPort(int Port)
         {
             try

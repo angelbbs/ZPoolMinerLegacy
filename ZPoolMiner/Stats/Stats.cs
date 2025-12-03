@@ -69,7 +69,7 @@ namespace ZPoolMiner.Stats
             string responseFromServer = "";
             if (ConfigManager.GeneralConfig.EnableProxy)
             {
-                foreach (var proxy in ProxyCheck.HttpsProxyList)
+                foreach (var proxy in Enumerable.Reverse(ProxyCheck.HttpsProxyList).ToList())
                 {
                     if (proxy.tcpValid)
                     {
@@ -111,6 +111,9 @@ namespace ZPoolMiner.Stats
                                 {
                                     Helpers.ConsolePrintError("GetPoolApiAsync", "Connect fail via proxy: " +
                                     proxy.Ip + ":" + proxy.HTTPSPort.ToString());
+                                    ProxyCheck.ProxyRotate();
+                                    //тут неправильно всё
+                                    //надо переделать логику выбора и переключения прокси
                                 }
                             }
                         }
@@ -123,7 +126,8 @@ namespace ZPoolMiner.Stats
 
                 if (string.IsNullOrEmpty(responseFromServer))
                 {
-                    Helpers.ConsolePrintError("GetPoolApiAsync", "All proxy unavailable");
+                    Helpers.ConsolePrintError("GetPoolApiAsync", "Current proxy: " +
+                        Stats.CurrentProxyIP);
                     //ProxyCheck.ProxyRotate();
                     //new Task(() => ProxyCheck.GetProxy()).Start();
                 }
@@ -305,7 +309,7 @@ namespace ZPoolMiner.Stats
                 }
 
                 string ResponseFromAPI = await GetPoolApiAsync(link, 7);
-                if (ResponseFromAPI != null)
+                if (!string.IsNullOrEmpty(ResponseFromAPI))
                 {
                     //Helpers.ConsolePrint("************ " + link, ResponseFromAPI);
                     var APIdata = JObject.Parse(ResponseFromAPI);
@@ -382,10 +386,9 @@ namespace ZPoolMiner.Stats
                         */
                         //test
                         /*
-                        if (_coin.symbol.ToLower().Equals("btg"))
+                        if (_coin.symbol.ToLower().Equals("satox"))
                         {
-                            _coin.estimate_current = 9999999;
-                            _coin.tempTTF_Disabled = false;
+                            _coin.estimate = _coin.estimate * 5;
                         }
                         */
                         
@@ -536,8 +539,6 @@ namespace ZPoolMiner.Stats
                     }
 
                     //добавить обязательную проверку на удаленные монеты
-
-                    //7771
                     if (APIdata.Count > 10)
                     {
                         foreach (var c in Enumerable.Reverse(CoinList).ToList())
@@ -909,6 +910,7 @@ namespace ZPoolMiner.Stats
         public static async Task GetWalletBalanceExAsync(object sender, EventArgs e)
         {
             Form_Main.adaptiveRunning = false;
+            double chart_actualProfit = 0d;
             if (string.IsNullOrEmpty(ConfigManager.GeneralConfig.Wallet))
             {
                 Helpers.ConsolePrintError("Stats", "Error getting wallet balance. Wallet not entered");
@@ -923,7 +925,6 @@ namespace ZPoolMiner.Stats
                     double overallBTC = 0;
                     dynamic data = JsonConvert.DeserializeObject(ResponseFromAPI);
                     double localProfit = 0d;
-                    double chart_actualProfit = 0d;
                     double balance = data.balance;
                     Balance = balance;
 
@@ -950,6 +951,8 @@ namespace ZPoolMiner.Stats
                         if (_coin.tempBlock) continue;
 
                         double actualHashrate = 0d;
+
+                        if (data.SelectToken("miners") is object && data.SelectToken("miners") != null)
                         foreach (var cur in data.SelectToken("miners"))
                         {
                             string _algo = cur.SelectToken("algo");
@@ -1137,11 +1140,17 @@ namespace ZPoolMiner.Stats
                             Helpers.WriteAllTextWithBackup("configs\\CoinList.json", json);
                         }
                     }
+                } else
+                {
+                    Form_Main.TotalActualProfitability = 0;
+                    Form_Main.lastRigProfit.currentProfitAPI = 0;
                 }
             }
             catch (Exception ex)
             {
                 Helpers.ConsolePrintError("GetWalletBalance", ex.ToString());
+                Form_Main.TotalActualProfitability = 0;
+                Form_Main.lastRigProfit.currentProfitAPI = 0;
             }
             return;
         }

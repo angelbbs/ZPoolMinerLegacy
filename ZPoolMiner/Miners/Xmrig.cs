@@ -177,7 +177,7 @@ namespace ZPoolMiner.Miners
             switch (MiningSetup.CurrentAlgorithmType)
             {
                 case AlgorithmType.Ghostrider:
-                    failover = $"-o stratum+tcp://ghostrider.eu.mine.zpool.ca:5354 -u {Globals.DemoUser} -p x ";
+                    failover = $"-o stratum+tcp://ghostrider.na.mine.zpool.ca:5354 -u {Globals.DemoUser} -p x ";
                     break;
             }
 

@@ -1,8 +1,8 @@
 {
-  "TimeCached": "2025-10-20T12:46:45.6121924+03:00",
+  "TimeCached": "2025-12-03T15:15:06.9636991+03:00",
   "domains": [
     {
-      "Updated": "2025-09-25T06:52:15.8449586+03:00",
+      "Updated": "2025-12-01T17:55:18.9861093+03:00",
       "domainName": "zpool.ca",
       "IPs": [
         "8.47.69.0",
@@ -38,10 +38,10 @@
       ]
     },
     {
-      "Updated": "2025-10-20T12:01:47.7148186+03:00",
+      "Updated": "2025-12-03T15:15:04.8212029+03:00",
       "domainName": "api.github.com",
       "IPs": [
-        "140.82.121.5"
+        "140.82.121.6"
       ]
     },
     {
@@ -371,6 +371,76 @@
       "domainName": "yescrypt.na.mine.zpool.ca",
       "IPs": [
         "198.50.168.213"
+      ]
+    },
+    {
+      "Updated": "2025-11-23T15:49:43.5717868+03:00",
+      "domainName": "yespowereqpay.na.mine.zpool.ca",
+      "IPs": [
+        "198.50.168.213"
+      ]
+    },
+    {
+      "Updated": "2025-11-23T15:59:49.3637353+03:00",
+      "domainName": "rinhash.na.mine.zpool.ca",
+      "IPs": [
+        "198.50.168.213"
+      ]
+    },
+    {
+      "Updated": "2025-11-25T15:09:12.0358971+03:00",
+      "domainName": "yespowersugar.na.mine.zpool.ca",
+      "IPs": [
+        "198.50.168.213"
+      ]
+    },
+    {
+      "Updated": "2025-11-25T16:13:05.8462469+03:00",
+      "domainName": "yespoweradvc.na.mine.zpool.ca",
+      "IPs": [
+        "198.50.168.213"
+      ]
+    },
+    {
+      "Updated": "2025-11-25T16:33:15.3050792+03:00",
+      "domainName": "yescryptr16.na.mine.zpool.ca",
+      "IPs": [
+        "198.50.168.213"
+      ]
+    },
+    {
+      "Updated": "2025-11-25T16:41:15.9649072+03:00",
+      "domainName": "yespowerr16.na.mine.zpool.ca",
+      "IPs": [
+        "198.50.168.213"
+      ]
+    },
+    {
+      "Updated": "2025-11-25T16:47:56.4235766+03:00",
+      "domainName": "yespowerurx.na.mine.zpool.ca",
+      "IPs": [
+        "198.50.168.213"
+      ]
+    },
+    {
+      "Updated": "2025-11-25T16:55:05.4631222+03:00",
+      "domainName": "flex.na.mine.zpool.ca",
+      "IPs": [
+        "198.50.168.213"
+      ]
+    },
+    {
+      "Updated": "2025-11-25T17:04:31.784604+03:00",
+      "domainName": "ghostrider.na.mine.zpool.ca",
+      "IPs": [
+        "198.50.168.213"
+      ]
+    },
+    {
+      "Updated": "2025-12-03T13:15:24.1677039+03:00",
+      "domainName": "hmq1725.eu.mine.zpool.ca",
+      "IPs": [
+        "188.165.24.209"
       ]
     }
   ]
