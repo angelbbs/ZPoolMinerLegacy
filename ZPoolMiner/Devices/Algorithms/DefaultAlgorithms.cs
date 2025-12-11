@@ -204,13 +204,10 @@ namespace ZPoolMiner.Devices.Algorithms
                             {
                                 ExtraLaunchParameters = "--max-rejected-shares 100"
                             },
-                            /*
-                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.KarlsenHash, "KarlsenHash")
+                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.EvrProgPow, "EvrProgPow")
                             {
                                 ExtraLaunchParameters = "--max-rejected-shares 100"
                             },
-                            */
-                            
                             new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.KawPow, "KawPow")
                             {
                                 ExtraLaunchParameters = "--max-rejected-shares 100"
@@ -356,12 +353,10 @@ namespace ZPoolMiner.Devices.Algorithms
                             {
                                 ExtraLaunchParameters = "--max-rejected-shares 100"
                             },
-                            /*
-                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.Argon2d16000, "Argon2d16000")
+                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.EvrProgPow, "EvrProgPow")
                             {
                                 ExtraLaunchParameters = "--max-rejected-shares 100"
                             },
-                            */
                             /*
                             new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.SHA512256d, "SHA512256d")
                             {
@@ -502,11 +497,19 @@ namespace ZPoolMiner.Devices.Algorithms
                             },
                             new Algorithm(MinerBaseType.miniZ, AlgorithmType.Equihash192, "Equihash192")
                             {
-                            },
-                            
+                            }
+                            //перестал работать с 2.5e3
+                            /*
                             new Algorithm(MinerBaseType.miniZ, AlgorithmType.KawPow, "KawPow")
                             {
                             }
+                            */
+                            //почему-то под программой не запускается
+                            /*
+                            new Algorithm(MinerBaseType.miniZ, AlgorithmType.EvrProgPow, "EvrProgPow")
+                            {
+                            }
+                            */
                             //почему-то под программой не запускается
                             /*
                             new Algorithm(MinerBaseType.miniZ, AlgorithmType.Meraki, "Meraki")
@@ -570,8 +573,6 @@ namespace ZPoolMiner.Devices.Algorithms
                             new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.PhiHash, "PhiHash")
                             {
                             },
-                            
-                            
                             new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.KawPow, "KawPow")
                             {
                                 ExtraLaunchParameters = "--max-rejected-shares 100"
@@ -584,13 +585,10 @@ namespace ZPoolMiner.Devices.Algorithms
                             {
                                 ExtraLaunchParameters = "--max-rejected-shares 100"
                             },
-                            /*
-                             //unstable
-                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.NxlHash, "NxlHash")
+                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.EvrProgPow, "EvrProgPow")
                             {
                                 ExtraLaunchParameters = "--max-rejected-shares 100"
                             },
-                            */
                             /*
                             new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.HooHash, "HooHash")
                             {
@@ -627,8 +625,8 @@ namespace ZPoolMiner.Devices.Algorithms
                             //после переключения монет реджекты
                             //new Algorithm(MinerBaseType.CryptoDredge, AlgorithmType.Cryptonight_GPU, "Cryptonight_GPU"),
                             new Algorithm(MinerBaseType.CryptoDredge, AlgorithmType.Allium, "Allium"),
-                            new Algorithm(MinerBaseType.CryptoDredge, AlgorithmType.SHA256csm, "SHA256csm"),
-                            new Algorithm(MinerBaseType.CryptoDredge, AlgorithmType.Hmq1725, "Hmq1725")
+                            new Algorithm(MinerBaseType.CryptoDredge, AlgorithmType.SHA256csm, "SHA256csm")
+                            //new Algorithm(MinerBaseType.CryptoDredge, AlgorithmType.Hmq1725, "Hmq1725")
                         }
             },
             { MinerBaseType.Nanominer,
@@ -678,7 +676,13 @@ namespace ZPoolMiner.Devices.Algorithms
                             },
                             new Algorithm(MinerBaseType.miniZ, AlgorithmType.Equihash192, "Equihash192")
                             {
+                            },
+                            //почему-то под программой не запускается
+                            
+                            new Algorithm(MinerBaseType.miniZ, AlgorithmType.EvrProgPow, "EvrProgPow")
+                            {
                             }
+                            
                             //почему-то под программой не запускается
                             /*
                             new Algorithm(MinerBaseType.miniZ, AlgorithmType.Meraki, "Meraki")

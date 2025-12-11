@@ -68,7 +68,7 @@ namespace ZPoolMiner.Miners
             if (ConfigManager.GeneralConfig.EnableProxy)
             {
                 //proxy = "--proxy " + Stats.Stats.CurrentProxyIP + ":" + Stats.Stats.CurrentProxySocks5SPort + " ";
-                proxy = "--proxy 127.0.0.1:" + Socks5Relay.Port;
+                proxy = "--proxy 127.0.0.1:" + Socks5Relay.RelayPort;
             }
 
             var mainpool = GetServer(MiningSetup.CurrentAlgorithmType.
@@ -215,7 +215,7 @@ namespace ZPoolMiner.Miners
                     if (outdata.Contains("kH/s")) logSpeed = logSpeed * 1000;
                     if (outdata.Contains("MH/s")) logSpeed = logSpeed * 1000 * 1000;
                     if (outdata.Contains("GH/s")) logSpeed = logSpeed * 1000 * 1000 * 1000;
-                    Helpers.ConsolePrint("logSpeed", logSpeed.ToString());
+                    //Helpers.ConsolePrint("logSpeed", logSpeed.ToString());
                     count++;
                     BenchmarkAlgorithm.BenchmarkProgressPercent = count * 20;
                 }
@@ -347,7 +347,7 @@ namespace ZPoolMiner.Miners
 
         protected override void _Stop(MinerStopType willswitch)
         {
-            Stop_cpu_ccminer_sgminer_nheqminer(willswitch);
+            StopMiner(willswitch);
             if (ProcessHandle != null)
             {
                 if (!ConfigManager.GeneralConfig.NoForceTRexClose)

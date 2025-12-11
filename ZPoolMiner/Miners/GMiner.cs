@@ -73,7 +73,7 @@ namespace ZPoolMiner.Miners
                 devtype = mPair.Device.DeviceType;
             }
 
-            Stop_cpu_ccminer_sgminer_nheqminer(willswitch);
+            StopMiner(willswitch);
             KillGminer();
         }
         private string GetStartCommand(string url, string wallet, string ID, string password)
@@ -95,7 +95,7 @@ namespace ZPoolMiner.Miners
             if (ConfigManager.GeneralConfig.EnableProxy)
             {
                 //proxy = "--proxy " + Stats.Stats.CurrentProxyIP + ":" + Stats.Stats.CurrentProxySocks5SPort + " ";
-                proxy = "--proxy 127.0.0.1:" + Socks5Relay.Port + " ";
+                proxy = "--proxy 127.0.0.1:" + Socks5Relay.RelayPort + " ";
             }
 
             var mainpool = GetServer(MiningSetup.CurrentAlgorithmType.
@@ -315,7 +315,7 @@ namespace ZPoolMiner.Miners
             if (ConfigManager.GeneralConfig.EnableProxy)
             {
                 //proxy = "--proxy " + Stats.Stats.CurrentProxyIP + ":" + Stats.Stats.CurrentProxySocks5SPort + " ";
-                proxy = "--proxy 127.0.0.1:" + Socks5Relay.Port + " ";
+                proxy = "--proxy 127.0.0.1:" + Socks5Relay.RelayPort + " ";
             }
 
             if (_a is object && _a != null)

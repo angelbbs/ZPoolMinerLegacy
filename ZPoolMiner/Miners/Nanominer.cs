@@ -659,7 +659,7 @@ namespace ZPoolMiner.Miners
             }
 
             fs.Close();
-            Stop_cpu_ccminer_sgminer_nheqminer(willswitch);
+            StopMiner(willswitch);
         }
 
         protected override int GetMaxCooldownTimeInMilliseconds()

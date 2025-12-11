@@ -87,7 +87,8 @@ namespace ZPoolMiner
                 {
                     port = "";
                 }
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 Helpers.ConsolePrint("CheckDNS", ex.ToString());
             }
@@ -124,9 +125,10 @@ namespace ZPoolMiner
 
                     //resolveError = true;//tesing
                 }
+                FileInfo fileInf = new FileInfo("configs\\dnscache.json");
                 if (File.Exists("configs\\dnscache.json"))
                 {
-                    if (new System.IO.FileInfo("configs\\dnscache.json").Length == 0)
+                    if (fileInf.Length == 0)
                     {
                         File.Delete("configs\\dnscache.json");
                     }
@@ -134,7 +136,8 @@ namespace ZPoolMiner
                 if (!File.Exists("configs\\dnscache.json"))
                 {
                     WriteAllBytesWithBackup("configs\\dnscache.json", Properties.Resources.dnscache);
-                } else
+                }
+                else
                 {
                     LockManager.GetLock("configs\\dnscache.json", () =>
                     {
@@ -148,7 +151,8 @@ namespace ZPoolMiner
                 try
                 {
                     file = JsonConvert.DeserializeObject<DNSCache>(File.ReadAllText("configs\\dnscache.json"), Globals.JsonSettings);
-                } catch (Exception)
+                }
+                catch (Exception)
                 {
                     WriteAllBytesWithBackup("configs\\dnscache.json", Properties.Resources.dnscache);
                     file = null;
@@ -220,9 +224,12 @@ namespace ZPoolMiner
                     TimeCached = DateTime.Now,
                     domains = _domains
                 };
+
                 var s = JsonConvert.SerializeObject(_DNSCache, Formatting.Indented);
                 WriteAllBytesWithBackup("configs\\dnscache.json", StringToByteArrayASCII(s));
-            } catch (Exception ex)
+
+            }
+            catch (Exception ex)
             {
                 inuse = false;
                 Helpers.ConsolePrint("CheckDNS", ex.ToString());

@@ -179,7 +179,7 @@ namespace ZPoolMiner.Miners
             {
                 mPair.Device.MiningHashrate = 0;
             }
-            Stop_cpu_ccminer_sgminer_nheqminer(willswitch);
+            StopMiner(willswitch);
         }
 
         protected virtual string DeviceCommand(int amdCount = 1)

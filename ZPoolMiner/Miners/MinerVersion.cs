@@ -1307,6 +1307,11 @@ namespace ZPoolMiner.Miners
             {
                 miner = miner + " 0.23.0";
             }
+            else if (miner.ToLower().Contains("miniz") &&
+              (algo.ToLower().Contains("evrprogpow")))
+            {
+                miner = miner + " 2.2c";
+            }
             else if (miner.ToLower().Contains("srbminer") &&
               (algo.ToLower().Contains("meowpow")))
             {

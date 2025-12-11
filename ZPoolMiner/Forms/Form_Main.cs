@@ -191,7 +191,6 @@ namespace ZPoolMiner
         public static int RateNoZilCount = 0;
         public static double ZilFactor = 0.04d;
         public static int ZilCount = -1;
-        public static bool needGMinerRestart = false;
         public static bool adaptiveRunning = false;
         public static int ZIL_mining_state = 0;
         public static string ZPoolAPIError = "";

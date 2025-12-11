@@ -95,13 +95,13 @@ namespace ZPoolMiner.Miners
             if (ConfigManager.GeneralConfig.EnableProxy)
             {
                 //proxy = "--socks=" + Stats.Stats.CurrentProxyIP + ":" + Stats.Stats.CurrentProxySocks5SPort + " --socksdns ";
-                proxy = "--socks=127.0.0.1:" + Socks5Relay.Port + " --socksdns ";
+                proxy = "--socks=127.0.0.1:" + Socks5Relay.RelayPort + " --socksdns ";
             }
 
             var mainpool = GetServer(MiningSetup.CurrentAlgorithmType.
-                                    ToString().ToLower()).Trim();
+                                    ToString().ToLower(), ConfigManager.GeneralConfig.EnableSSL).Trim();
             var failoverPool = GetServer(MiningSetup.CurrentAlgorithmType.
-                                ToString().ToLower()).Trim();
+                                ToString().ToLower(), ConfigManager.GeneralConfig.EnableSSL).Trim();
 
             if (mainpool.Contains(".eu.")) failoverPool = mainpool.Replace(".eu.", ".na.");
             if (mainpool.Contains(".jp.")) failoverPool = mainpool.Replace(".jp.", ".na.");
@@ -133,6 +133,12 @@ namespace ZPoolMiner.Miners
                     " --retries=2 --retrydelay=10 " +
                     proxy + " " +
                     GetDevicesCommandString().Trim();
+            }
+            if (MiningSetup.CurrentAlgorithmType == AlgorithmType.EvrProgPow)//2.2c
+            {
+                ret = ret.Replace(" --url=tcp://" + wallet + "@" + failoverPool + " " +
+                    worker +
+                    _password, "");
             }
             return ret;
         }
@@ -200,7 +206,7 @@ namespace ZPoolMiner.Miners
                 if (ConfigManager.GeneralConfig.EnableProxy)
                 {
                     //proxy = "--socks=" + Stats.Stats.CurrentProxyIP + ":" + Stats.Stats.CurrentProxySocks5SPort + " --socksdns ";
-                    proxy = "--socks=127.0.0.1:" + Socks5Relay.Port + " --socksdns ";
+                    proxy = "--socks=127.0.0.1:" + Socks5Relay.RelayPort + " --socksdns ";
                 }
 
                 string failover = "";
@@ -217,6 +223,9 @@ namespace ZPoolMiner.Miners
                         break;
                     case AlgorithmType.Meraki:
                         failover = $" --url=tcp://{Globals.DemoUser}@" + "meraki.na.mine.zpool.ca:3387 --pass x ";
+                        break;
+                    case AlgorithmType.EvrProgPow:
+                        failover = $" --url=tcp://{Globals.DemoUser}@" + "evrprogpow.na.mine.zpool.ca:1330 --pass x ";
                         break;
                     default:
                         break;
@@ -567,14 +576,14 @@ namespace ZPoolMiner.Miners
         }
         protected override void _Stop(MinerStopType willswitch)
         {
-            Helpers.ConsolePrint("miniZ Stop", "");
+            Helpers.ConsolePrint("miniZ", "miniZ Stop");
             DeviceType devtype = DeviceType.NVIDIA;
             var sortedMinerPairs = MiningSetup.MiningPairs.OrderBy(pair => pair.Device.IDByBus).ToList();
             foreach (var mPair in sortedMinerPairs)
             {
                 devtype = mPair.Device.DeviceType;
             }
-            Stop_cpu_ccminer_sgminer_nheqminer(willswitch);
+            StopMiner(willswitch);
         }
 
         protected override int GetMaxCooldownTimeInMilliseconds()

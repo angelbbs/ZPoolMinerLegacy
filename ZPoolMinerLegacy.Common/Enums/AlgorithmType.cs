@@ -48,6 +48,7 @@
         Equihash125 = 1070,
         Equihash144 = 1080,
         Equihash192 = 1090,
+        EvrProgPow = 1100,
         Flex = 1120,
         FiroPow = 1130,
         Ghostrider = 1150,

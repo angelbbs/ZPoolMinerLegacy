@@ -27,7 +27,25 @@ namespace ZPoolMinerLegacy.Overclock
         {
             return new IntPtr(0);
         }
+        public static List<RelayConnection> RelayConnectionList;
+        public class RelayConnection
+        {
+            public int threadId { get; set; }
+            public int pID { get; set; }
+            public int LocalPort { get; set; }
+            public string Pool { get; set; }
+            public int PoolPort { get; set; }
+        }
 
+        public static void GetMinerData(string _RelayConnectionList)
+        {
+            try
+            {
+                RelayConnectionList = JsonConvert.DeserializeObject<List<RelayConnection>>(_RelayConnectionList);
+            }
+            catch (Exception ex)
+            { }
+        }
     }
 }
 

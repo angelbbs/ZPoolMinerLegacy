@@ -51,7 +51,7 @@ namespace ZPoolMiner.Miners
             if (ConfigManager.GeneralConfig.EnableProxy)
             {
                 //proxy = "-x socks5://" + Stats.Stats.CurrentProxyIP + ":" + Stats.Stats.CurrentProxySocks5SPort + " ";
-                proxy = "-x socks5://127.0.0.1:" + Socks5Relay.Port;
+                proxy = "-x socks5://127.0.0.1:" + Socks5Relay.RelayPort;
             }
 
             var mainpool = GetServer(MiningSetup.CurrentAlgorithmType.
@@ -103,7 +103,7 @@ namespace ZPoolMiner.Miners
         }
         protected override void _Stop(MinerStopType willswitch)
         {
-            Stop_cpu_ccminer_sgminer_nheqminer(willswitch);
+            StopMiner(willswitch);
             Thread.Sleep(200);
             try {
                 if (ProcessHandle is object)
@@ -147,7 +147,7 @@ namespace ZPoolMiner.Miners
             if (ConfigManager.GeneralConfig.EnableProxy)
             {
                 //proxy = "-x socks5://" + Stats.Stats.CurrentProxyIP + ":" + Stats.Stats.CurrentProxySocks5SPort + " ";
-                proxy = "-x socks5://127.0.0.1:" + Socks5Relay.Port;
+                proxy = "-x socks5://127.0.0.1:" + Socks5Relay.RelayPort;
             }
 
             if (_a is object && _a != null)
@@ -285,7 +285,7 @@ namespace ZPoolMiner.Miners
                     Thread.Sleep(1000);
 
                     var ad = GetSummaryAsync();
-                    if (ad.Result != null && ad.Result.Speed > 0)
+                    if (ad is object && ad.Result != null && ad.Result.Speed > 0)
                     {
                         _powerUsage += _power;
                         repeats++;
@@ -321,6 +321,7 @@ namespace ZPoolMiner.Miners
             }
             catch (Exception ex)
             {
+                Helpers.ConsolePrintError("BenchmarkThreadRoutine", ex.ToString());
                 BenchmarkThreadRoutineCatch(ex);
             }
             finally
@@ -340,7 +341,7 @@ namespace ZPoolMiner.Miners
         {
             CurrentMinerReadStatus = MinerApiReadStatus.NONE;
             double tmp = 0;
-
+            ad = new ApiData(MiningSetup.CurrentAlgorithmType, MiningSetup.CurrentSecondaryAlgorithmType);
             string resp = null;
             try
             {
@@ -365,8 +366,6 @@ namespace ZPoolMiner.Miners
                 ad.ThirdSpeed = 0;
                 return ad;
             }
-
-            ad = new ApiData(MiningSetup.CurrentAlgorithmType, MiningSetup.CurrentSecondaryAlgorithmType);
 
             if (resp != null)
             {

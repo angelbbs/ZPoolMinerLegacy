@@ -140,25 +140,23 @@ namespace ZPoolMiner.Devices
             }
         }
         private static int _ChildPid = -1;
-        public static int SetChildPid(this Process process) 
+        public static int SetChildPid(this Process process, string fname) 
         {
             _ChildPid = -1;
-            if (process.StartInfo.FileName.Contains("cmd.exe"))
-            {
                 int count = 0;
                 do
                 {
-                    _ChildPid = GetChildProcess(process.Id, "miner275");
+                    _ChildPid = GetChildProcess(process.Id, fname);
                     if (_ChildPid > 0) break;
                     count++;
                 } while (count < 200);
-            }
             return _ChildPid;
         }
         public static int GetChildPid(this Process process)
         {
             return _ChildPid;
         }
+
         private static int GetChildProcess(int ProcessId, string fname = "miner")
         {
             Process[] localByName = Process.GetProcessesByName(fname);

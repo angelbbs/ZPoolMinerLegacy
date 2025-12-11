@@ -346,15 +346,6 @@ namespace ZPoolMiner
             return "unknown";
         }
 
-        private static int ChildProcess(MinerPidData pidData)
-        {
-            return GetChildProcess(pidData.Pid);
-        }
-        public int ChildProcess()
-        {
-            return _currentPidData == null ? -1 : ChildProcess(_currentPidData);
-        }
-
         private static int GetParentProcess(int Id)
         {
             int parentPid = 0;
@@ -518,6 +509,32 @@ namespace ZPoolMiner
                     if (IsProcessRunning(pid) && p is object && p != null) p.Close();
                     Thread.Sleep(200);
                 }
+                var _p = Process.GetProcessById(pid);
+                if (IsProcessRunning(pid) && _p is object && _p != null)
+                {
+                    //Helpers.ConsolePrint("KillProcessAndChildren", "CloseMainWindow " + _p.ProcessName + " " + _p.Id.ToString());
+                    _p.CloseMainWindow();
+                    _p.Kill();
+                }
+                Thread.Sleep(200);
+                if (IsProcessRunning(pid) && _p is object && _p != null)
+                {
+                    //Helpers.ConsolePrint("KillProcessAndChildren", "Close");
+                    _p.Close();
+                }
+                Thread.Sleep(200);
+                if (IsProcessRunning(pid) && _p is object && _p != null)
+                {
+                    //Helpers.ConsolePrint("KillProcessAndChildren", "Kill");
+                    _p.Kill();
+                }
+                Thread.Sleep(200);
+                if (IsProcessRunning(pid) && _p is object && _p != null)
+                {
+                    //Helpers.ConsolePrint("KillProcessAndChildren", "Dispose");
+                    _p.Dispose();
+                }
+                Thread.Sleep(200);
             }
             catch (Exception er)
             {
@@ -546,7 +563,7 @@ namespace ZPoolMiner
             }
             return false;
         }
-        protected void Stop_cpu_ccminer_sgminer_nheqminer(MinerStopType willswitch)
+        protected void StopMiner(MinerStopType willswitch)
         {
             var algo = (int)MiningSetup.CurrentAlgorithmType;
             string strPlatform = "";
@@ -571,7 +588,7 @@ namespace ZPoolMiner
                 Helpers.ConsolePrint(MinerTag(), ProcessTag() + " SendCtrlC to stop miner");
                     try { ProcessHandle.SendCtrlC((uint)Process.GetCurrentProcess().Id); } catch { }
                     Thread.Sleep(1000);
-                if (IsProcessRunning(pid)) KillProcessAndChildren(pid);
+                //if (IsProcessRunning(pid)) KillProcessAndChildren(pid);
 
                 _allPidData.RemoveAll(x => x.Pid == pid);
 
@@ -732,6 +749,17 @@ namespace ZPoolMiner
                 }
             }
 
+            if (benchmarkHandle.StartInfo.FileName.ToLower().Contains("miniz") &&
+                (commandLine.ToLower().Contains("evrprogpow")))
+            {
+                WorkingDirectory = @"miners\miniz";
+                benchmarkHandle.StartInfo.FileName = @"C:\Windows\SysWOW64\cmd.exe";
+                if (!commandLine.Contains("/C start miniz22c.exe"))
+                {
+                    commandLine = "/C start miniz22c.exe " + commandLine;
+                }
+            }
+
             if (benchmarkHandle.StartInfo.FileName.ToLower().Contains("srbminer") &&
                 (commandLine.ToLower().Contains("meowpow")))
             {
@@ -764,7 +792,7 @@ namespace ZPoolMiner
             benchmarkHandle.StartInfo.Arguments = commandLine;
             benchmarkHandle.StartInfo.UseShellExecute = false;
             benchmarkHandle.StartInfo.CreateNoWindow = true;
-            benchmarkHandle.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            benchmarkHandle.StartInfo.WindowStyle = ProcessWindowStyle.Hidden | ProcessWindowStyle.Minimized;
             benchmarkHandle.StartInfo.RedirectStandardError = true;
             benchmarkHandle.StartInfo.RedirectStandardOutput = true;
             benchmarkHandle.OutputDataReceived += BenchmarkOutputErrorDataReceived;
@@ -772,14 +800,37 @@ namespace ZPoolMiner
             benchmarkHandle.Exited += BenchmarkHandle_Exited;
 
             if (!benchmarkHandle.Start()) return null;
-            
+            //Form_Benchmark.ActiveForm.Focus();
             if (benchmarkHandle.StartInfo.FileName.Contains("cmd.exe"))
             {
-                int gp = benchmarkHandle.SetChildPid();//store pID
+                int gp = 0;
+                if (benchmarkHandle.StartInfo.Arguments.Contains("miniz22c"))
+                {
+                    BenchmarkProcessPath = "miniz22c.exe";
+                    gp = benchmarkHandle.SetChildPid("miniz22c");//store pID
+                    _currentPidData = new MinerPidData
+                    {
+                        MinerBinPath = "miniz22c.exe",
+                        Pid = gp
+                    };
+                    _allPidData.Add(_currentPidData);
+                }
+                else if(benchmarkHandle.StartInfo.Arguments.Contains("miner275"))
+                {
+                    BenchmarkProcessPath = "miner275.exe";
+                    gp = benchmarkHandle.SetChildPid("miner275");//store pID
+                    _currentPidData = new MinerPidData
+                    {
+                        MinerBinPath = "miner275.exe",
+                        Pid = gp
+                    };
+                    _allPidData.Add(_currentPidData);
+                }
+
                 
                 Process process = Process.GetProcessById(gp);
                 process.StartInfo.CreateNoWindow = true;
-                process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden | ProcessWindowStyle.Minimized;
                 
                 int count = 0;
                 do
@@ -789,16 +840,19 @@ namespace ZPoolMiner
                 } while ((int)process.MainWindowHandle < 1 && count < 50);
                 
                 ShowWindow(process.MainWindowHandle, 0);
-                Helpers.ConsolePrint(MinerTag(), "gminer275 pid: " + gp.ToString() +
-                    " hWnd: " + process.MainWindowHandle.ToString());
+                
+                //Helpers.ConsolePrint(MinerTag(), "gminer275 pid: " + gp.ToString() +
+                  //  " hWnd: " + process.MainWindowHandle.ToString());
             }
-
-            _currentPidData = new MinerPidData
+            else
             {
-                MinerBinPath = benchmarkHandle.StartInfo.FileName,
-                Pid = benchmarkHandle.Id
-            };
-            _allPidData.Add(_currentPidData);
+                _currentPidData = new MinerPidData
+                {
+                    MinerBinPath = benchmarkHandle.StartInfo.FileName,
+                    Pid = benchmarkHandle.Id
+                };
+                _allPidData.Add(_currentPidData);
+            }
 
             return benchmarkHandle;
         }
@@ -890,13 +944,13 @@ namespace ZPoolMiner
                 BenchmarkProcessStatus = BenchmarkProcessStatus.Killing;
                 try
                 {
-                    Helpers.ConsolePrint(MinerTag(), ProcessTag() + " SendCtrlC to stop miner");
                     try
                     {
                         if (ProcessHandle is object)
                         {
                             if (Process.GetCurrentProcess() != null)
                             {
+                                Helpers.ConsolePrint(MinerTag(), ProcessTag() + " SendCtrlC to stop miner");
                                 ProcessHandle.SendCtrlC((uint)Process.GetCurrentProcess().Id);
                             }
                         }
@@ -948,6 +1002,7 @@ namespace ZPoolMiner
 
             Helpers.ConsolePrint(MinerTag(), "Benchmark Exception: " + ex.Message);
             Helpers.ConsolePrint(MinerTag(), "Benchmark Exception: " + ex.ToString());
+            StopBenchmark(BenchmarkHandle);
             if (BenchmarkComunicator != null && !OnBenchmarkCompleteCalled)
             {
                 OnBenchmarkCompleteCalled = true;
@@ -1106,14 +1161,13 @@ namespace ZPoolMiner
                 _benchmarkTimeWait = _benchmarkTimeWait + (delay_before_calc_hashrate - 30);
                 delay_before_calc_hashrate = Math.Min(delay_before_calc_hashrate, _benchmarkTimeWait);
 
-
                 Helpers.ConsolePrint(MinerTag(), "Benchmark should be completed in at least ~" +
                     (_benchmarkTimeWait + showBenchTimeAdd).ToString() + " seconds");
                 
                 GetBenchmarkSpeed(_benchmarkTimeWait, benchmarkTimeWait, commandLine, ref _powerUsage, 
                     ref _power, ref repeats, ref delay_before_calc_hashrate, ref summspeed, ref summspeedSecond,
                     ref BenchmarkSpeed, ref BenchmarkSpeedSecond, ref overallbenchmarktime);
-
+                
             }
             catch (Exception ex)
             {
@@ -1148,12 +1202,13 @@ namespace ZPoolMiner
             BenchmarkThreadRoutineStartSettup(); //need for benchmark log
 
             if (BenchmarkHandle.StartInfo.FileName.ToLower().Contains("cmd") &&
-                (commandLine.ToString().ToLower().Contains("192_7")))
+                (BenchmarkHandle.StartInfo.Arguments.ToLower().Contains("miner275") ||
+                BenchmarkHandle.StartInfo.Arguments.ToLower().Contains("miniz22c")))
             {
                 Thread.Sleep(1000 * 2);
             }
-                while (IsActiveProcess(BenchmarkHandle.Id) || 
-                (BenchmarkHandle.GetChildPid() > 0 && IsActiveProcess(BenchmarkHandle.GetChildPid())))
+            while (IsActiveProcess(BenchmarkHandle.Id) ||
+            (BenchmarkHandle.GetChildPid() > 0 && IsActiveProcess(BenchmarkHandle.GetChildPid())))
             {
                 try
                 {
@@ -1164,32 +1219,29 @@ namespace ZPoolMiner
                         || BenchmarkSignalTimedout
                         || BenchmarkException != null)
                     {
-                        var imageName = MinerExeName.Replace(".exe", "");
-                        // maybe will have to KILL process
-                        EndBenchmarkProcces();
-                        //  KillMinerBase(imageName);
+                        if (BenchmarkSignalQuit)
+                        {
+                            Helpers.ConsolePrint(MinerTag(), "Benchmark quit");
+                        }
+                        if (BenchmarkSignalFinnished)
+                        {
+                            Helpers.ConsolePrint(MinerTag(), "Benchmark finished");
+                        }
+                        if (BenchmarkSignalFinnished)
+                        {
+                            Helpers.ConsolePrint(MinerTag(), "Benchmark hanged");
+                        }
                         if (BenchmarkSignalTimedout)
                         {
                             Helpers.ConsolePrint(MinerTag(), "Benchmark timedout");
-                            //throw new Exception("Benchmark timedout");
                         }
 
                         if (BenchmarkException != null)
                         {
-                            throw BenchmarkException;
+                            Helpers.ConsolePrint(MinerTag(), "BenchmarkException");
                         }
 
-                        if (BenchmarkSignalQuit)
-                        {
-                            Helpers.ConsolePrint(MinerTag(), "Termined by user request");
-                            break;
-                            //throw new Exception("Termined by user request");
-                        }
-
-                        if (BenchmarkSignalFinnished)
-                        {
-                            break;
-                        }
+                        StopBenchmark(BenchmarkHandle);
                         break;
                     }
                     // wait a second due api request
@@ -1212,7 +1264,7 @@ namespace ZPoolMiner
                             }
                             else
                             {
-                                Helpers.ConsolePrint(MinerTag(), "Useful Speed: " + ad.Result.Speed.ToString() + 
+                                Helpers.ConsolePrint(MinerTag(), "Useful Speed: " + ad.Result.Speed.ToString() +
                                     " SecondarySpeed: " + ad.Result.SecondarySpeed.ToString() +
                                     " power: " + _power.ToString());
                             }
@@ -1224,44 +1276,29 @@ namespace ZPoolMiner
                             _benchmarkTimeWait = Math.Min(_benchmarkTimeWait, benchmarkTimeWait);
                             Helpers.ConsolePrint(MinerTag(), "Delayed Speed: " + ad.Result.Speed.ToString());
                         }
+                        BenchmarkSpeed = Math.Round(summspeed / (repeats - delay_before_calc_hashrate), 2);
+                        BenchmarkSpeedSecond = Math.Round(summspeedSecond / (repeats - delay_before_calc_hashrate), 2);
+                        if (double.IsNaN(BenchmarkSpeed)) BenchmarkSpeed = 0;
+                        if (double.IsNaN(BenchmarkSpeedSecond)) BenchmarkSpeedSecond = 0;
                         if (repeats >= _benchmarkTimeWait)
                         {
-                            BenchmarkSpeed = Math.Round(summspeed / (repeats - delay_before_calc_hashrate), 2);
-                            BenchmarkSpeedSecond = Math.Round(summspeedSecond / (repeats - delay_before_calc_hashrate), 2);
-                            if (double.IsNaN(BenchmarkSpeed)) BenchmarkSpeed = 0;
-                            if (double.IsNaN(BenchmarkSpeedSecond)) BenchmarkSpeedSecond = 0;
                             Helpers.ConsolePrint(MinerTag(), $"Benchmark has been completed. Speed: " + BenchmarkSpeed.ToString() + " SecondarySpeed: " + BenchmarkSpeedSecond.ToString());
                             ad.Dispose();
                             benchmarkTimer.Stop();
 
-                            try
-                            {
-                                if (BenchmarkHandle.StartInfo.FileName.ToLower().Contains("cmd") &&
-                (commandLine.ToString().ToLower().Contains("192_7")))
-                                {
-                                    EndBenchmarkProcces();
-                                    KillProcessAndChildren(BenchmarkHandle.GetChildPid());
-                                }
-                                else
-                                {
-                                    KillProcessAndChildren(BenchmarkHandle.Id);
-                                    BenchmarkHandle.Kill();
-                                    BenchmarkHandle.Dispose();
-                                    EndBenchmarkProcces();
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                Helpers.ConsolePrint("GetBenchmarkSpeed*", ex.ToString());
-                            }
-
+                            StopBenchmark(BenchmarkHandle);
                             break;
                         }
 
                     }
-                } catch (Exception ex)
+                }
+                catch (Exception ex)
                 {
                     Helpers.ConsolePrint("GetBenchmarkSpeed", ex.ToString());
+                }
+                if (!IsActiveProcess(BenchmarkHandle.Id))
+                {
+                    //Helpers.ConsolePrint(MinerTag(), "Miner process not exist");
                 }
             }
             if (BenchmarkAlgorithm.BenchmarkSpeed == 0)
@@ -1273,6 +1310,30 @@ namespace ZPoolMiner
             else //trex read from log file
             {
                 BenchmarkAlgorithm.BenchmarkSecondarySpeed = 0;
+            }
+        }
+        private void StopBenchmark(Process BenchmarkHandle)
+        {
+            try
+            {
+                if (BenchmarkHandle.StartInfo.FileName.ToLower().Contains("cmd") &&
+                    (BenchmarkHandle.StartInfo.Arguments.ToLower().Contains("miner275") ||
+                    BenchmarkHandle.StartInfo.Arguments.ToLower().Contains("miniz22c")))
+                {
+                    EndBenchmarkProcces();
+                    Thread.Sleep(500);
+                    KillProcessAndChildren(BenchmarkHandle.GetChildPid());
+                }
+                else
+                {
+                    EndBenchmarkProcces();
+                    Thread.Sleep(500);
+                    KillProcessAndChildren(BenchmarkHandle.Id);
+                }
+            }
+            catch (Exception ex)
+            {
+                Helpers.ConsolePrint("StopBenchmark*", ex.ToString());
             }
         }
 
@@ -1479,14 +1540,27 @@ namespace ZPoolMiner
                 //Path = MiningSetup.MinerPath.Replace("miner.exe", "miner275.exe");
                 P.StartInfo.WorkingDirectory = @"miners\gminer";
                 P.StartInfo.CreateNoWindow = true;
-                P.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+                P.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden | ProcessWindowStyle.Minimized;
                 Path = @"C:\Windows\SysWOW64\cmd.exe";
                 if (!LastCommandLine.Contains("/C start miner275.exe"))
                 {
                     LastCommandLine = "/C start miner275.exe " + LastCommandLine;
                 }
             }
-            
+
+            if (MiningSetup.MinerPath.ToLower().Contains("miniz") &&
+                (LastCommandLine.ToLower().Contains("evrprogpow")))
+            {
+                //Path = MiningSetup.MinerPath.Replace("miner.exe", "miner275.exe");
+                P.StartInfo.WorkingDirectory = @"miners\miniZ";
+                P.StartInfo.CreateNoWindow = true;
+                P.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden | ProcessWindowStyle.Minimized;
+                Path = @"C:\Windows\SysWOW64\cmd.exe";
+                if (!LastCommandLine.Contains("/C start miniZ22c.exe"))
+                {
+                    LastCommandLine = "/C start miniZ22c.exe " + LastCommandLine;
+                }
+            }
             if (MiningSetup.MinerPath.ToLower().Contains("srbminer") &&
                 (LastCommandLine.ToLower().Contains("meowpow")))
             {
@@ -1515,9 +1589,15 @@ namespace ZPoolMiner
             */
             P.StartInfo.FileName = Path;
 
-            if (MiningSetup.MinerPath.ToLower().Contains("gminer") && (LastCommandLine.ToLower().Contains("192_7")))
+            if (MiningSetup.MinerPath.ToLower().Contains("gminer") && 
+                (LastCommandLine.ToLower().Contains("192_7")))
             {
-                //new Task(() => Check_Miner_Exited(P.Id)).Start();
+                //
+            }
+            else if(MiningSetup.MinerPath.ToLower().Contains("miniz") && 
+                (LastCommandLine.ToLower().Contains("evrprogpow")))
+            {
+                //
             }
             else
             {
@@ -1941,8 +2021,6 @@ namespace ZPoolMiner
                         Stats.Stats.CurrentProxySocks5SPort = proxy.Socks5Port;
                     }
                 }
-                
-
                 Restart();
             }
         }

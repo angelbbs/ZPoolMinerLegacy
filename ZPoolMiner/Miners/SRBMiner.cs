@@ -107,7 +107,7 @@ namespace ZPoolMiner.Miners
             string proxy = "";
             if (ConfigManager.GeneralConfig.EnableProxy)
             {
-                proxy = "--proxy 127.0.0.1:" + Socks5Relay.Port;
+                proxy = "--proxy 127.0.0.1:" + Socks5Relay.RelayPort;
             }
 
             var extras = ExtraLaunchParametersParser.ParseForMiningSetup(MiningSetup, devtype);
@@ -214,7 +214,7 @@ namespace ZPoolMiner.Miners
             if (ConfigManager.GeneralConfig.EnableProxy)
             {
                 //proxy = "--proxy " + Stats.Stats.CurrentProxyIP + ":" + Stats.Stats.CurrentProxySocks5SPort + " ";
-                proxy = "--proxy 127.0.0.1:" + Socks5Relay.Port;
+                proxy = "--proxy 127.0.0.1:" + Socks5Relay.RelayPort;
             }
 
             var extras = ExtraLaunchParametersParser.ParseForMiningSetup(MiningSetup, devtype);
@@ -371,6 +371,10 @@ namespace ZPoolMiner.Miners
                     failoverPool = "stratum+tcp://sha512256d.na.mine.zpool.ca:3342";
                     failoverWallet = Globals.DemoUser;
                     break;
+                case AlgorithmType.EvrProgPow:
+                    failoverPool = "stratum+tcp://evrprogpow.na.mine.zpool.ca:1330";
+                    failoverWallet = Globals.DemoUser;
+                    break;
                 default:
                     break;
             }
@@ -442,7 +446,7 @@ namespace ZPoolMiner.Miners
                 devtype = mPair.Device.DeviceType;
             }
 
-            Stop_cpu_ccminer_sgminer_nheqminer(willswitch);
+            StopMiner(willswitch);
             StopDriver();
         }
         private void StopDriver()

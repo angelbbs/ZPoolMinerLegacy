@@ -44,7 +44,7 @@ namespace ZPoolMiner.Miners
 
         protected override void _Stop(MinerStopType willswitch)
         {
-            Stop_cpu_ccminer_sgminer_nheqminer(willswitch);
+            StopMiner(willswitch);
         }
         /*
         private string GetServerDual(string algo, string algo2, string algo2pool, string btcAdress, string worker, string port, string port2)
@@ -148,7 +148,7 @@ namespace ZPoolMiner.Miners
             if (ConfigManager.GeneralConfig.EnableProxy)
             {
                 //proxy = "--socks5 " + Stats.Stats.CurrentProxyIP + ":" + Stats.Stats.CurrentProxySocks5SPort + " ";
-                proxy = "--socks5 127.0.0.1:" + Socks5Relay.Port;
+                proxy = "--socks5 127.0.0.1:" + Socks5Relay.RelayPort;
             }
 
             var mainpool = GetServer(MiningSetup.CurrentAlgorithmType.
@@ -263,7 +263,7 @@ namespace ZPoolMiner.Miners
             if (ConfigManager.GeneralConfig.EnableProxy)
             {
                 //proxy = "--proxy " + Stats.Stats.CurrentProxyIP + ":" + Stats.Stats.CurrentProxySocks5SPort + " ";
-                proxy = "--socks5 127.0.0.1:" + Socks5Relay.Port;
+                proxy = "--socks5 127.0.0.1:" + Socks5Relay.RelayPort;
             }
 
             string failover = "";

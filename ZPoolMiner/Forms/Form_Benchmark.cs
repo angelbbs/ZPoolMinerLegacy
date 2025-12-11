@@ -699,21 +699,20 @@ namespace ZPoolMiner.Forms
 
         public static void RunCMDAfterBenchmark()
         {
-            Thread.Sleep(200);
+            Thread.Sleep(1000);
             foreach (var filePath in MinersBins.ALL_FILES_BINS)
             {
                 string[] sep = { "/", "." };
                 string toKill = filePath.Split(sep, StringSplitOptions.RemoveEmptyEntries)[1];
 
-                if (toKill != "x64" && toKill != "txt")
-                {
-                    Helpers.ConsolePrint("RunCMDAfterBenchmark", "Try kill: " + toKill);
+                if (filePath.Contains("x64") || filePath.Contains("txt")) continue;
+
+                    Helpers.ConsolePrint("RunCMDAfterBenchmark", "Try kill: " + filePath);
                     foreach (var process in Process.GetProcessesByName(toKill))
                     {
                         try { process.Kill(); }
                         catch (Exception e) { Helpers.ConsolePrint("RunCMDAfterBenchmark", e.ToString()); }
                     }
-                }
                 Thread.Sleep(100);
             }
         }

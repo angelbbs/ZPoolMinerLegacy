@@ -1434,28 +1434,6 @@ namespace ZPoolMiner.Miners
             return AlgorithmType.NONE;
         }
 
-        private void GMinersRestart(List<Miner> _checks)
-        {
-            foreach (Miner m in _checks)
-            {
-                try
-                {
-                    if (m.needChildRestart)
-                    {
-                        Thread.Sleep(6000);
-                        Helpers.ConsolePrint(m.MinerTag(), "Restart gminer process after ZIL round");
-                        Process proc = Process.GetProcessById(m.ChildProcess());
-                        if (proc != new Process()) proc.Kill();
-                    }
-                }
-                catch (ArgumentException)
-                {
-                    // Process already exited.
-                }
-            }
-            _checks.Clear();
-        }
-
         public async Task MinerStatsCheck()
         {
             var currentProfit = 0.0d;
@@ -1559,22 +1537,6 @@ namespace ZPoolMiner.Miners
             {
                 Helpers.ConsolePrintError("Exception: ", e.ToString());
             }
-            if (Form_Main.needGMinerRestart)
-            {
-                Form_Main.needGMinerRestart = false;
-                new Task(() => GMinersRestart(_checks)).Start();
-            }
-            /*
-            try
-            {
-                var s = JsonConvert.SerializeObject(_zil, Formatting.Indented);
-                Helpers.WriteAllTextWithBackup("configs\\zil.json", s);
-            }
-            catch (Exception ex)
-            {
-                Helpers.ConsolePrintError("MinerStatsCheck", ex.ToString());
-            }
-            */
             GC.Collect();
         }
         private class Zil

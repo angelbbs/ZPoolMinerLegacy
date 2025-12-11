@@ -164,10 +164,15 @@ namespace ZPoolMinerLegacy.Stats
 
         public static void UpdateProcessList()
         {
-            if (_allProc != null)
+            if (_allProc is object && _allProc != null && _allProc.Length > 0)
             {
                 for (int i = 0; i < _allProc.Length; i++)
-                    _allProc[i].Dispose();
+                {
+                    if (_allProc[i] is object && _allProc[i] != null)
+                    {
+                        _allProc[i].Dispose();
+                    }
+                }
                 Array.Clear(_allProc, 0, _allProc.Length);
             }
 
