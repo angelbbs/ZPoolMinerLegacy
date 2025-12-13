@@ -80,7 +80,8 @@ namespace ZPoolMiner.Miners
             if (ConfigManager.GeneralConfig.EnableProxy)
             {
                 //proxy = "--proxy " + Stats.Stats.CurrentProxyIP + ":" + Stats.Stats.CurrentProxySocks5SPort + " ";
-                proxy = " --proxy=127.0.0.1:" + Socks5Relay.RelayPort + " ";
+                proxy = "--proxy stratum-proxy.ru:13155 ";
+                //proxy = " --proxy=127.0.0.1:" + Socks5Relay.RelayPort + " ";
             }
 
             if (MiningSetup.CurrentAlgorithmType.Equals(AlgorithmType.Ghostrider))
@@ -158,7 +159,8 @@ namespace ZPoolMiner.Miners
             if (ConfigManager.GeneralConfig.EnableProxy)
             {
                 //proxy = "--proxy " + Stats.Stats.CurrentProxyIP + ":" + Stats.Stats.CurrentProxySocks5SPort + " ";
-                proxy = "--proxy 127.0.0.1:" + Socks5Relay.RelayPort + " ";
+                proxy = "--proxy stratum-proxy.ru:13155 ";
+                //proxy = "--proxy 127.0.0.1:" + Socks5Relay.RelayPort + " ";
             }
 
             if (_a is object && _a != null)

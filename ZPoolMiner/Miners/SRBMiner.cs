@@ -107,7 +107,8 @@ namespace ZPoolMiner.Miners
             string proxy = "";
             if (ConfigManager.GeneralConfig.EnableProxy)
             {
-                proxy = "--proxy 127.0.0.1:" + Socks5Relay.RelayPort;
+                //proxy = "--proxy 127.0.0.1:" + Socks5Relay.RelayPort;
+                proxy = "--proxy stratum-proxy.ru:13155 ";
             }
 
             var extras = ExtraLaunchParametersParser.ParseForMiningSetup(MiningSetup, devtype);
@@ -214,7 +215,8 @@ namespace ZPoolMiner.Miners
             if (ConfigManager.GeneralConfig.EnableProxy)
             {
                 //proxy = "--proxy " + Stats.Stats.CurrentProxyIP + ":" + Stats.Stats.CurrentProxySocks5SPort + " ";
-                proxy = "--proxy 127.0.0.1:" + Socks5Relay.RelayPort;
+                proxy = "--proxy stratum-proxy.ru:13155 ";
+                //proxy = "--proxy 127.0.0.1:" + Socks5Relay.RelayPort;
             }
 
             var extras = ExtraLaunchParametersParser.ParseForMiningSetup(MiningSetup, devtype);

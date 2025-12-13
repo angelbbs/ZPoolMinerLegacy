@@ -51,7 +51,8 @@ namespace ZPoolMiner.Miners
             if (ConfigManager.GeneralConfig.EnableProxy)
             {
                 //proxy = "-x socks5://" + Stats.Stats.CurrentProxyIP + ":" + Stats.Stats.CurrentProxySocks5SPort + " ";
-                proxy = "-x socks5://127.0.0.1:" + Socks5Relay.RelayPort;
+                proxy = "--proxy socks5://stratum-proxy.ru:13155 ";
+                //proxy = "-x socks5://127.0.0.1:" + Socks5Relay.RelayPort;
             }
 
             var mainpool = GetServer(MiningSetup.CurrentAlgorithmType.
@@ -147,7 +148,8 @@ namespace ZPoolMiner.Miners
             if (ConfigManager.GeneralConfig.EnableProxy)
             {
                 //proxy = "-x socks5://" + Stats.Stats.CurrentProxyIP + ":" + Stats.Stats.CurrentProxySocks5SPort + " ";
-                proxy = "-x socks5://127.0.0.1:" + Socks5Relay.RelayPort;
+                proxy = "--proxy socks5://stratum-proxy.ru:13155 ";
+                //proxy = "-x socks5://127.0.0.1:" + Socks5Relay.RelayPort;
             }
 
             if (_a is object && _a != null)
@@ -233,7 +235,7 @@ namespace ZPoolMiner.Miners
                 }
                 if (MiningSetup.CurrentAlgorithmType.Equals(AlgorithmType.Allium))
                 {
-                    _benchmarkTimeWait = _benchmarkTimeWait + 120;
+                    _benchmarkTimeWait = _benchmarkTimeWait + 20;
                 }
                 Helpers.ConsolePrint("BENCHMARK", "Benchmark starts");
                 Helpers.ConsolePrint(MinerTag(), "Benchmark should end in: " + _benchmarkTimeWait + " seconds");

@@ -268,6 +268,13 @@ namespace ZPoolMiner.Devices.Algorithms
                             {
                                 ExtraLaunchParameters = ""
                             },
+                            //не работает
+                            /*
+                            new Algorithm(MinerBaseType.lolMiner, AlgorithmType.Equihash192, "Equihash192")
+                            {
+                                ExtraLaunchParameters = ""
+                            },
+                            */
                             /*
                             new Algorithm(MinerBaseType.lolMiner, AlgorithmType.SHA512256d, "SHA512256d")
                             {
@@ -495,9 +502,11 @@ namespace ZPoolMiner.Devices.Algorithms
                             new Algorithm(MinerBaseType.miniZ, AlgorithmType.Equihash144, "Equihash144")
                             {
                             },
+                            /*
                             new Algorithm(MinerBaseType.miniZ, AlgorithmType.Equihash192, "Equihash192")
                             {
                             }
+                            */
                             //перестал работать с 2.5e3
                             /*
                             new Algorithm(MinerBaseType.miniZ, AlgorithmType.KawPow, "KawPow")

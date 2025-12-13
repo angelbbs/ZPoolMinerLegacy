@@ -1,5 +1,5 @@
 {
-  "TimeCached": "2025-12-11T12:31:23.8962396+03:00",
+  "TimeCached": "2025-12-13T11:20:10.0311212+03:00",
   "domains": [
     {
       "Updated": "2025-12-10T14:34:34.0412196+03:00",
@@ -38,10 +38,10 @@
       ]
     },
     {
-      "Updated": "2025-12-11T12:31:22.4197153+03:00",
+      "Updated": "2025-12-13T11:19:56.9130196+03:00",
       "domainName": "api.github.com",
       "IPs": [
-        "140.82.121.5"
+        "140.82.121.6"
       ]
     },
     {
@@ -124,6 +124,216 @@
     {
       "Updated": "2025-12-11T11:11:49.2682788+03:00",
       "domainName": "yescrypt.eu.mine.zpool.ca",
+      "IPs": [
+        "188.165.24.209"
+      ]
+    },
+    {
+      "Updated": "2025-12-13T08:04:07.2407423+03:00",
+      "domainName": "x16rv2.eu.mine.zpool.ca",
+      "IPs": [
+        "188.165.24.209"
+      ]
+    },
+    {
+      "Updated": "2025-12-13T08:15:47.4788936+03:00",
+      "domainName": "allium.eu.mine.zpool.ca",
+      "IPs": [
+        "188.165.24.209"
+      ]
+    },
+    {
+      "Updated": "2025-12-13T08:30:47.3268338+03:00",
+      "domainName": "kawpow.eu.mine.zpool.ca",
+      "IPs": [
+        "198.50.168.213"
+      ]
+    },
+    {
+      "Updated": "2025-12-13T08:33:54.3563174+03:00",
+      "domainName": "meraki.eu.mine.zpool.ca",
+      "IPs": [
+        "198.50.168.213"
+      ]
+    },
+    {
+      "Updated": "2025-12-13T08:40:08.5744533+03:00",
+      "domainName": "verthash.eu.mine.zpool.ca",
+      "IPs": [
+        "188.165.24.209"
+      ]
+    },
+    {
+      "Updated": "2025-12-13T08:46:18.8096303+03:00",
+      "domainName": "argon2d16000.eu.mine.zpool.ca",
+      "IPs": [
+        "188.165.24.209"
+      ]
+    },
+    {
+      "Updated": "2025-12-13T08:47:20.8156691+03:00",
+      "domainName": "curve.eu.mine.zpool.ca",
+      "IPs": [
+        "188.165.24.209"
+      ]
+    },
+    {
+      "Updated": "2025-12-13T08:48:43.5537124+03:00",
+      "domainName": "flex.eu.mine.zpool.ca",
+      "IPs": [
+        "188.165.24.209"
+      ]
+    },
+    {
+      "Updated": "2025-12-13T08:49:24.200897+03:00",
+      "domainName": "ghostrider.eu.mine.zpool.ca",
+      "IPs": [
+        "188.165.24.209"
+      ]
+    },
+    {
+      "Updated": "2025-12-13T08:50:44.2709849+03:00",
+      "domainName": "interchained.eu.mine.zpool.ca",
+      "IPs": [
+        "188.165.24.209"
+      ]
+    },
+    {
+      "Updated": "2025-12-13T08:51:35.7477109+03:00",
+      "domainName": "mike.eu.mine.zpool.ca",
+      "IPs": [
+        "188.165.24.209"
+      ]
+    },
+    {
+      "Updated": "2025-12-13T08:52:10.6957178+03:00",
+      "domainName": "minotaurx.eu.mine.zpool.ca",
+      "IPs": [
+        "188.165.24.209"
+      ]
+    },
+    {
+      "Updated": "2025-12-13T08:52:51.7707661+03:00",
+      "domainName": "power2b.eu.mine.zpool.ca",
+      "IPs": [
+        "188.165.24.209"
+      ]
+    },
+    {
+      "Updated": "2025-12-13T08:53:54.6637157+03:00",
+      "domainName": "rinhash.eu.mine.zpool.ca",
+      "IPs": [
+        "188.165.24.209"
+      ]
+    },
+    {
+      "Updated": "2025-12-13T08:54:45.5904003+03:00",
+      "domainName": "verushash.eu.mine.zpool.ca",
+      "IPs": [
+        "188.165.24.209"
+      ]
+    },
+    {
+      "Updated": "2025-12-13T08:56:00.9115982+03:00",
+      "domainName": "xelisv2-pepew.eu.mine.zpool.ca",
+      "IPs": [
+        "188.165.24.209"
+      ]
+    },
+    {
+      "Updated": "2025-12-13T08:57:14.3208299+03:00",
+      "domainName": "yescryptr8.eu.mine.zpool.ca",
+      "IPs": [
+        "188.165.24.209"
+      ]
+    },
+    {
+      "Updated": "2025-12-13T08:57:56.5611058+03:00",
+      "domainName": "yescryptr16.eu.mine.zpool.ca",
+      "IPs": [
+        "188.165.24.209"
+      ]
+    },
+    {
+      "Updated": "2025-12-13T08:58:51.4187557+03:00",
+      "domainName": "yescryptr32.eu.mine.zpool.ca",
+      "IPs": [
+        "188.165.24.209"
+      ]
+    },
+    {
+      "Updated": "2025-12-13T09:00:21.6520836+03:00",
+      "domainName": "yespower.eu.mine.zpool.ca",
+      "IPs": [
+        "188.165.24.209"
+      ]
+    },
+    {
+      "Updated": "2025-12-13T09:01:16.1657167+03:00",
+      "domainName": "yespoweradvc.eu.mine.zpool.ca",
+      "IPs": [
+        "188.165.24.209"
+      ]
+    },
+    {
+      "Updated": "2025-12-13T09:02:34.9884885+03:00",
+      "domainName": "yespowereqpay.eu.mine.zpool.ca",
+      "IPs": [
+        "188.165.24.209"
+      ]
+    },
+    {
+      "Updated": "2025-12-13T09:03:52.9948893+03:00",
+      "domainName": "yespowerltncg.eu.mine.zpool.ca",
+      "IPs": [
+        "188.165.24.209"
+      ]
+    },
+    {
+      "Updated": "2025-12-13T09:04:47.3487304+03:00",
+      "domainName": "yespowermgpc.eu.mine.zpool.ca",
+      "IPs": [
+        "188.165.24.209"
+      ]
+    },
+    {
+      "Updated": "2025-12-13T09:05:30.8786445+03:00",
+      "domainName": "yespowerr16.eu.mine.zpool.ca",
+      "IPs": [
+        "188.165.24.209"
+      ]
+    },
+    {
+      "Updated": "2025-12-13T09:06:47.7807048+03:00",
+      "domainName": "yespowersugar.eu.mine.zpool.ca",
+      "IPs": [
+        "188.165.24.209"
+      ]
+    },
+    {
+      "Updated": "2025-12-13T09:07:19.1875178+03:00",
+      "domainName": "yespowertide.eu.mine.zpool.ca",
+      "IPs": [
+        "188.165.24.209"
+      ]
+    },
+    {
+      "Updated": "2025-12-13T09:07:50.512732+03:00",
+      "domainName": "yespowerurx.eu.mine.zpool.ca",
+      "IPs": [
+        "188.165.24.209"
+      ]
+    },
+    {
+      "Updated": "2025-12-13T10:54:39.9084147+03:00",
+      "domainName": "x21s.eu.mine.zpool.ca",
+      "IPs": [
+        "188.165.24.209"
+      ]
+    },
+    {
+      "Updated": "2025-12-13T10:59:20.0224574+03:00",
+      "domainName": "x25x.eu.mine.zpool.ca",
       "IPs": [
         "188.165.24.209"
       ]

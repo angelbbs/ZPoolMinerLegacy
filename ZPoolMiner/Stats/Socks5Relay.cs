@@ -90,6 +90,13 @@ namespace ZPoolMiner.Stats
             {
                 var minerStream = minerClient.GetStream();
                 var proxy = new TcpClient(Stats.CurrentProxyIP, Stats.CurrentProxySocks5SPort);
+
+                var sock = proxy.Client;
+                sock.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+
+                var sockClient = minerClient.Client;
+                sockClient.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+
                 NetworkStream proxyStream = proxy.GetStream();
                 Thread _ReadFromMiner = new Thread(() =>
                 {

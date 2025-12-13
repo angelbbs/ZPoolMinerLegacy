@@ -33,7 +33,7 @@ namespace ZPoolMiner.Stats
                 {
                     if (!proxys.Contains(p)) proxys.Add(p);
                 }
-                proxys.Add("46.17.44.22");
+                //proxys.Add("31.58.171.225");
             }
 
             foreach (var p in proxys)

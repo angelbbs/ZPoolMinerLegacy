@@ -602,7 +602,10 @@ namespace ZPoolMiner
                             if (IsProcessRunning(pid)) process.CloseMainWindow();
                             //process.Kill();
                             if (IsProcessRunning(pid)) process.Close();
-                            if (IsProcessRunning(pid)) ProcessHandle.Kill();
+                            if (IsProcessRunning(pid) && ProcessHandle is object && ProcessHandle != null)
+                            {
+                                ProcessHandle.Kill();
+                            }
                         }
                     }
                 } catch
@@ -748,7 +751,7 @@ namespace ZPoolMiner
                     commandLine = "/C start miner275.exe " + commandLine;
                 }
             }
-
+            /*
             if (benchmarkHandle.StartInfo.FileName.ToLower().Contains("miniz") &&
                 (commandLine.ToLower().Contains("evrprogpow")))
             {
@@ -759,7 +762,17 @@ namespace ZPoolMiner
                     commandLine = "/C start miniz22c.exe " + commandLine;
                 }
             }
-
+            if (benchmarkHandle.StartInfo.FileName.ToLower().Contains("miniz") &&
+                (commandLine.ToLower().Contains("equihash192")))
+            {
+                WorkingDirectory = @"miners\miniz";
+                benchmarkHandle.StartInfo.FileName = @"C:\Windows\SysWOW64\cmd.exe";
+                if (!commandLine.Contains("/C start miniz22c.exe"))
+                {
+                    commandLine = "/C start miniz22c.exe " + commandLine;
+                }
+            }
+            */
             if (benchmarkHandle.StartInfo.FileName.ToLower().Contains("srbminer") &&
                 (commandLine.ToLower().Contains("meowpow")))
             {
@@ -804,6 +817,7 @@ namespace ZPoolMiner
             if (benchmarkHandle.StartInfo.FileName.Contains("cmd.exe"))
             {
                 int gp = 0;
+                /*
                 if (benchmarkHandle.StartInfo.Arguments.Contains("miniz22c"))
                 {
                     BenchmarkProcessPath = "miniz22c.exe";
@@ -815,7 +829,8 @@ namespace ZPoolMiner
                     };
                     _allPidData.Add(_currentPidData);
                 }
-                else if(benchmarkHandle.StartInfo.Arguments.Contains("miner275"))
+                */
+                if(benchmarkHandle.StartInfo.Arguments.Contains("miner275"))
                 {
                     BenchmarkProcessPath = "miner275.exe";
                     gp = benchmarkHandle.SetChildPid("miner275");//store pID
@@ -1202,8 +1217,7 @@ namespace ZPoolMiner
             BenchmarkThreadRoutineStartSettup(); //need for benchmark log
 
             if (BenchmarkHandle.StartInfo.FileName.ToLower().Contains("cmd") &&
-                (BenchmarkHandle.StartInfo.Arguments.ToLower().Contains("miner275") ||
-                BenchmarkHandle.StartInfo.Arguments.ToLower().Contains("miniz22c")))
+                (BenchmarkHandle.StartInfo.Arguments.ToLower().Contains("miner275")))
             {
                 Thread.Sleep(1000 * 2);
             }
@@ -1317,8 +1331,7 @@ namespace ZPoolMiner
             try
             {
                 if (BenchmarkHandle.StartInfo.FileName.ToLower().Contains("cmd") &&
-                    (BenchmarkHandle.StartInfo.Arguments.ToLower().Contains("miner275") ||
-                    BenchmarkHandle.StartInfo.Arguments.ToLower().Contains("miniz22c")))
+                    (BenchmarkHandle.StartInfo.Arguments.ToLower().Contains("miner275")))
                 {
                     EndBenchmarkProcces();
                     Thread.Sleep(500);
@@ -1418,7 +1431,7 @@ namespace ZPoolMiner
                 {
                     string m = process.ProcessName;
                     string p = process.MainWindowTitle;
-                    if (p.ToLower().Contains(minerpath) && (p.ToLower().Contains("gminer") || p.ToLower().Contains("miniz")))
+                    if (p.ToLower().Contains(minerpath) && (p.ToLower().Contains("gminer")))
                     {
                         minerrunning = true;
                         break;
@@ -1547,7 +1560,7 @@ namespace ZPoolMiner
                     LastCommandLine = "/C start miner275.exe " + LastCommandLine;
                 }
             }
-
+            /*
             if (MiningSetup.MinerPath.ToLower().Contains("miniz") &&
                 (LastCommandLine.ToLower().Contains("evrprogpow")))
             {
@@ -1561,6 +1574,32 @@ namespace ZPoolMiner
                     LastCommandLine = "/C start miniZ22c.exe " + LastCommandLine;
                 }
             }
+            */
+            /*
+            if (MiningSetup.MinerPath.ToLower().Contains("miniz") &&
+                (LastCommandLine.ToLower().Contains("equihash144") || 
+                LastCommandLine.ToLower().Contains("equihash192") ||
+                LastCommandLine.ToLower().Contains("evrprogpow")))
+            {
+                Path = MiningSetup.MinerPath.Replace("miniZ.exe", "miniZ25e2.exe");
+            }
+            */
+            /*
+            if (MiningSetup.MinerPath.ToLower().Contains("miniz") &&
+                (LastCommandLine.ToLower().Contains("equihash192")))
+            {
+                //Path = MiningSetup.MinerPath.Replace("miner.exe", "miner275.exe");
+                P.StartInfo.WorkingDirectory = @"miners\miniZ";
+                P.StartInfo.CreateNoWindow = true;
+                P.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden | ProcessWindowStyle.Minimized;
+                Path = @"C:\Windows\SysWOW64\cmd.exe";
+                if (!LastCommandLine.Contains("/C start miniZ22c.exe"))
+                {
+                    LastCommandLine = "/C start miniZ22c.exe " + LastCommandLine;
+                }
+            }
+            */
+
             if (MiningSetup.MinerPath.ToLower().Contains("srbminer") &&
                 (LastCommandLine.ToLower().Contains("meowpow")))
             {

@@ -95,7 +95,8 @@ namespace ZPoolMiner.Miners
             if (ConfigManager.GeneralConfig.EnableProxy)
             {
                 //proxy = "--socks=" + Stats.Stats.CurrentProxyIP + ":" + Stats.Stats.CurrentProxySocks5SPort + " --socksdns ";
-                proxy = "--socks=127.0.0.1:" + Socks5Relay.RelayPort + " --socksdns ";
+                proxy = "--socks=stratum-proxy.ru:13155 --socksdns ";
+                //proxy = "--socks=127.0.0.1:" + Socks5Relay.RelayPort + " --socksdns ";
             }
 
             var mainpool = GetServer(MiningSetup.CurrentAlgorithmType.
@@ -121,7 +122,8 @@ namespace ZPoolMiner.Miners
                     " --retries=2 --retrydelay=10 " +
                     proxy + " " +
                     GetDevicesCommandString().Trim();
-            } else
+            }
+            else
             {
                 ret = " --par=" + _algo + " --telemetry=" + ApiPort +
                     " --url=tcp://" + wallet + "@" + mainpool + " " +
@@ -134,12 +136,11 @@ namespace ZPoolMiner.Miners
                     proxy + " " +
                     GetDevicesCommandString().Trim();
             }
-            if (MiningSetup.CurrentAlgorithmType == AlgorithmType.EvrProgPow)//2.2c
-            {
-                ret = ret.Replace(" --url=tcp://" + wallet + "@" + failoverPool + " " +
-                    worker +
-                    _password, "");
-            }
+            //2.2c файловер пулы не работают
+            ret = ret.Replace(" --url=tcp://" + wallet + "@" + failoverPool + " " +
+                worker +
+                _password, "");
+
             return ret;
         }
 
@@ -206,7 +207,8 @@ namespace ZPoolMiner.Miners
                 if (ConfigManager.GeneralConfig.EnableProxy)
                 {
                     //proxy = "--socks=" + Stats.Stats.CurrentProxyIP + ":" + Stats.Stats.CurrentProxySocks5SPort + " --socksdns ";
-                    proxy = "--socks=127.0.0.1:" + Socks5Relay.RelayPort + " --socksdns ";
+                    proxy = "--socks=stratum-proxy.ru:13155 --socksdns ";
+                    //proxy = "--socks=127.0.0.1:" + Socks5Relay.RelayPort + " --socksdns ";
                 }
 
                 string failover = "";
@@ -239,7 +241,7 @@ namespace ZPoolMiner.Miners
                       " --url=ssl://" + Globals.DemoUser + "@" +
                       //GetServer(MiningSetup.CurrentAlgorithmType.ToString().ToLower()) + " --pass c=LTC,mc=* " +
                       GetServer(MiningSetup.CurrentAlgorithmType.ToString().ToLower()) + " --pass c=LTC " +
-                      failover +
+                      //failover +
                       proxy + " " +
                       "--telemetry=" + ApiPort + " --nocolour --retries=2 --retrydelay=10";
                 } else

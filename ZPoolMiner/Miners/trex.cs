@@ -68,7 +68,8 @@ namespace ZPoolMiner.Miners
             if (ConfigManager.GeneralConfig.EnableProxy)
             {
                 //proxy = "--proxy " + Stats.Stats.CurrentProxyIP + ":" + Stats.Stats.CurrentProxySocks5SPort + " ";
-                proxy = "--proxy 127.0.0.1:" + Socks5Relay.RelayPort;
+                proxy = "--socks=stratum-proxy.ru:13155 --socksdns ";
+                //proxy = "--proxy 127.0.0.1:" + Socks5Relay.RelayPort;
             }
 
             var mainpool = GetServer(MiningSetup.CurrentAlgorithmType.
@@ -88,7 +89,7 @@ namespace ZPoolMiner.Miners
                    _wallet + " " + _password +
                    " -o " + failoverPool + " " +
                    _wallet + " " + _password +
-                    //proxy + " " +//not supported
+                    //proxy + " " +//0.19.4 not supported
                     " -d " + GetDevicesCommandString() + " --no-watchdog " +
                 ExtraLaunchParametersParser.ParseForMiningSetup(MiningSetup, DeviceType.NVIDIA) + " ";
 

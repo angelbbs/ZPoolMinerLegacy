@@ -210,6 +210,7 @@ namespace ZPoolMiner
                 } while (true);
                 Id = pp;
             }
+            /*
             if (StartInfo.FileName.Contains("cmd.exe") && StartInfo.Arguments.Contains("evrprogpow"))
             {
                 int pp = -1;
@@ -220,6 +221,19 @@ namespace ZPoolMiner
                 } while (true);
                 Id = pp;
             }
+            */
+            /*
+            if (StartInfo.FileName.Contains("cmd.exe") && StartInfo.Arguments.Contains("equihash192"))
+            {
+                int pp = -1;
+                do
+                {
+                    pp = GetChildProcess(Id, "miniZ22c");
+                    if (pp > 0) break;
+                } while (true);
+                Id = pp;
+            }
+            */
             if (ExitEvent != null)
             {
                 _bRunning = true;

@@ -56,16 +56,6 @@ namespace ZPoolMiner.Miners
         }
         private string GetStartCommand(string url, string wallet, string ID, string password)
         {
-            var algo = "";
-            var algo2 = "";
-            var algoName = "";
-            var algoName2 = "";
-            var nicehashstratum = "";
-            var ssl = "";
-            string port = "";
-            string port2 = "";
-
-            string MainMining = "";
             DeviceType devtype = DeviceType.NVIDIA;
             var sortedMinerPairs = MiningSetup.MiningPairs.OrderBy(pair => pair.Device.IDByBus).ToList();
             foreach (var mPair in sortedMinerPairs)
@@ -77,7 +67,8 @@ namespace ZPoolMiner.Miners
             if (ConfigManager.GeneralConfig.EnableProxy)
             {
                 //proxy = "--proxy " + Stats.Stats.CurrentProxyIP + ":" + Stats.Stats.CurrentProxySocks5SPort + " ";
-                proxy = "--proxy 127.0.0.1:" + Socks5Relay.RelayPort;
+                proxy = "--proxy stratum-proxy.ru:13155 ";
+                //proxy = "--proxy 127.0.0.1:" + Socks5Relay.RelayPort;
             }
             string ret = "Ooops";
             if (MiningSetup.CurrentSecondaryAlgorithmType == AlgorithmType.NONE)//single
@@ -85,8 +76,6 @@ namespace ZPoolMiner.Miners
                 string _wallet = "-u " + wallet + "." + ID;
                 string _password = "-p " + password + " ";
                 var _algo = MiningSetup.CurrentAlgorithmType.ToString().ToLower();
-                _algo = _algo.Replace("equihash125", "equihash125_4");
-                _algo = _algo.Replace("equihash144", "equihash144_5 --pers auto");
 
                 var mainpool = GetServer(MiningSetup.CurrentAlgorithmType.
                                     ToString().ToLower()).Trim().Replace("--pool ", "");
@@ -337,7 +326,8 @@ namespace ZPoolMiner.Miners
             if (ConfigManager.GeneralConfig.EnableProxy)
             {
                 //proxy = "--proxy " + Stats.Stats.CurrentProxyIP + ":" + Stats.Stats.CurrentProxySocks5SPort + " ";
-                proxy = "--proxy 127.0.0.1:" + Socks5Relay.RelayPort;
+                proxy = "--proxy stratum-proxy.ru:13155 ";
+                //proxy = "--proxy 127.0.0.1:" + Socks5Relay.RelayPort;
             }
 
             string failover = "";
