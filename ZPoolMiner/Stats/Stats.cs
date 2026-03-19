@@ -50,6 +50,7 @@ namespace ZPoolMiner.Stats
             public int port { get; set; }
             public int ssl_port { get; set; }
             public int _24h_blocks { get; set; }
+            public double _24h_btc { get; set; }
             public int lastblock { get; set; }
             public int timesincelast { get; set; }
             public int conversion_disabled { get; set; }
@@ -60,74 +61,73 @@ namespace ZPoolMiner.Stats
             public bool tempBlock { get; set; }
         }
         public static List<Coin> MinerStatCoinList = new();
-        private static int httpsProxyCheck = 0;
-        public static string CurrentProxyIP;
-        public static int CurrentProxyHTTPSPort = 13150;
-        public static int CurrentProxySocks5SPort = 13155;
-        public static async Task<string> GetPoolApiAsync(string url, int timeout = 5, bool log = true)
+        public static ProxyChecker.Proxy CurrentProxy;
+
+        public static async Task<string> GetPoolApiAsync(string url, int timeout = 5, 
+            bool log = true, bool proxy = false)
         {
             string responseFromServer = "";
-            if (ConfigManager.GeneralConfig.EnableProxy)
+            //к walletEx нельзя подключаться через прокси. у зпула лимит на 1-2 подключение в секунду с одного IP
+            if (ConfigManager.GeneralConfig.EnableProxy && proxy)
             {
-                foreach (var proxy in Enumerable.Reverse(ProxyCheck.HttpsProxyList).ToList())
+                if (!ProxyCheck.localProxyTest)
                 {
-                    if (proxy.tcpValid)
+                    //начинаем подключение с первого прокси
+                    var firstProxy = ProxyCheck.DNStoIP("srv1.stratum-proxy.ru")[0];
+                    do
                     {
-                        try
+                        if (Stats.CurrentProxy.Ip == firstProxy)
                         {
-                            //try direct
-                            responseFromServer = await GetPoolApiDataAsync(url, proxy, false, log);
-                            if (!string.IsNullOrEmpty(responseFromServer))
-                            {
-                                if (log)
-                                {
-                                    Helpers.ConsolePrint("GetPoolApiData", "Received bytes: " +
-                                    responseFromServer.Length.ToString() + " directly from " + url);
-                                }
-                                break;
-                            }
-                            else
-                            {
-                                if (log)
-                                {
-                                    Helpers.ConsolePrintError("GetPoolApiAsync", "Direct connection failure to " + url);
-                                }
-                            }
-                            //proxy
-                            responseFromServer = await GetPoolApiDataAsync(url, proxy, true, log);
-                            if (!string.IsNullOrEmpty(responseFromServer))
-                            {
-                                if (log)
-                                {
-                                    Helpers.ConsolePrint("GetPoolApiData", "Received bytes: " +
-                                    responseFromServer.Length.ToString() + " from " + url + " " +
-                                    proxy.Ip + ":" + proxy.HTTPSPort);
-                                }
-                                break;
-                            }
-                            else
-                            {
-                                if (log)
-                                {
-                                    Helpers.ConsolePrintError("GetPoolApiAsync", "Connect fail via proxy: " +
-                                    proxy.Ip + ":" + proxy.HTTPSPort.ToString());
-                                    ProxyCheck.ProxyRotate();
-                                    //тут неправильно всё
-                                    //надо переделать логику выбора и переключения прокси
-                                }
-                            }
+                            break;
                         }
-                        catch (Exception ex)
+                        ProxyCheck.ProxyRotate();
+                        Thread.Sleep(500);
+                    } while (true);
+                }
+                int count = 0;
+                do
+                {
+                    try
+                    {
+                        //proxy
+                        count++;
+                        responseFromServer = await GetPoolApiDataAsync(url, CurrentProxy, true, log);
+                        if (!string.IsNullOrEmpty(responseFromServer))
                         {
-                            Helpers.ConsolePrintError("GetPoolApiAsync", ex.ToString());
+                            if (log)
+                            {
+                                Helpers.ConsolePrint("GetPoolApiData", "Received bytes: " +
+                                responseFromServer.Length.ToString() + " from " + url + " " +
+                                CurrentProxy.Ip + ":" + CurrentProxy.HTTPSPort);
+                            }
+                            break;
+                        }
+                        else
+                        {
+                            if (log)
+                            {
+                                Helpers.ConsolePrintError("GetPoolApiAsync", "Connect fail via proxy: " +
+                                CurrentProxy.Ip + ":" + CurrentProxy.HTTPSPort.ToString());
+                                ProxyCheck.ProxyRotate();
+                            }
                         }
                     }
-                }
+                    catch (Exception ex)
+                    {
+                        Helpers.ConsolePrintError("GetPoolApiAsync", ex.ToString());
+                    }
+
+                    if (count >= 10)
+                    {
+                        Helpers.ConsolePrintError("GetPoolApiAsync", "All proxy failure");
+                        break;
+                    }
+                } while (true);
 
                 if (string.IsNullOrEmpty(responseFromServer))
                 {
                     Helpers.ConsolePrintError("GetPoolApiAsync", "Current proxy: " +
-                        Stats.CurrentProxyIP);
+                        Stats.CurrentProxy.Ip);
                     //ProxyCheck.ProxyRotate();
                     //new Task(() => ProxyCheck.GetProxy()).Start();
                 }
@@ -231,12 +231,6 @@ namespace ZPoolMiner.Stats
                         else
                         {
                             responseFromServer = contents;
-                            if (viaProxy)
-                            {
-                                CurrentProxyIP = proxy.Ip;
-                                CurrentProxyHTTPSPort = proxy.HTTPSPort;
-                                CurrentProxySocks5SPort = proxy.Socks5Port;
-                            }
                         }
                     }
                     else
@@ -308,7 +302,7 @@ namespace ZPoolMiner.Stats
                     Helpers.ConsolePrintError("Stats", ex.ToString());
                 }
 
-                string ResponseFromAPI = await GetPoolApiAsync(link, 7);
+                string ResponseFromAPI = await GetPoolApiAsync(link, 7, true, true);
                 if (!string.IsNullOrEmpty(ResponseFromAPI))
                 {
                     //Helpers.ConsolePrint("************ " + link, ResponseFromAPI);
@@ -326,6 +320,7 @@ namespace ZPoolMiner.Stats
                         var estimate = coin.Value<double>("estimate");
                         var mbtc_mh_factor = coin.Value<double>("mbtc_mh_factor");
                         var _24h_blocks = coin.Value<int>("24h_blocks");
+                        var _24h_btc = coin.Value<double>("24h_btc");
                         var lastblock = coin.Value<int>("lastblock");
                         var timesincelast = coin.Value<int>("timesincelast");
                         var conversion_disabled = coin.Value<int>("conversion_disabled");
@@ -334,7 +329,7 @@ namespace ZPoolMiner.Stats
                         var is_aux = coin.Value<int>("is_aux");
                         var error = coin.Value<string>("error");
                         //testing
-                        //if (symbol.Equals("ZER")) estimate = estimate * 2;
+                        //if (symbol.Equals("RVN")) estimate = estimate * 5 + 1000;
                         Coin _coin = new();
                         _coin.name = name;
                         _coin.algo = algo;
@@ -344,9 +339,37 @@ namespace ZPoolMiner.Stats
                         _coin.ssl_port = ssl_port;
                         _coin.hashrate = hashrate;
                         _coin.adaptive_factor = 1.0;
-
+                        /*
+                        double BTCtoUSD = 79100;
+                        if (symbol == "VRSC")
+                        {
+                            //i5-12500H
+                            double resultVerushash_BTC = estimate / (1000000 * mbtc_mh_factor) * 12000000 /1000;
+                            Console.WriteLine("VRSC: " + resultVerushash_BTC * BTCtoUSD);
+                        }
+                        if (symbol == "ZER")
+                        {
+                            //NVIDIA RTX 4060 Laptop
+                            double resultSCC_BTC = estimate / (1000000 * mbtc_mh_factor) * 33 / 1000;
+                            Console.WriteLine("ZER: " + resultSCC_BTC * BTCtoUSD);
+                        }
+                        */
+                        // _coin.estimate = (estimate * 1000 / mbtc_mh_factor) * correction;//mBTC/GH
                         _coin.estimate = (estimate * 1000000 / mbtc_mh_factor) * correction;//mBTC/GH
+                        //estimate_in_mBTC = current_estimate / (1000000 * mbtc_mh_factor)
+                        //estimate_in_mBTC = current_estimate / (1000000 * mbtc_mh_factor) * hashrate_in_H_s
+
+                        //_coin.estimate = estimate / (1 * mbtc_mh_factor);
+                        //Helpers.ConsolePrint(_coin.symbol, _coin.estimate.ToString());
+
                         _coin.profit = _coin.estimate;
+                        _coin._24h_btc = _24h_btc;
+
+                        if (_coin._24h_btc == 0)
+                        {
+                            //_coin.estimate = 0;
+                            //_coin.profit = 0;
+                        }
                         _coin.mbtc_mh_factor = mbtc_mh_factor;
 
                         _coin._24h_blocks = _24h_blocks;
@@ -475,10 +498,10 @@ namespace ZPoolMiner.Stats
                             AlgoCoin c = new();
                             c.algo = _coin.algo;
                             c.coin = _coin.symbol;
-                            only_directCoin.Add(c);
                             _coin.tempBlock = true;
-                            _coin.profit = _coin.profit / 100;
-                            _coin.adaptive_profit = _coin.adaptive_profit / 100;
+                            _coin.profit = _coin.profit / 10000;
+                            _coin.adaptive_profit = _coin.adaptive_profit / 10000;
+                            only_directCoin.Add(c);
                         }
                         /*
                         if (_coin.conversion_disabled == 1)
@@ -499,10 +522,10 @@ namespace ZPoolMiner.Stats
                             AlgoCoin c = new();
                             c.algo = _coin.algo;
                             c.coin = _coin.symbol;
-                            noBlockFoundCoin.Add(c);
                             _coin.tempBlock = true;
                             _coin.profit = _coin.profit / 100;
-                            _coin.adaptive_profit = _coin.adaptive_profit / 100;
+                            _coin.adaptive_profit = _coin.adaptive_profit / 10000;
+                            noBlockFoundCoin.Add(c);
                         }
 
                         if (hashrate == 0 && !_coin.tempBlock && _coin._24h_blocks < 3)
@@ -511,10 +534,10 @@ namespace ZPoolMiner.Stats
                             AlgoCoin zhc = new();
                             zhc.algo = _coin.algo;
                             zhc.coin = _coin.symbol;
-                            zeroHashrateCoin.Add(zhc);
                             _coin.tempBlock = true;
-                            _coin.profit = _coin.profit / 100;
-                            _coin.adaptive_profit = _coin.adaptive_profit / 100;
+                            _coin.profit = _coin.profit / 10000;
+                            _coin.adaptive_profit = _coin.adaptive_profit / 10000;
+                            zeroHashrateCoin.Add(zhc);
                         }
                         //"only_direct": 1,
 
@@ -584,6 +607,10 @@ namespace ZPoolMiner.Stats
                         coins = "";
                         _algo = c.algo;
                         coins = coins + c.coin + ", ";
+                        if (!_only_directCoinList.Contains(_algo + " (" + coins.Substring(0, coins.Length - 2) + ")"))
+                        {
+                            _only_directCoinList.Add(_algo + " (" + coins.Substring(0, coins.Length - 2) + ")");
+                        }
                     }
                 }
                 if (_only_directCoinList.Count > 0)
@@ -612,6 +639,10 @@ namespace ZPoolMiner.Stats
                         coins = "";
                         _algo = c.algo;
                         coins = coins + c.coin + ", ";
+                        if (!_conversion_disabledCoinList.Contains(_algo + " (" + coins.Substring(0, coins.Length - 2) + ")"))
+                        {
+                            _conversion_disabledCoinList.Add(_algo + " (" + coins.Substring(0, coins.Length - 2) + ")");
+                        }
                     }
                 }
                 if (_conversion_disabledCoinList.Count > 0)
@@ -641,6 +672,10 @@ namespace ZPoolMiner.Stats
                         coins = "";
                         _algo = c.algo;
                         coins = coins + c.coin + ", ";
+                        if (!_zeroHashrateCoinList.Contains(_algo + " (" + coins.Substring(0, coins.Length - 2) + ")"))
+                        {
+                            _zeroHashrateCoinList.Add(_algo + " (" + coins.Substring(0, coins.Length - 2) + ")");
+                        }
                     }
                 }
                 if (_zeroHashrateCoinList.Count > 0)
@@ -651,12 +686,13 @@ namespace ZPoolMiner.Stats
                 noBlockFoundCoin.Sort((x, y) => x.algo.CompareTo(y.algo));
                 _algo = "";
                 coins = "";
+
                 List<string> _noBlockFoundCoinList = new();
                 foreach (var c in noBlockFoundCoin)
                 {
                     if (_algo.IsNullOrEmpty())
                     {
-                        _algo = c.algo;
+                        _algo = c.algo; 
                     }
                     if (c.algo.Equals(_algo))
                     {
@@ -668,6 +704,10 @@ namespace ZPoolMiner.Stats
                         coins = "";
                         _algo = c.algo;
                         coins = coins + c.coin + ", ";
+                        if (!_noBlockFoundCoinList.Contains(_algo + " (" + coins.Substring(0, coins.Length - 2) + ")"))
+                        {
+                            _noBlockFoundCoinList.Add(_algo + " (" + coins.Substring(0, coins.Length - 2) + ")");
+                        }
                     }
                 }
                 if (_noBlockFoundCoinList.Count > 0)
@@ -891,6 +931,8 @@ namespace ZPoolMiner.Stats
             public string hashrate;
             public double localhashrate;
             public double actualhashrate;
+            public double rejectedhashrate;
+            public double spm;
             public double localProfit;
             public double actualProfit;
             public double adaptive_factor;
@@ -906,11 +948,14 @@ namespace ZPoolMiner.Stats
             public string algorithm;
             public string symbol;
             public double hashrate_shared;
+            public double hashrate_rejected;
         }
         public static async Task GetWalletBalanceExAsync(object sender, EventArgs e)
         {
             Form_Main.adaptiveRunning = false;
             double chart_actualProfit = 0d;
+            double chart_prevActualProfit = 0d;
+            double chart_rejectedProfit = 0d;
             if (string.IsNullOrEmpty(ConfigManager.GeneralConfig.Wallet))
             {
                 Helpers.ConsolePrintError("Stats", "Error getting wallet balance. Wallet not entered");
@@ -922,7 +967,6 @@ namespace ZPoolMiner.Stats
                 if (!string.IsNullOrEmpty(ResponseFromAPI))
                 {
                     coinsMining.Clear();
-                    double overallBTC = 0;
                     dynamic data = JsonConvert.DeserializeObject(ResponseFromAPI);
                     double localProfit = 0d;
                     double balance = data.balance;
@@ -951,95 +995,104 @@ namespace ZPoolMiner.Stats
                         if (_coin.tempBlock) continue;
 
                         double actualHashrate = 0d;
+                        double rejectedHashrate = 0d;
+                        double spm = 0d;
 
                         if (data.SelectToken("miners") is object && data.SelectToken("miners") != null)
-                        foreach (var cur in data.SelectToken("miners"))
                         {
-                            string _algo = cur.SelectToken("algo");
-                            _algo = _algo.Replace("xelisv2-pepew", "xelisv2_pepew");
-                            _algo = _algo.Replace("neoscrypt-xaya", "neoscrypt_xaya");
-                            string _hashrate = cur.SelectToken("hashrate");
-                            string _ID = cur.SelectToken("ID");
-                            string _password = cur.SelectToken("password");
-                            int _subscribe = cur.SelectToken("subscribe");
-                            double _accepted = cur.SelectToken("accepted");
-                            string coin = _password.Split(',')[2].Replace("zap=", "");
-
-                            if (_coin.algo.ToLower().Equals(_algo.ToLower()) &&
-                                _coin.symbol.ToLower().Equals(coin.ToLower()) &&
-                            _ID.Equals(Miner.GetWorkerUID()))
+                            foreach (var cur in data.SelectToken("miners"))
                             {
-                                var _algoProperty = new AlgoProperty();
-                                double localHashrate = 0d;
-                                foreach (var miningDevice in MiningSession._miningDevices)
+                                string _algo = cur.SelectToken("algo");
+                                _algo = _algo.Replace("xelisv2-pepew", "xelisv2_pepew");
+                                _algo = _algo.Replace("neoscrypt-xaya", "neoscrypt_xaya");
+                                string _hashrate = cur.SelectToken("hashrate");
+                                string _ID = cur.SelectToken("ID");
+                                string _password = cur.SelectToken("password");
+                                int _difficulty = cur.SelectToken("difficulty");
+                                int _subscribe = cur.SelectToken("subscribe");
+                                double _spm = cur.SelectToken("spm");//пока не нужно
+                                double _accepted = cur.SelectToken("accepted");
+                                double _rejected = cur.SelectToken("rejected");
+                                string coin = _password.Substring(_password.IndexOf("zap=") + 4);
+                                if (_coin.algo.ToLower().Equals(_algo.ToLower()) &&
+                                    _coin.symbol.ToLower().Equals(coin.ToLower()) &&
+                                _ID.Equals(Miner.GetWorkerUID()))
                                 {
-                                    if (_coin.algo.ToLower().Equals(((AlgorithmType)miningDevice.Device.AlgorithmID).ToString().ToLower()) &&
-                                        _coin.symbol.ToLower().Equals(miningDevice.Device.Coin.ToLower()))
+                                    var _algoProperty = new AlgoProperty();
+                                    double localHashrate = 0d;
+                                    foreach (var miningDevice in MiningSession._miningDevices)
                                     {
-                                        localHashrate = localHashrate + miningDevice.Device.MiningHashrate;
+                                        if (_coin.algo.ToLower().Equals(((AlgorithmType)miningDevice.Device.AlgorithmID).ToString().ToLower()) &&
+                                            _coin.symbol.ToLower().Equals(miningDevice.Device.Coin.ToLower()))
+                                        {
+                                            localHashrate = localHashrate + miningDevice.Device.MiningHashrate;
+                                        }
+                                        if (_coin.algo.ToLower().Equals(((AlgorithmType)miningDevice.Device.SecondAlgorithmID).ToString().ToLower()) &&
+                                            _coin.symbol.ToLower().Equals(miningDevice.Device.Coin.ToLower()))
+                                        {
+                                            localHashrate = localHashrate + miningDevice.Device.MiningHashrateSecond;
+                                        }
+                                        if (!currentminingAlgos.Contains(((AlgorithmType)miningDevice.Device.AlgorithmID).ToString().ToLower()))
+                                        {
+                                            currentminingAlgos.Add(((AlgorithmType)miningDevice.Device.AlgorithmID).ToString().ToLower());
+                                        }
+                                        if (!currentminingAlgos.Contains(((AlgorithmType)miningDevice.Device.SecondAlgorithmID).ToString().ToLower()))
+                                        {
+                                            currentminingAlgos.Add(((AlgorithmType)miningDevice.Device.SecondAlgorithmID).ToString().ToLower());
+                                        }
                                     }
-                                    if (_coin.algo.ToLower().Equals(((AlgorithmType)miningDevice.Device.SecondAlgorithmID).ToString().ToLower()) &&
-                                        _coin.symbol.ToLower().Equals(miningDevice.Device.Coin.ToLower()))
-                                    {
-                                        localHashrate = localHashrate + miningDevice.Device.MiningHashrateSecond;
-                                    }
-                                    if (!currentminingAlgos.Contains(((AlgorithmType)miningDevice.Device.AlgorithmID).ToString().ToLower()))
-                                    {
-                                        currentminingAlgos.Add(((AlgorithmType)miningDevice.Device.AlgorithmID).ToString().ToLower());
-                                    }
-                                    if (!currentminingAlgos.Contains(((AlgorithmType)miningDevice.Device.SecondAlgorithmID).ToString().ToLower()))
-                                    {
-                                        currentminingAlgos.Add(((AlgorithmType)miningDevice.Device.SecondAlgorithmID).ToString().ToLower());
-                                    }
-                                }
 
-                                if (!currentminingAlgosPool.Contains(_algo.ToLower()))
-                                {
-                                    currentminingAlgosPool.Add(_algo.ToLower());
-                                }
-
-                                localProfit = (localHashrate * _coin.adaptive_profit / _coin.adaptive_factor);
-
-                                actualHashrate = actualHashrate + _accepted * (1.00);
-
-                                if (actualHashrate > 0)
-                                {
-                                    CoinProperty cp = new();
-                                    if (!coinsMining.Contains(cp))
+                                    if (!currentminingAlgosPool.Contains(_algo.ToLower()))
                                     {
-                                        cp.algorithm = _coin.algo;
-                                        cp.symbol = _coin.symbol;
-                                        cp.hashrate_shared = actualHashrate;
-                                        //Helpers.ConsolePrint("******** adding " + cp.symbol, _symbol + "worker hashrate for " + cp.algorithm);
-                                        coinsMining.Add(cp);
+                                        currentminingAlgosPool.Add(_algo.ToLower());
                                     }
-                                }
 
-                                if (algosProperty.ContainsKey(_coin.algo.ToLower()))
-                                {
-                                    if (MiningSession._miningDevices.Exists(x => (((AlgorithmType)x.Device.AlgorithmID).ToString().ToLower() == _coin.algo.ToLower()) &&
-                                    _coin.symbol.ToLower().Equals(x.Device.Coin.ToLower())))
-                                    {
-                                        _algoProperty.ticks = algosProperty.FirstOrDefault(x => x.Key.ToLower() == _coin.algo.ToLower()).Value.ticks;
-                                    }
-                                    if (MiningSession._miningDevices.Exists(x => (((AlgorithmType)x.Device.SecondAlgorithmID).ToString().ToLower() == _coin.algo.ToLower()) &&
-                                    _coin.symbol.ToLower().Equals(x.Device.Coin.ToLower())))
-                                    {
-                                        _algoProperty.ticks = algosProperty.FirstOrDefault(x => x.Key.ToLower() == _coin.algo.ToLower()).Value.ticks;
-                                    }
-                                    _algoProperty.factorsList = algosProperty.FirstOrDefault(x => x.Key.ToLower() == _coin.algo.ToLower()).Value.factorsList;
-                                }
-                                _algoProperty.localhashrate = localHashrate;
-                                _algoProperty.localProfit = localProfit;
-                                _algoProperty.actualhashrate = actualHashrate;
-                                _algoProperty.algo = _coin.algo.ToLower();
-                                _algoProperty.coin = _coin.symbol.ToLower();
-                                _algoProperty.hashrate = _hashrate;
-                                _algoProperty.adaptive_factor = _coin.adaptive_factor;
+                                    localProfit = (localHashrate * _coin.adaptive_profit / _coin.adaptive_factor);
 
-                                if (currentminingAlgos.Contains(_coin.algo.ToLower()))
-                                {
-                                    algosProperty.AddOrUpdate(_coin.algo.ToLower(), _algoProperty, (k, v) => _algoProperty);
+                                    actualHashrate = actualHashrate + _accepted * (1.00);
+                                    rejectedHashrate = rejectedHashrate + _rejected;
+
+                                    if (actualHashrate > 0)
+                                    {
+                                        CoinProperty cp = new();
+                                        if (!coinsMining.Contains(cp))
+                                        {
+                                            cp.algorithm = _coin.algo;
+                                            cp.symbol = _coin.symbol;
+                                            cp.hashrate_shared = actualHashrate;
+                                            cp.hashrate_rejected = rejectedHashrate;
+                                            //Helpers.ConsolePrint("******** adding " + cp.symbol, _symbol + "worker hashrate for " + cp.algorithm);
+                                            coinsMining.Add(cp);
+                                        }
+                                    }
+
+                                    if (algosProperty.ContainsKey(_coin.algo.ToLower()))
+                                    {
+                                        if (MiningSession._miningDevices.Exists(x => (((AlgorithmType)x.Device.AlgorithmID).ToString().ToLower() == _coin.algo.ToLower()) &&
+                                        _coin.symbol.ToLower().Equals(x.Device.Coin.ToLower())))
+                                        {
+                                            _algoProperty.ticks = algosProperty.FirstOrDefault(x => x.Key.ToLower() == _coin.algo.ToLower()).Value.ticks;
+                                        }
+                                        if (MiningSession._miningDevices.Exists(x => (((AlgorithmType)x.Device.SecondAlgorithmID).ToString().ToLower() == _coin.algo.ToLower()) &&
+                                        _coin.symbol.ToLower().Equals(x.Device.Coin.ToLower())))
+                                        {
+                                            _algoProperty.ticks = algosProperty.FirstOrDefault(x => x.Key.ToLower() == _coin.algo.ToLower()).Value.ticks;
+                                        }
+                                        _algoProperty.factorsList = algosProperty.FirstOrDefault(x => x.Key.ToLower() == _coin.algo.ToLower()).Value.factorsList;
+                                    }
+                                    _algoProperty.localhashrate = localHashrate;
+                                    _algoProperty.localProfit = localProfit;
+                                    _algoProperty.actualhashrate = actualHashrate;
+                                    _algoProperty.rejectedhashrate = rejectedHashrate;
+                                    _algoProperty.algo = _coin.algo.ToLower();
+                                    _algoProperty.coin = _coin.symbol.ToLower();
+                                    _algoProperty.hashrate = _hashrate;
+                                    _algoProperty.adaptive_factor = _coin.adaptive_factor;
+
+                                    if (currentminingAlgos.Contains(_coin.algo.ToLower()))
+                                    {
+                                        algosProperty.AddOrUpdate(_coin.algo.ToLower(), _algoProperty, (k, v) => _algoProperty);
+                                    }
                                 }
                             }
                         }
@@ -1054,6 +1107,7 @@ namespace ZPoolMiner.Stats
 
                         //пусть на графике присутствуют предыдущие значения
                         chart_actualProfit = chart_actualProfit + (_algoProperty.actualhashrate * coin.adaptive_profit / coin.adaptive_factor);
+                        chart_rejectedProfit = chart_rejectedProfit + (_algoProperty.rejectedhashrate * coin.adaptive_profit / coin.adaptive_factor);
 
                         //а для расчета только текущие
                         if (!currentminingAlgosPool.Contains(_algoProperty.algo.ToLower()))
@@ -1126,10 +1180,18 @@ namespace ZPoolMiner.Stats
                             //algosProperty.TryRemove(_algoProperty.name, out var r);
                         }
                     }
-
-                    overallBTC = chart_actualProfit;
-                    Form_Main.TotalActualProfitability = overallBTC;
-                    Form_Main.lastRigProfit.currentProfitAPI = overallBTC * Algorithm.Mult;
+                    if (chart_actualProfit != 0)
+                    {
+                        chart_prevActualProfit = chart_actualProfit;
+                    }
+                    if (chart_actualProfit <= 0 && chart_prevActualProfit != 0)
+                    {
+                        chart_actualProfit = chart_prevActualProfit;
+                        chart_prevActualProfit = 0;
+                    } 
+                    
+                    Form_Main.TotalActualProfitability = chart_actualProfit;
+                    Form_Main.lastRigProfit.currentProfitAPI = chart_actualProfit * Algorithm.Mult;
 
                     lock (fileLock)
                     {

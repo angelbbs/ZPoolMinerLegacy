@@ -1273,14 +1273,6 @@ break;
             {
                 private static string _queryCudaDevicesString = "";
 
-                private static void QueryCudaDevicesOutputErrorDataReceived(object sender, DataReceivedEventArgs e)
-                {
-                    if (e.Data != null)
-                    {
-                        _queryCudaDevicesString += e.Data;
-                    }
-                }
-
                 public static bool IsSkipNvidia()
                 {
                     return ConfigManager.GeneralConfig.DeviceDetection.DisableDetectionNVIDIA;

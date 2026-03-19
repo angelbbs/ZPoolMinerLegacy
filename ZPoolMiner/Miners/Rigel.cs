@@ -67,8 +67,8 @@ namespace ZPoolMiner.Miners
             if (ConfigManager.GeneralConfig.EnableProxy)
             {
                 //proxy = "--proxy " + Stats.Stats.CurrentProxyIP + ":" + Stats.Stats.CurrentProxySocks5SPort + " ";
-                proxy = "--proxy stratum-proxy.ru:13155 ";
-                //proxy = "--proxy 127.0.0.1:" + Socks5Relay.RelayPort;
+                //proxy = "--proxy stratum-proxy.ru:13155 ";
+                proxy = "--proxy 127.0.0.1:" + Socks5Relay.RelayPort;
             }
             string ret = "Ooops";
             if (MiningSetup.CurrentSecondaryAlgorithmType == AlgorithmType.NONE)//single
@@ -335,9 +335,6 @@ namespace ZPoolMiner.Miners
             {
                 case AlgorithmType.KawPow:
                     failover = $"-o stratum+tcp://rvn.2miners.com:6060 -u bc1qun08kg08wwdsszrymg8z4la5d6ygckg9nxh4pq -p x ";
-                    break;
-                case AlgorithmType.SHA512256d:
-                    failover = $"-o stratum+tcp://sha512256d.na.mine.zpool.ca:3342 -u LPeihdgf7JRQUNq5cwZbBQQgEmh1m7DSgH -p c=LTC ";
                     break;
                 default:
                     break;

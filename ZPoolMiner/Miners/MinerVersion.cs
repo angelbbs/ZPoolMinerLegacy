@@ -1341,6 +1341,7 @@ namespace ZPoolMiner.Miners
             {
                 miner = miner + " 2.6.9";
             }
+            
             else
             {
                 miner = miner + MinerVersion.GetMinerVersion(miner);

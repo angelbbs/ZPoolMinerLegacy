@@ -88,7 +88,7 @@ namespace ZPoolMiner.Switching
                 _currentAlgosProfit[algo].Coin = coin;
                 //if (paying != 0)
                 {
-                    if (_currentAlgosProfit[algo].Paying > 0 && paying > _currentAlgosProfit[algo].Paying * 15000)
+                    if (_currentAlgosProfit[algo].Paying > 0 && paying > _currentAlgosProfit[algo].Paying * 900)
                     {
                         Helpers.ConsolePrint("AlgosProfitData", "AlgosProfitData API bug. " + algo.ToString() + ": " +
                             "old value: " + _currentAlgosProfit[algo].Paying.ToString() + " new value: " + paying);

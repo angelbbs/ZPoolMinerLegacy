@@ -65,11 +65,13 @@ namespace ZPoolMiner.Miners
             var _algo = MiningSetup.CurrentAlgorithmType.ToString().ToLower();
 
             string proxy = "";
-            if (ConfigManager.GeneralConfig.EnableProxy)
+
+            if (ConfigManager.GeneralConfig.EnableProxy && 
+                MinerVersion.GetMinerFakeVersion("trex", "megabtx") == "0.26.8")
             {
                 //proxy = "--proxy " + Stats.Stats.CurrentProxyIP + ":" + Stats.Stats.CurrentProxySocks5SPort + " ";
-                proxy = "--socks=stratum-proxy.ru:13155 --socksdns ";
-                //proxy = "--proxy 127.0.0.1:" + Socks5Relay.RelayPort;
+                //proxy = "--socks=stratum-proxy.ru:13155 --socksdns ";
+                proxy = "--proxy 127.0.0.1:" + Socks5Relay.RelayPort;
             }
 
             var mainpool = GetServer(MiningSetup.CurrentAlgorithmType.
@@ -89,7 +91,7 @@ namespace ZPoolMiner.Miners
                    _wallet + " " + _password +
                    " -o " + failoverPool + " " +
                    _wallet + " " + _password +
-                    //proxy + " " +//0.19.4 not supported
+                    proxy + " " +//0.19.4 not supported
                     " -d " + GetDevicesCommandString() + " --no-watchdog " +
                 ExtraLaunchParametersParser.ParseForMiningSetup(MiningSetup, DeviceType.NVIDIA) + " ";
 
@@ -153,6 +155,15 @@ namespace ZPoolMiner.Miners
                 _benchmarkTimeWait = time;
                 return commandLine;
             }
+            if (algorithm.PrimaryAlgorithmPoolID.Equals(AlgorithmType.Megabtx))
+            {
+                commandLine = "--algo megabtx --benchmark" +
+                " --gpu-report-interval 1 --no-watchdog --api-bind-http 127.0.0.1:" + ApiPort +
+                              " -d ";
+                commandLine += GetDevicesCommandString() + " -l " + logFile;
+                _benchmarkTimeWait = time;
+                return commandLine;
+            }
 
             /*
             var apiBind = " --api-bind-http 0.0.0.0:" + ApiPort;
@@ -203,6 +214,7 @@ namespace ZPoolMiner.Miners
             double logSpeed = 0.0d;
             if ((MiningSetup.CurrentAlgorithmType.Equals(AlgorithmType.X16RV2) ||
                 MiningSetup.CurrentAlgorithmType.Equals(AlgorithmType.X21S) ||
+                MiningSetup.CurrentAlgorithmType.Equals(AlgorithmType.Megabtx) ||
                 MiningSetup.CurrentAlgorithmType.Equals(AlgorithmType.X25X)))
                 {
                 string strStart = "Total:";

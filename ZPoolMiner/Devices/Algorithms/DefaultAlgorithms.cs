@@ -598,6 +598,30 @@ namespace ZPoolMiner.Devices.Algorithms
                             {
                                 ExtraLaunchParameters = "--max-rejected-shares 100"
                             },
+                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.Yescrypt, "Yescrypt")
+                            {
+                                ExtraLaunchParameters = "--max-rejected-shares 100"
+                            },
+                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.YescryptR8, "YescryptR8")
+                            {
+                                ExtraLaunchParameters = "--max-rejected-shares 100"
+                            },
+                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.YescryptR16, "YescryptR16")
+                            {
+                                ExtraLaunchParameters = "--max-rejected-shares 100"
+                            },
+                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.YescryptR32, "YescryptR32")
+                            {
+                                ExtraLaunchParameters = "--max-rejected-shares 100"
+                            },
+                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.Yespower, "Yespower")
+                            {
+                                ExtraLaunchParameters = "--max-rejected-shares 100"
+                            },
+                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.YespowerTIDE, "YespowerTIDE")
+                            {
+                                ExtraLaunchParameters = "--max-rejected-shares 100"
+                            },
                             /*
                             new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.HooHash, "HooHash")
                             {
@@ -665,6 +689,7 @@ namespace ZPoolMiner.Devices.Algorithms
                             {
                             },
                             //блоки не подтверждаются
+                            //прокси не поддерживается
                             /*
                             new Algorithm(MinerBaseType.trex, AlgorithmType.Megabtx, "Megabtx")
                             {

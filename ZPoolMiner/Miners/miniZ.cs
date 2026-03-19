@@ -87,16 +87,16 @@ namespace ZPoolMiner.Miners
             string _password = " --pass=" + password.Trim() + " ";
             var _algo = MiningSetup.CurrentAlgorithmType.ToString().ToLower();
             _algo = _algo.Replace("equihash125", "125,4");
-            _algo = _algo.Replace("equihash144", "144,5 --pers auto");
-            _algo = _algo.Replace("equihash192", "192,7 --pers auto");
+            _algo = _algo.Replace("equihash144", "144,5 --smart-pers");
+            _algo = _algo.Replace("equihash192", "192,7 --smart-pers");
             _algo = _algo.Replace("evrprogpow", "progpow");
 
             string proxy = "";
             if (ConfigManager.GeneralConfig.EnableProxy)
             {
                 //proxy = "--socks=" + Stats.Stats.CurrentProxyIP + ":" + Stats.Stats.CurrentProxySocks5SPort + " --socksdns ";
-                proxy = "--socks=stratum-proxy.ru:13155 --socksdns ";
-                //proxy = "--socks=127.0.0.1:" + Socks5Relay.RelayPort + " --socksdns ";
+                //proxy = "--socks=srv1.stratum-proxy.ru:13155 --socksdns ";
+                proxy = "--socks=127.0.0.1:" + Socks5Relay.RelayPort + " --socksdns ";
             }
 
             var mainpool = GetServer(MiningSetup.CurrentAlgorithmType.
@@ -120,7 +120,7 @@ namespace ZPoolMiner.Miners
                     worker +
                     _password +
                     " --retries=2 --retrydelay=10 " +
-                    proxy + " " +
+                    proxy + " --stale=200 " +
                     GetDevicesCommandString().Trim();
             }
             else
@@ -133,7 +133,7 @@ namespace ZPoolMiner.Miners
                     worker +
                     _password +
                     " --retries=2 --retrydelay=10 " +
-                    proxy + " " +
+                    proxy + " --stale=200 " +
                     GetDevicesCommandString().Trim();
             }
             //2.2c файловер пулы не работают
@@ -199,9 +199,9 @@ namespace ZPoolMiner.Miners
             {
                 var _algo = MiningSetup.CurrentAlgorithmType.ToString().ToLower();
                 _algo = _algo.Replace("equihash125", "125,4");
-                _algo = _algo.Replace("equihash144", "144,5 --pers auto");
-                _algo = _algo.Replace("equihash192", "192,7 --pers auto");
-                _algo = _algo.Replace("evrprogpow", "progpow --pers auto");
+                _algo = _algo.Replace("equihash144", "144,5 --smart-pers");
+                _algo = _algo.Replace("equihash192", "192,7 --smart-pers");
+                _algo = _algo.Replace("evrprogpow", "progpow --smart-pers");
 
                 string proxy = "";
                 if (ConfigManager.GeneralConfig.EnableProxy)

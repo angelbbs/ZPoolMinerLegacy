@@ -11,6 +11,7 @@ namespace ZPoolMiner.Utils
             @"/t-rex/t-rex.exe",
             @"/teamredminer/teamredminer.exe",
             @"/gminer/miner.exe",
+            @"/gminer/miner275.exe",
             @"/lolMiner/lolMiner.exe",
             @"/miniZ/miniZ.exe",
             @"/Rigel/rigel.exe",

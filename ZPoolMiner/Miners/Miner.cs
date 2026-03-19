@@ -788,6 +788,8 @@ namespace ZPoolMiner
             {
                 benchmarkHandle.StartInfo.FileName = benchmarkHandle.StartInfo.FileName.Replace("SRBMiner-MULTI.exe", "SRBMiner-MULTI269.exe");
             }
+
+            
             /*
             if (benchmarkHandle.StartInfo.FileName.ToLower().Contains("srbminer") &&
                 (commandLine.ToLower().Contains("panthera") ||
@@ -1090,16 +1092,12 @@ namespace ZPoolMiner
                 {AlgorithmType.Minotaurx, 10},
                 {AlgorithmType.VerusHash, 10},//CPU, GPU
                 {AlgorithmType.Xelisv2_Pepew, 10},
-                {AlgorithmType.Yescrypt, 10},
-                {AlgorithmType.YescryptR16, 10},
-                //{AlgorithmType.YescryptR32, 10},
-                {AlgorithmType.YescryptR8, 10},
-                {AlgorithmType.Yespower, 10},
-                {AlgorithmType.YespowerLTNCG, 10},
-                {AlgorithmType.YespowerMGPC, 10},
-                {AlgorithmType.YespowerSUGAR, 10},
-                {AlgorithmType.YespowerTIDE, 10},
-                {AlgorithmType.YespowerURX, 10},
+                {AlgorithmType.Yespower, 30},
+                {AlgorithmType.YespowerLTNCG, 30},
+                {AlgorithmType.YespowerMGPC, 30},
+                {AlgorithmType.YespowerSUGAR, 30},
+                {AlgorithmType.YespowerTIDE, 30},
+                {AlgorithmType.YespowerURX, 30},
                 //{AlgorithmType.SHA3d, 10},
             //GPU
             {AlgorithmType.Allium, 10},
@@ -1107,7 +1105,6 @@ namespace ZPoolMiner
             {AlgorithmType.Equihash144, 10},
             {AlgorithmType.Equihash192, 10},
             //{AlgorithmType.KarlsenHash, 10},
-            {AlgorithmType.SHA512256d, 10},
             {AlgorithmType.FiroPow, 30},
             {AlgorithmType.KawPow, 30},
             {AlgorithmType.Curve, 30},
@@ -1115,6 +1112,10 @@ namespace ZPoolMiner
             {AlgorithmType.X16RV2, 1},
             {AlgorithmType.X21S, 1},
             {AlgorithmType.X25X, 1},
+            {AlgorithmType.Yescrypt, 90},
+            {AlgorithmType.YescryptR8, 90},
+            {AlgorithmType.YescryptR16, 90},
+            {AlgorithmType.YescryptR32, 90},
             };
 
         protected virtual void BenchmarkThreadRoutine(object commandLine)
@@ -1615,6 +1616,7 @@ namespace ZPoolMiner
             {
                 Path = MiningSetup.MinerPath.Replace("SRBMiner-MULTI.exe", "SRBMiner-MULTI269.exe");
             }
+            
             /*
             if (MiningSetup.MinerPath.ToLower().Contains("srbminer") &&
                 (LastCommandLine.ToLower().Contains("panthera") ||
@@ -1640,7 +1642,7 @@ namespace ZPoolMiner
             }
             else
             {
-                P.ExitEvent = Miner_Exited;
+                //P.ExitEvent = Miner_Exited;
             }
 
             LastCommandLine = System.Text.RegularExpressions.Regex.Replace(LastCommandLine, @"\s+", " ");
@@ -1769,6 +1771,10 @@ namespace ZPoolMiner
         public static string GetWorkerUID()
         {
             string mac = WindowsMacUtils.GetMACAddress().Replace("-", "");
+            if (mac == "")
+            {
+                mac = "DEAD";//для тех ригов, у которых не получен MAC сетевухи для уникального ID майнера.
+            }
             return mac;
         }
 
@@ -2043,10 +2049,10 @@ namespace ZPoolMiner
             {
                 Helpers.ConsolePrint(MinerTag(), ProcessTag() + "API Error. Restart miner");
                 CooldownCheck = 0;
-
+                /*
                 foreach (var proxy in ProxyCheck.HttpsProxyList)
                 {
-                    if (Stats.Stats.CurrentProxyIP == proxy.Ip)
+                    if (Stats.Stats.CurrentProxy.Ip == proxy.Ip)
                     {
                         proxy.allValid = false;
                         proxy.sslValid = false;
@@ -2060,6 +2066,7 @@ namespace ZPoolMiner
                         Stats.Stats.CurrentProxySocks5SPort = proxy.Socks5Port;
                     }
                 }
+                */
                 Restart();
             }
         }

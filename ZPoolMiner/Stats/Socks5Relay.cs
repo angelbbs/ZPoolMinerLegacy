@@ -42,7 +42,8 @@ namespace ZPoolMiner.Stats
                 RelayPort++;
                 Thread.Sleep(100);
             }
-            Helpers.ConsolePrint("Socks5Relay", "Start relay 127.0.0.1:" + RelayPort + " -> " + Stats.CurrentProxyIP + ":" + Stats.CurrentProxySocks5SPort.ToString());
+            Helpers.ConsolePrint("Socks5Relay", "Start relay 127.0.0.1:" + RelayPort + 
+                " -> " + Stats.CurrentProxy.Ip + ":" + Stats.CurrentProxy.Socks5Port.ToString());
             ConfigManager.GeneralConfig.RelayPort = RelayPort;
             try
             {
@@ -60,7 +61,7 @@ namespace ZPoolMiner.Stats
                             {
                                 ThreadsCount++;
                                 Helpers.ConsolePrint("Socks5Relay", "Miner connected to relay 127.0.0.1:" + RelayPort +
-                                    " Proxy: " + Stats.CurrentProxyIP + ":" + Stats.CurrentProxySocks5SPort.ToString() + " " +
+                                    " Proxy: " + Stats.CurrentProxy.Ip + ":" + Stats.CurrentProxy.Socks5Port.ToString() + " " +
                                     "ThreadsCount: " + ThreadsCount.ToString());
                                 /*
                                 if (ThreadsCount >= 100)
@@ -89,7 +90,7 @@ namespace ZPoolMiner.Stats
             try
             {
                 var minerStream = minerClient.GetStream();
-                var proxy = new TcpClient(Stats.CurrentProxyIP, Stats.CurrentProxySocks5SPort);
+                var proxy = new TcpClient(Stats.CurrentProxy.Ip, Stats.CurrentProxy.Socks5Port);
 
                 var sock = proxy.Client;
                 sock.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
@@ -139,7 +140,8 @@ namespace ZPoolMiner.Stats
                 }
                 catch (Exception ex)
                 {
-                    Helpers.ConsolePrintError("ReadFromProxy", ex.ToString());
+                    Helpers.ConsolePrintError("ReadFromProxy", "Disconnect from proxy " +
+                                    Stats.CurrentProxy.Ip + ":" + Stats.CurrentProxy.Socks5Port.ToString());
                     break;
                 }
                 if (serverBytes == 0)
@@ -296,7 +298,6 @@ namespace ZPoolMiner.Stats
                 List<ZPoolMinerLegacy.Stats.Connection> _allConnections = new List<ZPoolMinerLegacy.Stats.Connection>();
                 _allConnections.Clear();
                 _allConnections.AddRange(ZPoolMinerLegacy.Stats.NetworkInformation.GetTcpV4Connections());
-                ZPoolMinerLegacy.Stats.Connection.UpdateProcessList();
 
                 for (int i = 1; i < _allConnections.Count; i++)
                 {
@@ -317,6 +318,7 @@ namespace ZPoolMiner.Stats
                         }
                     }
                 }
+                ZPoolMinerLegacy.Stats.Connection.UpdateProcessList();
                 _allConnections.Clear();
                 _allConnections = null;
 
@@ -390,7 +392,6 @@ namespace ZPoolMiner.Stats
                 List<ZPoolMinerLegacy.Stats.Connection> _allConnections = new List<ZPoolMinerLegacy.Stats.Connection>();
                 _allConnections.Clear();
                 _allConnections.AddRange(ZPoolMinerLegacy.Stats.NetworkInformation.GetTcpV4Connections());
-                ZPoolMinerLegacy.Stats.Connection.UpdateProcessList();
 
                 for (int i = 1; i < _allConnections.Count; i++)
                 {
@@ -407,6 +408,7 @@ namespace ZPoolMiner.Stats
                         return true;
                     }
                 }
+                ZPoolMinerLegacy.Stats.Connection.UpdateProcessList();
                 _allConnections.Clear();
                 _allConnections = null;
 

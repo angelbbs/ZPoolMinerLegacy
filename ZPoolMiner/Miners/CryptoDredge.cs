@@ -51,8 +51,8 @@ namespace ZPoolMiner.Miners
             if (ConfigManager.GeneralConfig.EnableProxy)
             {
                 //proxy = "-x socks5://" + Stats.Stats.CurrentProxyIP + ":" + Stats.Stats.CurrentProxySocks5SPort + " ";
-                proxy = "--proxy socks5://stratum-proxy.ru:13155 ";
-                //proxy = "-x socks5://127.0.0.1:" + Socks5Relay.RelayPort;
+                //proxy = "--proxy socks5://stratum-proxy.ru:13155 ";
+                proxy = "-x socks5://127.0.0.1:" + Socks5Relay.RelayPort;
             }
 
             var mainpool = GetServer(MiningSetup.CurrentAlgorithmType.

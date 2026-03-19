@@ -177,7 +177,7 @@ namespace ZPoolMinerLegacy.Stats
             }
 
             _allProc = Process.GetProcesses();
-            Array.Sort(_allProc, (p1, p2) => p1.Id - p2.Id);
+            //Array.Sort(_allProc, (p1, p2) => p1.Id - p2.Id);
         }
 
         private static UInt16 NetworkOrderToHost(UInt32 dwPort)

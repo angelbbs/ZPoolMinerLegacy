@@ -43,7 +43,6 @@ namespace ZPoolMiner.Miners
         {
             return _curMiningSession?.GetTotalPowerRate() ?? 0;
         }
-
         public static bool StartInitialize(IMainFormRatesComunication mainFormRatesComunication,
             string wallet, string ID, string password)
         {

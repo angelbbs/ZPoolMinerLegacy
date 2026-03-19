@@ -2135,6 +2135,7 @@ namespace ZPoolMiner
         {
             ExchangeRateApi.GetBTCRate();
             ExchangeRateApi.GetFiatRate();
+            Stats.ProxyCheck.GetProxy();
         }
         private void ChartTimer_Tick(object sender, EventArgs e)
         {
@@ -2269,6 +2270,7 @@ namespace ZPoolMiner
 
         public static void MakeRestart(int periodRestartProgram)
         {
+            MinersManager.StopAllMiners();
             ProgramClosing = true;
             if (ConfigManager.GeneralConfig.EnableRigRemoteView)
             {
@@ -2386,8 +2388,8 @@ namespace ZPoolMiner
                     CMDconfigHandleWD.StartInfo.CreateNoWindow = true;
                     CMDconfigHandleWD.Start();
                 }
-                Thread.Sleep(500);
-                Form_Benchmark.RunCMDAfterBenchmark();
+                //Thread.Sleep(500);
+                //Form_Benchmark.RunCMDAfterBenchmark();
 
                 var RestartProgram = new ProcessStartInfo(Directory.GetCurrentDirectory() + "\\RestartProgram.cmd")
                 {
@@ -2396,7 +2398,6 @@ namespace ZPoolMiner
                 if (thisComputer is object) thisComputer.Close();
                 Helpers.ConsolePrint("SheduleRestart", "Schedule or config changed restart program after " + (periodRestartProgram / 60).ToString() + "h");
                 Process.Start(RestartProgram);
-
 
                 //CloseChilds(Process.GetCurrentProcess());
                 //Thread.Sleep(2);
@@ -3563,7 +3564,7 @@ namespace ZPoolMiner
                 payoutCurrency = "LTC";
                 wallet = Globals.DemoUser;
             }
-            var password = worker + ",c=" + payoutCurrency + ",zap=none";
+            var password = worker + ",c=" + payoutCurrency + ",d=0,zap=none";
             var ID = Miner.GetWorkerUID();
 
             isMining = MinersManager.StartInitialize(this, wallet, ID, password);

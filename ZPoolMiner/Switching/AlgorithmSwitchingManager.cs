@@ -55,8 +55,6 @@ namespace ZPoolMiner.Switching
             AlgorithmType.X21S,
             AlgorithmType.X25X,
             AlgorithmType.SHA256csm,
-            AlgorithmType.SHA512256d,
-            AlgorithmType.Equihash125,
             AlgorithmType.Equihash144
         };
 

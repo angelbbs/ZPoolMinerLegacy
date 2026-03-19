@@ -1181,57 +1181,10 @@ namespace ZPoolMiner.Miners
         }
 
         private string coin = "none";
+        private string difficulty = "d=0";
 
         private void NewGrouping(List<MiningPair> profitableDevices)
         {
-            /*
-             не переключилось
-             [2025-10-09 11:43:30] [INFO] [MiningSession] Will SWITCH. Profit diff is 40.28%, current threshold 5%
-[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 1
-[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 2
-[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 3
-[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 3
-[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 2
-[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 5
-[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 5
-[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 6
-[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 7
-[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 11
-[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 5
-[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 5
-[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 6
-[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 7
-[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 6
-[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 7
-[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 6
-[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 7
-[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 11
-[2025-10-09 11:43:30] [INFO] [MiningSession] ************* 14
-
-            переключилось
-            [2025-10-09 11:58:30] [INFO] [MiningSession] Will SWITCH. Profit diff is 76.91%, current threshold 5%
-[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 1
-[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 2
-[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 3
-[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 3
-[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 2
-[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 5
-[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 5
-[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 6
-[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 8
-[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 9
-[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 10
-[2025-10-09 11:58:30] [INFO] [-MINER_ID(28)-DEVICE_IDs(NOT_SET)] NEW MINER CREATED
-[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 5
-[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 5
-[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 6
-[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 8
-[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 9
-[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 10
-[2025-10-09 11:58:30] [INFO] [-MINER_ID(29)-DEVICE_IDs(NOT_SET)] NEW MINER CREATED
-[2025-10-09 11:58:30] [INFO] [MiningSession] ************* 13
-[2025-10-09 11:58:30] [INFO] [SWITCHING] Number of switches: 15 Uptime: 0 days 18:20:14
-             */
             // group new miners
             var newGroupedMiningPairs = new Dictionary<string, List<MiningPair>>();
 
@@ -1409,9 +1362,15 @@ namespace ZPoolMiner.Miners
                     if (stringBuilderNoChangeAlgo.Length > 0)
                         Helpers.ConsolePrint(Tag, $"No change  : {stringBuilderNoChangeAlgo}");
 
+                    string _difficulty = MiningSession.GetDifficulty(toStart.AlgorithmType);
+
                     _password = _password.Replace("zap=" + coin, "zap=" + toStart.Coin);
+                    _password = _password.Replace(difficulty, _difficulty);
+                    _password = _password.Replace(",none", "");
                     //_password = _password.Replace("zap=" + coin, "zap=KIIRO");//test
+
                     coin = toStart.Coin;
+                    difficulty = _difficulty;
                     toStart.Start(_wallet, _ID, _password);
                     _runningGroupMiners[toStart.Key] = toStart;
                 }
@@ -1422,8 +1381,143 @@ namespace ZPoolMiner.Miners
             AlgorithmSwitchingManager.SmaCheckTimerOnElapsedRun = false;
             _mainFormRatesComunication?.ForceMinerStatsUpdate();
         }
-
-
+        private static string GetDifficulty(AlgorithmType algo)
+        {
+            string ret = "none";
+            //return ret;
+            switch (algo)
+            {
+                case AlgorithmType.Allium:
+                    ret = "d=4";//0.5
+                    break;
+                case AlgorithmType.Argon2d16000:
+                    ret = "d=0.1";//0.01
+                    break;
+                case AlgorithmType.Curve:
+                    ret = "d=0.001";//default
+                    break;
+                case AlgorithmType.Equihash144:
+                    ret = "d=4";//1
+                    break;
+                case AlgorithmType.Equihash192:
+                    ret = "d=2";//1
+                    break;
+                case AlgorithmType.EvrProgPow:
+                    ret = "d=16";//16 default
+                    break;
+                case AlgorithmType.FiroPow:
+                    ret = "d=8";//8 default
+                    break;
+                case AlgorithmType.Flex:
+                    ret = "d=0.000016";//0.000008 
+                    break;
+                case AlgorithmType.Ghostrider:
+                    ret = "d=0.08";//0.02
+                    break;
+                case AlgorithmType.HeavyHash:
+                    ret = "d=1";//0.5
+                    break;
+                case AlgorithmType.Interchained:
+                    ret = "d=2";//1
+                    break;
+                case AlgorithmType.KawPow:
+                    ret = "d=16";//16 default
+                    break;
+                case AlgorithmType.Megabtx:
+                    ret = "d=8";//0.5 
+                    break;
+                case AlgorithmType.MeowPow:
+                    ret = "d=64";//16 
+                    break;
+                case AlgorithmType.Meraki:
+                    ret = "d=64";//64 default
+                    break;
+                case AlgorithmType.Mike:
+                    ret = "d=0.12";//0.02 
+                    break;
+                case AlgorithmType.Minotaurx:
+                    ret = "d=0.000016";//0.000008 
+                    break;
+                case AlgorithmType.NeoScrypt:
+                    ret = "d=372";//64?
+                    break;
+                case AlgorithmType.PhiHash:
+                    ret = "d=16";//16 default
+                    break;
+                case AlgorithmType.Power2b:
+                    ret = "d=0.2";//0.01 
+                    break;
+                case AlgorithmType.RinHash:
+                    ret = "d=0.0005";//0.0005 default
+                    break;
+                case AlgorithmType.SccPow:
+                    ret = "d=8";//8 default
+                    break;
+                case AlgorithmType.SHA256csm:
+                    ret = "d=4";//0.01?
+                    break;
+                case AlgorithmType.VertHash:
+                    ret = "d=0.5";//0.2
+                    break;
+                case AlgorithmType.VerusHash:
+                    //ret = "d=524288";//131072
+                    break;
+                case AlgorithmType.X16RV2:
+                    ret = "d=65536";//65536 default
+                    break;
+                case AlgorithmType.X21S:
+                    ret = "d=10";//1
+                    break;
+                case AlgorithmType.X25X:
+                    ret = "d=0.064";//0.008
+                    break;
+                case AlgorithmType.Xelisv2_Pepew:
+                    ret = "d=1";//0.5
+                    break;
+                case AlgorithmType.Yescrypt:
+                    ret = "d=1.6";//0.1
+                    break;
+                case AlgorithmType.YescryptR16:
+                    ret = "d=0.32";//0.01
+                    break;
+                case AlgorithmType.YescryptR32:
+                    ret = "d=0.16";//0.01
+                    break;
+                case AlgorithmType.YescryptR8:
+                    ret = "d=1";//0.1
+                    break;
+                case AlgorithmType.Yespower:
+                    ret = "d=0.4";//0.1
+                    break;
+                case AlgorithmType.YespowerADVC:
+                    ret = "d=0.4";//0.1
+                    break;
+                case AlgorithmType.YespowerEQPAY:
+                    ret = "d=0.4";//0.1
+                    break;
+                case AlgorithmType.YespowerLTNCG:
+                    ret = "d=0.4";//0.1
+                    break;
+                case AlgorithmType.YespowerMGPC:
+                    ret = "d=0.4";//0.1
+                    break;
+                case AlgorithmType.YespowerR16:
+                    ret = "d=0.4";//0.1
+                    break;
+                case AlgorithmType.YespowerSUGAR:
+                    ret = "d=0.4";//0.1
+                    break;
+                case AlgorithmType.YespowerTIDE:
+                    ret = "d=2";//0.5
+                    break;
+                case AlgorithmType.YespowerURX:
+                    ret = "d=8";//0.8 default
+                    break;
+                default:
+                    break;
+            }
+            return ret;
+        }
         private AlgorithmType GetMinerPairAlgorithmType(List<MiningPair> miningPairs)
         {
             if (miningPairs.Count > 0)

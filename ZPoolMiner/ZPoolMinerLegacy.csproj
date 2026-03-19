@@ -458,7 +458,6 @@
     <Compile Include="Stats\NetworkInformation.cs" />
     <Compile Include="Stats\Proxy.cs" />
     <Compile Include="Stats\ProxyChecker.cs" />
-    <Compile Include="Stats\RigStatus.cs" />
     <Compile Include="Stats\APIServer.cs" />
     <Compile Include="Stats\Server.cs" />
     <Compile Include="Stats\Socket.cs" />

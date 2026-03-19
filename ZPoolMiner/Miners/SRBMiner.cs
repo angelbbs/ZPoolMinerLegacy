@@ -107,8 +107,8 @@ namespace ZPoolMiner.Miners
             string proxy = "";
             if (ConfigManager.GeneralConfig.EnableProxy)
             {
-                //proxy = "--proxy 127.0.0.1:" + Socks5Relay.RelayPort;
-                proxy = "--proxy stratum-proxy.ru:13155 ";
+                proxy = "--proxy 127.0.0.1:" + Socks5Relay.RelayPort;
+                //proxy = "--proxy srv1.stratum-proxy.ru:13155 ";
             }
 
             var extras = ExtraLaunchParametersParser.ParseForMiningSetup(MiningSetup, devtype);
@@ -369,10 +369,6 @@ namespace ZPoolMiner.Miners
                     failoverPool = "stratum+tcp://meowpow.na.mine.zpool.ca:1327";
                     failoverWallet = Globals.DemoUser;
                     break;
-                case AlgorithmType.SHA512256d:
-                    failoverPool = "stratum+tcp://sha512256d.na.mine.zpool.ca:3342";
-                    failoverWallet = Globals.DemoUser;
-                    break;
                 case AlgorithmType.EvrProgPow:
                     failoverPool = "stratum+tcp://evrprogpow.na.mine.zpool.ca:1330";
                     failoverWallet = Globals.DemoUser;
@@ -479,6 +475,7 @@ namespace ZPoolMiner.Miners
             return ad;
         }
 
+        private int _last_job_receivedCount = 0;
         public override async Task<ApiData> GetSummaryAsync()
         {
             string ResponseFromSRBMiner;
@@ -532,6 +529,7 @@ namespace ZPoolMiner.Miners
 
                 if (resp != null)
                 {
+                    double _totalsMain = 0.0d;
                     if (MiningSetup.CurrentSecondaryAlgorithmType.Equals(AlgorithmType.NONE) &&
                         devtype != DeviceType.CPU)//single,
                     {
@@ -547,16 +545,21 @@ namespace ZPoolMiner.Miners
                                 mPair.Device.AlgorithmID = (int)MiningSetup.CurrentAlgorithmType;
                                 mPair.Device.SecondAlgorithmID = (int)MiningSetup.CurrentSecondaryAlgorithmType;
                                 mPair.Device.ThirdAlgorithmID = (int)AlgorithmType.NONE;
+                                _totalsMain = _totalsMain + gpu_hr;
                             }
                             catch (Exception ex)
                             {
                                 Helpers.ConsolePrint("API Exception:", ex.ToString());
                             }
                         }
+
                         dynamic _tm = resp.algorithms[0].hashrate.gpu.total;
                         if (_tm != null)
                         {
                             totalsMain = resp.algorithms[0].hashrate.gpu.total;
+                        } else
+                        {
+                            totalsMain = 0;
                         }
                     }
 
@@ -630,7 +633,24 @@ namespace ZPoolMiner.Miners
                         }
                     }
 
+                    string ljr = $"algorithms[0].pool.last_job_received";
+                    var last_job_received = resp.SelectToken(ljr);
+                    int _last_job_received = (int)Convert.ToDouble(last_job_received, CultureInfo.InvariantCulture.NumberFormat);
 
+                    if (_last_job_received == 0)
+                    {
+                        _last_job_receivedCount++;
+                    } else
+                    {
+                        _last_job_receivedCount = 0;
+                    }
+
+                    if (_last_job_receivedCount > 10)
+                    {
+                        totalsMain = 0;
+                        totalsSecond = 0;
+                    }
+                    
                     ad.Speed = totalsMain;
                     ad.SecondarySpeed = totalsSecond;
                     ad.ThirdSpeed = totalsThird;

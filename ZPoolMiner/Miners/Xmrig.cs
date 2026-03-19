@@ -74,14 +74,14 @@ namespace ZPoolMiner.Miners
             }
 
             string _wallet = "-u " + wallet + "." + ID +
-                ":" + password.Trim() + " ";
+                " -p " + password.Trim() + " ";
 
             string proxy = "";
             if (ConfigManager.GeneralConfig.EnableProxy)
             {
                 //proxy = "--proxy " + Stats.Stats.CurrentProxyIP + ":" + Stats.Stats.CurrentProxySocks5SPort + " ";
-                proxy = "--proxy stratum-proxy.ru:13155 ";
-                //proxy = " --proxy=127.0.0.1:" + Socks5Relay.RelayPort + " ";
+                //proxy = "--proxy stratum-proxy.ru:13155 ";
+                proxy = " --proxy=127.0.0.1:" + Socks5Relay.RelayPort + " ";
             }
 
             if (MiningSetup.CurrentAlgorithmType.Equals(AlgorithmType.Ghostrider))

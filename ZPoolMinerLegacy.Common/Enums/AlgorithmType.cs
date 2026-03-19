@@ -57,7 +57,7 @@
         Honeycomb_UNUSED = 1169,//TT-Miner, T-Rex?, conversion_disabled
         Interchained = 1180,
         KawPow = 1200,
-        Keccakc = 1210,
+        Keccakc_UNUSED = 1210,
         Lyra2z330_UNUSED = 1215,
         M7m_UNUSED = 1219,//SRBMiner?, conversion_disabled only_direct
         Megabtx = 1220,
@@ -79,14 +79,14 @@
         Scryptn2_UNUSED = 1340, //conversion_disabled
         //SHA3d = 1360,
         SHA256csm = 1370,
-        SHA512256d = 1390,
+        SHA512256d_UNUSED = 1390,
         Skein2_UNUSED = 1393,
         Skydoge_UNUSED = 1395,//TT-Miner, conversion_disabled
         Timetravel_UNUSED = 1396,//T-Rex, Z-Enemy, conversion_disabled
         Tribus_UNUSED = 1397,//T-Rex, Z-Enemy, Cryptodredge, conversion_disabled
         VertHash = 1400,//1.5gb
         VerusHash = 1410,//1gb
-        Whirlpool = 1420,
+        Whirlpool_UNUSED = 1420,
         X11Gost_UNUSED = 1425,//Cryptodredge, conversion_disabled
         X16RT = 1430,
         X16RV2 = 1440,
