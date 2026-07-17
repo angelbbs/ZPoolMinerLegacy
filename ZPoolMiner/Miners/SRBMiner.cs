@@ -87,21 +87,22 @@ namespace ZPoolMiner.Miners
                 devtype = mPair.Device.DeviceType;
             }
 
-            if (devtype == DeviceType.CPU)
+            string autotuneNoLoad = "";
+            if (ConfigManager.GeneralConfig.ProgramAutoUpdate)
             {
-                disablePlatform = "--disable-gpu ";
+                autotuneNoLoad = "--autotune-no-load ";
             }
             if (devtype == DeviceType.AMD)
             {
-                disablePlatform = "--disable-cpu --disable-gpu-nvidia --disable-gpu-intel ";
+                disablePlatform = "--disable-cpu --disable-gpu-nvidia --disable-gpu-intel " + autotuneNoLoad;
             }
             if (devtype == DeviceType.INTEL)
             {
-                disablePlatform = "--disable-cpu --disable-gpu-nvidia --disable-gpu-amd ";
+                disablePlatform = "--disable-cpu --disable-gpu-nvidia --disable-gpu-amd  " + autotuneNoLoad;
             }
             if (devtype == DeviceType.NVIDIA)
             {
-                disablePlatform = "--disable-cpu --disable-gpu-intel --disable-gpu-amd ";
+                disablePlatform = "--disable-cpu --disable-gpu-intel --disable-gpu-amd " + autotuneNoLoad; ;
             }
 
             string proxy = "";
@@ -194,21 +195,26 @@ namespace ZPoolMiner.Miners
             }
             BenchmarkAlgorithm.DeviceType = devtype;
 
+            string autotuneNoLoad = "";
+            if (ConfigManager.GeneralConfig.ProgramAutoUpdate)
+            {
+                autotuneNoLoad = "--autotune-no-load ";
+            }
             if (devtype == DeviceType.CPU)
             {
-                disablePlatform = "--disable-gpu ";
+                disablePlatform = "--disable-gpu " + autotuneNoLoad;
             }
             if (devtype == DeviceType.AMD)
             {
-                disablePlatform = "--disable-cpu --disable-gpu-nvidia --disable-gpu-intel ";
+                disablePlatform = "--disable-cpu --disable-gpu-nvidia --disable-gpu-intel " + autotuneNoLoad;
             }
             if (devtype == DeviceType.INTEL)
             {
-                disablePlatform = "--disable-cpu --disable-gpu-nvidia --disable-gpu-amd ";
+                disablePlatform = "--disable-cpu --disable-gpu-nvidia --disable-gpu-amd  " + autotuneNoLoad;
             }
             if (devtype == DeviceType.NVIDIA)
             {
-                disablePlatform = "--disable-cpu --disable-gpu-intel --disable-gpu-amd ";
+                disablePlatform = "--disable-cpu --disable-gpu-intel --disable-gpu-amd " + autotuneNoLoad; ;
             }
 
             string proxy = "";
@@ -475,6 +481,8 @@ namespace ZPoolMiner.Miners
             return ad;
         }
 
+        private double totalsMain_prev = 0;
+        private static int[] gpu_prev = new int[32];
         private int _last_job_receivedCount = 0;
         public override async Task<ApiData> GetSummaryAsync()
         {
@@ -533,6 +541,7 @@ namespace ZPoolMiner.Miners
                     if (MiningSetup.CurrentSecondaryAlgorithmType.Equals(AlgorithmType.NONE) &&
                         devtype != DeviceType.CPU)//single,
                     {
+                        int gpuNum = 0;
                         foreach (var mPair in sortedMinerPairs)
                         {
                             try
@@ -540,6 +549,15 @@ namespace ZPoolMiner.Miners
                                 string token = $"algorithms[0].hashrate.gpu.gpu{mPair.Device.IDByBus}";
                                 var hash = resp.SelectToken(token);
                                 int gpu_hr = (int)Convert.ToDouble(hash, CultureInfo.InvariantCulture.NumberFormat);
+                                if (gpu_prev[gpuNum] != 0 && gpu_hr > 0 && (gpu_hr * 1.1) < gpu_prev[gpuNum])
+                                {
+                                    gpu_hr = gpu_prev[gpuNum];
+                                }
+                                else
+                                {
+                                    gpu_prev[gpuNum] = gpu_hr;
+                                }
+
                                 mPair.Device.MiningHashrate = gpu_hr;
                                 _power = mPair.Device.PowerUsage;
                                 mPair.Device.AlgorithmID = (int)MiningSetup.CurrentAlgorithmType;
@@ -551,12 +569,23 @@ namespace ZPoolMiner.Miners
                             {
                                 Helpers.ConsolePrint("API Exception:", ex.ToString());
                             }
+                            gpuNum++;
                         }
 
                         dynamic _tm = resp.algorithms[0].hashrate.gpu.total;
                         if (_tm != null)
                         {
-                            totalsMain = resp.algorithms[0].hashrate.gpu.total;
+                            if (totalsMain_prev != 0 &&
+                                resp.algorithms[0].hashrate.gpu.total > 0 &&
+                                (resp.algorithms[0].hashrate.gpu.total * 1.1) < totalsMain_prev)
+                            {
+                                totalsMain = totalsMain_prev;
+                            }
+                            else
+                            {
+                                totalsMain = resp.algorithms[0].hashrate.gpu.total;
+                                totalsMain_prev = totalsMain;
+                            }
                         } else
                         {
                             totalsMain = 0;

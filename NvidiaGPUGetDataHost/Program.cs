@@ -117,27 +117,28 @@ namespace NvidiaGPUGetDataHost
                     GpuDataList.Add(_GpuData);
                     Logger.ConsolePrint("NvidiaGPUGetDataHost", "NVIDIA device: " + devName + " busID: " + devPci.bus.ToString()); ;
                 }
-                
+
                 int ticks = 0;
                 int errors = 0;
 
                 int devn = 0;
                 var _power = 0u;
                 var _fan = 0u;
+                var _fanRPM = 0u;
                 var _load = 0u;
                 var _loadMem = 0u;
                 var _temp = 0u;
                 var _tempMem = 0u;
                 var _tempHotSpot = 0u;
 
-                int size = Marshal.SizeOf(devn) + Marshal.SizeOf(_power) + Marshal.SizeOf(_fan) + Marshal.SizeOf(_load) + Marshal.SizeOf(_loadMem) + Marshal.SizeOf(_temp) + Marshal.SizeOf(_tempMem);
+                int size = Marshal.SizeOf(devn) + Marshal.SizeOf(_power) + Marshal.SizeOf(_fan) + Marshal.SizeOf(_fanRPM) + Marshal.SizeOf(_load) + Marshal.SizeOf(_loadMem) + Marshal.SizeOf(_temp) + Marshal.SizeOf(_tempMem);
 
                 MemoryMappedFile sharedMemory = MemoryMappedFile.CreateOrOpen("NvidiaGPUGetDataHost", size * devCount + Marshal.SizeOf(devCount));
                 do
                 {
                     for (int dev = 0; dev < devCount; dev++)
                     {
-                        
+
                         ret = NvmlNativeMethods.nvmlDeviceGetHandleByIndex((uint)dev, ref _nvmlDevice);
                         if (ret != nvmlReturn.Success && ret != nvmlReturn.NVML_ERROR_NO_DATA)
                         {
@@ -203,7 +204,7 @@ namespace NvidiaGPUGetDataHost
                                 errors++;
                             }
                         }
-                        
+
                         Thread.Sleep(50);
                         bool nvApierror = false;
                         bool GetPhysicalGPUsError = false;
@@ -213,7 +214,8 @@ namespace NvidiaGPUGetDataHost
                         try
                         {
                             var gpus0 = NvAPIWrapper.GPU.PhysicalGPU.GetPhysicalGPUs();
-                        } catch (Exception ex)
+                        }
+                        catch (Exception ex)
                         {
                             GetPhysicalGPUsError = true;
                             _GetPhysicalGPUsError = ex.Message;
@@ -233,6 +235,54 @@ namespace NvidiaGPUGetDataHost
                             Logger.ConsolePrint("NvidiaGPUGetDataHost", "NvAPIWrapper error: " + _GetPhysicalGPUsError + " " +
                                 _GetTCCPhysicalGPUsError);
                             nvApierror = true;
+                        }
+
+                        List<NvAPIWrapper.GPU.PhysicalGPU> gpus = new List<NvAPIWrapper.GPU.PhysicalGPU>();
+                        if (!GetPhysicalGPUsError)
+                        {
+                            gpus.AddRange(NvAPIWrapper.GPU.PhysicalGPU.GetPhysicalGPUs());
+                        }
+                        if (!GetTCCPhysicalGPUsError)
+                        {
+                            gpus.AddRange(NvAPIWrapper.GPU.PhysicalGPU.GetTCCPhysicalGPUs());
+                        }
+                        //NvAPIWrapper.GPU.PhysicalGPU[] gpus = NvAPIWrapper.GPU.PhysicalGPU.GetTCCPhysicalGPUs();
+                        var sorted = gpus.OrderBy(x => x.GPUId).ToArray();
+
+                        if (sorted.Count() != devCount)
+                        //if (count != devCount)
+                        {
+                            Logger.ConsolePrint("NvidiaGPUGetDataHost", "GetPhysicalGPUs count missmath: " + sorted.Count().ToString());
+
+                            List<int> busIds = new List<int>();
+                            foreach (var _g in sorted)
+                            {
+                                busIds.Add(_g.BusInformation.BusId);
+                            }
+
+                            foreach (var g in GpuDataList)
+                            {
+                                if (!busIds.Contains((int)g.busID))
+                                //if (!physicalBusIds.Contains((int)g.busID))
+                                {
+                                    Logger.ConsolePrint("NvidiaGPUGetDataHost", "Stuck GPU: " + g.Name + " BusId: " + g.busID.ToString());
+                                }
+                            }
+                        }
+                        var gpu = sorted[dev];
+                        NvmlNativeMethods.nvmlDeviceGetName(_nvmlDevice, out string name);
+                        //Logger.ConsolePrint("NvidiaGPUGetDataHost", "dev: " + dev + " nvml.name: " + name + " api.FullName: " + gpu.FullName + " api.GPUId: " + gpu.GPUId.ToString());
+
+                        var handle = GPUApi.GetPhysicalGPUFromGPUID(gpu.GPUId);
+                        //fan+
+                        try
+                        {
+                            var privateGetClientFanCoolersStatus = GPUApi.GetClientFanCoolersStatus(handle);
+                            _fanRPM = privateGetClientFanCoolersStatus.FanCoolersStatusEntries[0].CurrentRPM;//только 1й вентилятор
+                        }
+                        catch
+                        {
+                            //break;
                         }
 
                         if (!nvApierror)
@@ -259,43 +309,7 @@ namespace NvidiaGPUGetDataHost
                             }
                             */
 
-                            List<NvAPIWrapper.GPU.PhysicalGPU> gpus = new List<NvAPIWrapper.GPU.PhysicalGPU>();
-                            if (!GetPhysicalGPUsError)
-                            {
-                                gpus.AddRange(NvAPIWrapper.GPU.PhysicalGPU.GetPhysicalGPUs());
-                            }
-                            if (!GetTCCPhysicalGPUsError)
-                            {
-                                gpus.AddRange(NvAPIWrapper.GPU.PhysicalGPU.GetTCCPhysicalGPUs());
-                            }
-                            //NvAPIWrapper.GPU.PhysicalGPU[] gpus = NvAPIWrapper.GPU.PhysicalGPU.GetTCCPhysicalGPUs();
-                            var sorted = gpus.OrderBy(x => x.GPUId).ToArray();
-
-                            if (sorted.Count() != devCount)
-                            //if (count != devCount)
-                            {
-                                Logger.ConsolePrint("NvidiaGPUGetDataHost", "GetPhysicalGPUs count missmath: " + sorted.Count().ToString());
-                                
-                                List<int> busIds = new List<int>();
-                                foreach (var _g in sorted)
-                                {
-                                    busIds.Add(_g.BusInformation.BusId);
-                                }
-                                
-                                foreach (var g in GpuDataList)
-                                {
-                                    if (!busIds.Contains((int)g.busID))
-                                    //if (!physicalBusIds.Contains((int)g.busID))
-                                    {
-                                        Logger.ConsolePrint("NvidiaGPUGetDataHost", "Stuck GPU: " + g.Name + " BusId: " + g.busID.ToString());
-                                    }
-                                }
-                            }
-                            var gpu = sorted[dev];
-                            NvmlNativeMethods.nvmlDeviceGetName(_nvmlDevice, out string name);
-                            //Logger.ConsolePrint("NvidiaGPUGetDataHost", "dev: " + dev + " nvml.name: " + name + " api.FullName: " + gpu.FullName + " api.GPUId: " + gpu.GPUId.ToString());
-
-                            var handle = GPUApi.GetPhysicalGPUFromGPUID(gpu.GPUId);
+                            //ThermalSensors
                             // find bits
                             var maxBit = 0;
                             for (; maxBit < 32; maxBit++)
@@ -310,7 +324,7 @@ namespace NvidiaGPUGetDataHost
                                     break;
                                 }
                             }
-                            
+
                             //Logger.ConsolePrint("NvidiaGPUGetDataHost", "maxBit: " + maxBit.ToString());
                             if (maxBit == 0)
                             {
@@ -342,11 +356,11 @@ namespace NvidiaGPUGetDataHost
 
                                     //if (_tempMem <= 0)
                                     //{
-                                      //  _tempMem = (uint)t1[2];
+                                    //  _tempMem = (uint)t1[2];
                                     //}
                                 }
                             }
-                            
+
                             if (_power == 0u)
                             {
                                 /* 
@@ -392,14 +406,6 @@ namespace NvidiaGPUGetDataHost
                                 }
                                 */
                             }
-                            
-
-                            /*
-                            for (int i = 0; i< t1.Count();i++)
-                            {
-                                Logger.ConsolePrint("NvidiaGPUGetDataHost", "t1[" + i.ToString() + "]: " + t1[i].ToString());
-                            }
-                            */
                         }
                         Thread.Sleep(50);
 
@@ -410,20 +416,15 @@ namespace NvidiaGPUGetDataHost
                             {
                                 writer.WriteArray<byte>(0, RawSerialize(devCount), 0, Marshal.SizeOf(devCount));
                             }
-                            /*
-                            else
-                            {
-                                writer.WriteArray<byte>(0, RawSerialize(0), 0, Marshal.SizeOf(devCount));
-                            }
-                            */
-                            //writer.WriteArray<byte>(size * dev + Marshal.SizeOf(devCount), BitConverter.GetBytes(Convert.ToInt32((long)_nvmlDevice.Pointer % Int32.MaxValue)), 0, Marshal.SizeOf(dev));
+
                             writer.WriteArray<byte>(size * dev + Marshal.SizeOf(devCount), BitConverter.GetBytes(dev), 0, Marshal.SizeOf(dev));
                             writer.WriteArray<byte>(size * dev + Marshal.SizeOf(devCount) + Marshal.SizeOf(dev), BitConverter.GetBytes(_power), 0, Marshal.SizeOf(_power));
                             writer.WriteArray<byte>(size * dev + Marshal.SizeOf(devCount) + Marshal.SizeOf(dev) + Marshal.SizeOf(_power), BitConverter.GetBytes(_fan), 0, Marshal.SizeOf(_fan));
-                            writer.WriteArray<byte>(size * dev + Marshal.SizeOf(devCount) + Marshal.SizeOf(dev) + Marshal.SizeOf(_power) + Marshal.SizeOf(_fan), BitConverter.GetBytes(_load), 0, Marshal.SizeOf(_load));
-                            writer.WriteArray<byte>(size * dev + Marshal.SizeOf(devCount) + Marshal.SizeOf(dev) + Marshal.SizeOf(_power) + Marshal.SizeOf(_fan) + Marshal.SizeOf(_load), BitConverter.GetBytes(_loadMem), 0, Marshal.SizeOf(_loadMem));
-                            writer.WriteArray<byte>(size * dev + Marshal.SizeOf(devCount) + Marshal.SizeOf(dev) + Marshal.SizeOf(_power) + Marshal.SizeOf(_fan) + Marshal.SizeOf(_load) + Marshal.SizeOf(_loadMem), BitConverter.GetBytes(_temp), 0, Marshal.SizeOf(_temp));
-                            writer.WriteArray<byte>(size * dev + Marshal.SizeOf(devCount) + Marshal.SizeOf(dev) + Marshal.SizeOf(_power) + Marshal.SizeOf(_fan) + Marshal.SizeOf(_load) + Marshal.SizeOf(_loadMem) + Marshal.SizeOf(_temp), BitConverter.GetBytes(_tempMem), 0, Marshal.SizeOf(_tempMem));
+                            writer.WriteArray<byte>(size * dev + Marshal.SizeOf(devCount) + Marshal.SizeOf(dev) + Marshal.SizeOf(_power) + Marshal.SizeOf(_fan), BitConverter.GetBytes(_fanRPM), 0, Marshal.SizeOf(_fanRPM));
+                            writer.WriteArray<byte>(size * dev + Marshal.SizeOf(devCount) + Marshal.SizeOf(dev) + Marshal.SizeOf(_power) + Marshal.SizeOf(_fan) + Marshal.SizeOf(_fanRPM), BitConverter.GetBytes(_load), 0, Marshal.SizeOf(_load));
+                            writer.WriteArray<byte>(size * dev + Marshal.SizeOf(devCount) + Marshal.SizeOf(dev) + Marshal.SizeOf(_power) + Marshal.SizeOf(_fan) + Marshal.SizeOf(_fanRPM) + Marshal.SizeOf(_load), BitConverter.GetBytes(_loadMem), 0, Marshal.SizeOf(_loadMem));
+                            writer.WriteArray<byte>(size * dev + Marshal.SizeOf(devCount) + Marshal.SizeOf(dev) + Marshal.SizeOf(_power) + Marshal.SizeOf(_fan) + Marshal.SizeOf(_fanRPM) + Marshal.SizeOf(_load) + Marshal.SizeOf(_loadMem), BitConverter.GetBytes(_temp), 0, Marshal.SizeOf(_temp));
+                            writer.WriteArray<byte>(size * dev + Marshal.SizeOf(devCount) + Marshal.SizeOf(dev) + Marshal.SizeOf(_power) + Marshal.SizeOf(_fan) + Marshal.SizeOf(_fanRPM) + Marshal.SizeOf(_load) + Marshal.SizeOf(_loadMem) + Marshal.SizeOf(_temp), BitConverter.GetBytes(_tempMem), 0, Marshal.SizeOf(_tempMem));
                         }
                     }
                     Thread.Sleep(100);
@@ -524,7 +525,7 @@ namespace NvidiaGPUGetDataHost
                 }
             }
 
-                DateTime dt = new DateTime();
+            DateTime dt = new DateTime();
             string pathToFiles = null;
             string DriverFolder = "C:\\Windows\\System32\\DriverStore\\FileRepository";
             string nvFolder = "\\nv_dispig.inf_amd64_7e5fd280efaa5445";

@@ -134,6 +134,7 @@ namespace ZPoolMiner.Configs.Data
         public bool ProxyAsFailover = false;
         public bool StaleProxy = false;
         public int RelayPort = 13600;
+        public bool SRBMinerAutotuneNoLoad = true;
 
         public bool MinimizeMiningWindows = false;
         public bool ShowMinersVersions = true;

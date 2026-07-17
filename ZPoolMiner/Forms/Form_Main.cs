@@ -224,6 +224,7 @@ namespace ZPoolMiner
             public uint nGpu;
             public uint power;
             public uint fan;
+            public uint fanRPM;
             public uint load;
             public uint loadMem;
             public uint temp;
@@ -3723,11 +3724,12 @@ namespace ZPoolMiner
             uint _dev = 0;
             uint _power = 0u;
             uint _fan = 0u;
+            uint _fanRPM = 0u;
             uint _load = 0u;
             uint _loadMem = 0u;
             uint _temp = 0u;
             uint _tempMem = 0u;
-            int size = Marshal.SizeOf(_dev) + Marshal.SizeOf(_power) + Marshal.SizeOf(_fan) + Marshal.SizeOf(_load) + Marshal.SizeOf(_loadMem) + Marshal.SizeOf(_temp) + Marshal.SizeOf(_tempMem);
+            int size = Marshal.SizeOf(_dev) + Marshal.SizeOf(_power) + Marshal.SizeOf(_fan) + Marshal.SizeOf(_fanRPM) + Marshal.SizeOf(_load) + Marshal.SizeOf(_loadMem) + Marshal.SizeOf(_temp) + Marshal.SizeOf(_tempMem);
             try
             {
                 MemoryMappedFile sharedMemory = MemoryMappedFile.OpenExisting("NvidiaGPUGetDataHost", MemoryMappedFileRights.Read);
@@ -3745,10 +3747,11 @@ namespace ZPoolMiner
                         _dev = reader.ReadUInt32(size * dev + Marshal.SizeOf(devCount));
                         _power = reader.ReadUInt32(size * dev + Marshal.SizeOf(devCount) + Marshal.SizeOf(dev));
                         _fan = reader.ReadUInt32(size * dev + Marshal.SizeOf(devCount) + Marshal.SizeOf(dev) + Marshal.SizeOf(_power));
-                        _load = reader.ReadUInt32(size * dev + Marshal.SizeOf(devCount) + Marshal.SizeOf(dev) + Marshal.SizeOf(_power) + Marshal.SizeOf(_fan));
-                        _loadMem = reader.ReadUInt32(size * dev + Marshal.SizeOf(devCount) + Marshal.SizeOf(dev) + Marshal.SizeOf(_power) + Marshal.SizeOf(_fan) + Marshal.SizeOf(_load));
-                        _temp = reader.ReadUInt32(size * dev + Marshal.SizeOf(devCount) + Marshal.SizeOf(dev) + Marshal.SizeOf(_power) + Marshal.SizeOf(_fan) + Marshal.SizeOf(_load) + Marshal.SizeOf(_loadMem));
-                        _tempMem = reader.ReadUInt32(size * dev + Marshal.SizeOf(devCount) + Marshal.SizeOf(dev) + Marshal.SizeOf(_power) + Marshal.SizeOf(_fan) + Marshal.SizeOf(_load) + Marshal.SizeOf(_loadMem) + Marshal.SizeOf(_temp));
+                        _fanRPM = reader.ReadUInt32(size * dev + Marshal.SizeOf(devCount) + Marshal.SizeOf(dev) + Marshal.SizeOf(_power) + Marshal.SizeOf(_fan));
+                        _load = reader.ReadUInt32(size * dev + Marshal.SizeOf(devCount) + Marshal.SizeOf(dev) + Marshal.SizeOf(_power) + Marshal.SizeOf(_fan) + Marshal.SizeOf(_fanRPM));
+                        _loadMem = reader.ReadUInt32(size * dev + Marshal.SizeOf(devCount) + Marshal.SizeOf(dev) + Marshal.SizeOf(_power) + Marshal.SizeOf(_fan) + Marshal.SizeOf(_fanRPM) + Marshal.SizeOf(_load));
+                        _temp = reader.ReadUInt32(size * dev + Marshal.SizeOf(devCount) + Marshal.SizeOf(dev) + Marshal.SizeOf(_power) + Marshal.SizeOf(_fan) + Marshal.SizeOf(_fanRPM) + Marshal.SizeOf(_load) + Marshal.SizeOf(_loadMem));
+                        _tempMem = reader.ReadUInt32(size * dev + Marshal.SizeOf(devCount) + Marshal.SizeOf(dev) + Marshal.SizeOf(_power) + Marshal.SizeOf(_fan) + Marshal.SizeOf(_fanRPM) + Marshal.SizeOf(_load) + Marshal.SizeOf(_loadMem) + Marshal.SizeOf(_temp));
                         /*
                         Helpers.ConsolePrint("GetNVMLData", "dev: " + dev.ToString() + " _dev: " + _dev.ToString() +
                         " _power: " + _power.ToString() + " _fan: " + _fan.ToString() + " _load: " + _load.ToString() +
@@ -3758,6 +3761,7 @@ namespace ZPoolMiner
                         d.nGpu = _dev;
                         d.power = _power;
                         d.fan = _fan;
+                        d.fanRPM = _fanRPM;
                         d.load = _load;
                         d.loadMem = _loadMem;
                         d.temp = _temp;
