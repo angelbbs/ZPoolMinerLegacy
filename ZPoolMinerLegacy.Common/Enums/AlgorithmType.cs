@@ -42,6 +42,7 @@
         Argon2d500_UNUSED = 1004,
         Argon2d1000_UNUSED = 1005,
         Argon2d16000 = 1006,
+        Argon2d4096 = 1007,
         Balloon_UNUSED = 1008,//T-Rex, conversion_disabled
         BMW512_UNUSED = 1010,
         Curve = 1050,//curvehash
@@ -55,6 +56,7 @@
         HeavyHash = 1160,
         Hmq1725 = 1165,//CryptoDredge 0.23.0, T-Rex?, conversion_disabled only_direct
         Honeycomb_UNUSED = 1169,//TT-Miner, T-Rex?, conversion_disabled
+        Hoohash_Pepew_UNUSED = 1171,
         Interchained = 1180,
         KawPow = 1200,
         Keccakc_UNUSED = 1210,
@@ -79,6 +81,7 @@
         Scryptn2_UNUSED = 1340, //conversion_disabled
         //SHA3d = 1360,
         SHA256csm = 1370,
+        SHA3_256t_UNUSED = 1372,
         SHA512256d_UNUSED = 1390,
         Skein2_UNUSED = 1393,
         Skydoge_UNUSED = 1395,//TT-Miner, conversion_disabled
@@ -87,6 +90,7 @@
         VertHash = 1400,//1.5gb
         VerusHash = 1410,//1gb
         Whirlpool_UNUSED = 1420,
+        Whirlpoolx2_UNUSED = 1421,//no working miners
         X11Gost_UNUSED = 1425,//Cryptodredge, conversion_disabled
         X16RT = 1430,
         X16RV2 = 1440,

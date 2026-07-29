@@ -147,8 +147,9 @@ namespace ZPoolMiner.Miners
             string proxy = "";
             if (ConfigManager.GeneralConfig.EnableProxy)
             {
-                //proxy = "--socks5 " + Stats.Stats.CurrentProxyIP + ":" + Stats.Stats.CurrentProxySocks5SPort + " ";
+                //proxy = "--socks5 " + Stats.Stats.CurrentProxy.HostName + ":" + Stats.Stats.CurrentProxy.Socks5Port + " ";
                 proxy = "--socks5 127.0.0.1:" + Socks5Relay.RelayPort;
+                //proxy = "--socks5 stratum-proxy.ru:13155";
             }
 
             var mainpool = GetServer(MiningSetup.CurrentAlgorithmType.
@@ -262,8 +263,9 @@ namespace ZPoolMiner.Miners
             string proxy = "";
             if (ConfigManager.GeneralConfig.EnableProxy)
             {
-                //proxy = "--proxy " + Stats.Stats.CurrentProxyIP + ":" + Stats.Stats.CurrentProxySocks5SPort + " ";
-                proxy = "--socks5 127.0.0.1:" + Socks5Relay.RelayPort;
+                proxy = "--socks5 " + Stats.Stats.CurrentProxy.HostName + ":" + Stats.Stats.CurrentProxy.Socks5Port + " ";
+                //proxy = "--socks5 127.0.0.1:" + Socks5Relay.RelayPort; //не работает через релей почему-то
+                //proxy = "--socks5 stratum-proxy.ru:13155";
             }
 
             string failover = "";

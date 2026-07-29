@@ -92,7 +92,7 @@ namespace ZPoolMiner.Miners
             _algo = _algo.Replace("evrprogpow", "progpow");
 
             string proxy = "";
-            if (ConfigManager.GeneralConfig.EnableProxy)
+            if (ConfigManager.GeneralConfig.EnableProxy && !_algo.Equals("progpow"))
             {
                 //proxy = "--socks=" + Stats.Stats.CurrentProxyIP + ":" + Stats.Stats.CurrentProxySocks5SPort + " --socksdns ";
                 //proxy = "--socks=srv1.stratum-proxy.ru:13155 --socksdns ";
@@ -109,6 +109,20 @@ namespace ZPoolMiner.Miners
             if (mainpool.Contains(".sea.")) failoverPool = mainpool.Replace(".sea.", ".na.");
             if (mainpool.Contains(".na.")) failoverPool = mainpool.Replace(".na.", ".eu.");
 
+            if (ConfigManager.GeneralConfig.EnableProxy && _algo.Equals("progpow"))
+            {
+                var _a = Stats.Stats.CoinList.FirstOrDefault(item => item.algo.ToLower() == MiningSetup.CurrentAlgorithmType.
+                                ToString().ToLower());
+                int port = _a.port;
+                if (ConfigManager.GeneralConfig.EnableSSL)
+                {
+                    port = _a.ssl_port;
+                }
+                //EVRMORE-PROGPOW
+                mainpool = "stratum-proxy.ru:" + port.ToString() + " --pers=EVRMORE-PROGPOW";
+                failoverPool = "srv2.stratum-proxy.ru:" + port.ToString() + " --pers=EVRMORE-PROGPOW";
+            }
+
             string ret = "";
             if (ConfigManager.GeneralConfig.EnableSSL)
             {
@@ -120,7 +134,7 @@ namespace ZPoolMiner.Miners
                     worker +
                     _password +
                     " --retries=2 --retrydelay=10 " +
-                    proxy + " --stale=200 " +
+                    proxy + " " +
                     GetDevicesCommandString().Trim();
             }
             else
@@ -133,7 +147,7 @@ namespace ZPoolMiner.Miners
                     worker +
                     _password +
                     " --retries=2 --retrydelay=10 " +
-                    proxy + " --stale=200 " +
+                    proxy + " " +
                     GetDevicesCommandString().Trim();
             }
             //2.2c файловер пулы не работают
@@ -497,7 +511,7 @@ namespace ZPoolMiner.Miners
             }
             catch (Exception ex)
             {
-                Helpers.ConsolePrint(MinerTag(), ex.ToString());
+                //Helpers.ConsolePrint(MinerTag(), ex.ToString());
 
                 CurrentMinerReadStatus = MinerApiReadStatus.READ_SPEED_ZERO;
                 ad.Speed = prevSpeed;

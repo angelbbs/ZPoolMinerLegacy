@@ -15,7 +15,7 @@ namespace ZPoolMiner.Utils
             @"/lolMiner/lolMiner.exe",
             @"/miniZ/miniZ.exe",
             @"/Rigel/rigel.exe",
-            @"/Fork_Fix_3.0.txt"
+            @"/Fork_Fix_4.0.txt"
         };
     }
 }

@@ -42,31 +42,42 @@ namespace ZPoolMiner.Stats
                         {
                             var _Record = DnsInterop.GetTxtRecords(d).ToArray()[0];
                             var ip = DNStoIP(d)[0];
-                            Helpers.ConsolePrint("GetProxy", "From text records proxy IP: " + 
-                                ip + " (" + _Record + ")");
-                            if (!proxys.Contains(ip)) proxys.Add(ip);
+                            Helpers.ConsolePrint("GetProxy", "From text records proxy IP: " +
+                                ip + " (" + _Record + ") " + d);
+                            //if (!proxys.Contains(ip)) proxys.Add(ip);
+                            ProxyChecker.Proxy proxy = new();
+                            proxy.HostName = d;
+                            proxy.Ip = ip;
+                            proxy.HTTPSPort = 13150;
+                            proxy.Socks5Port = 13155;
+                            proxy.tcpValid = true;
+                            proxy.sslValid = true;
+                            proxy.allValid = true;
+                            ProxyList.Add(proxy);
                         }
                     }
                     else
                     {
+                        /*
                         foreach (var _ip in DNStoIP("stratum-proxy.ru"))
                         {
                             Helpers.ConsolePrint("GetProxy", "Proxy IP: " + _ip);
                             if (!proxys.Contains(_ip)) proxys.Add(_ip);
                         }
+                        */
                     }
-                } catch (Exception ex)
+                }
+                catch (Exception ex)
                 {
                     Helpers.ConsolePrintError("GetProxy", ex.ToString());
-                    proxys.Add("46.17.44.22");
+                    //proxys.Add("46.17.44.22");
                 }
-                //proxys.Add("31.58.171.225");
             }
-
-            foreach (var p in proxys)
+            if (!ProxyList.Any())
             {
                 ProxyChecker.Proxy proxy = new();
-                proxy.Ip = p;
+                proxy.HostName = "stratum-proxy.ru";
+                proxy.Ip = "random";
                 proxy.HTTPSPort = 13150;
                 proxy.Socks5Port = 13155;
                 proxy.tcpValid = true;
@@ -74,7 +85,19 @@ namespace ZPoolMiner.Stats
                 proxy.allValid = true;
                 ProxyList.Add(proxy);
             }
-            
+            /*
+                foreach (var p in proxys)
+                {
+                    ProxyChecker.Proxy proxy = new();
+                    proxy.Ip = p;
+                    proxy.HTTPSPort = 13150;
+                    proxy.Socks5Port = 13155;
+                    proxy.tcpValid = true;
+                    proxy.sslValid = true;
+                    proxy.allValid = true;
+                    ProxyList.Add(proxy);
+                }
+            */
             /*
             proxy = new();
             proxy.Ip = "31.58.171.225";
@@ -86,9 +109,9 @@ namespace ZPoolMiner.Stats
             //proxy.Speed = 1;
             HttpsProxyList.Add(proxy);
             */
-            
+
             Stats.CurrentProxy = ProxyCheck.ProxyList[0];
-            Helpers.ConsolePrintError("GetProxy", "Set to " + Stats.CurrentProxy.Ip + " proxy");
+            Helpers.ConsolePrintError("GetProxy", "Set to " + Stats.CurrentProxy.HostName + " proxy");
 
         }
         public static void ProxyRotate()

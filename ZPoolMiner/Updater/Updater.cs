@@ -144,7 +144,12 @@ namespace ZPoolMiner.Updater
                             {
                                 Helpers.ConsolePrint("EmergencyDownloader error: ", args.Error.ToString());
                                 wc.DownloadFileTaskAsync(new Uri(link), DownloadedMinersLocation);
-                                    //.ContinueWith(t => t.Exception.Message);
+                                //.ContinueWith(t => t.Exception.Message);
+                                Thread.Sleep(1000);
+                                if (ConfigManager.GeneralConfig.ForkFixVersion == 4)
+                                {
+                                    link = "https://mark.nl.tabdigital.cloud/s/nL8Fks4QqACKpW8/download";
+                                }
                             } catch (Exception ex)
                             {
                                 Helpers.ConsolePrint("EmergencyDownloader error: ", ex.Message);

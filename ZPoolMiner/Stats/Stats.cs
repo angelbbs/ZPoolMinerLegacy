@@ -73,10 +73,11 @@ namespace ZPoolMiner.Stats
                 if (!ProxyCheck.localProxyTest)
                 {
                     //начинаем подключение с первого прокси
-                    var firstProxy = ProxyCheck.DNStoIP("srv1.stratum-proxy.ru")[0];
+                    //var firstProxy = ProxyCheck.DNStoIP("srv1.stratum-proxy.ru")[0];
+                    var firstProxy = "srv1.stratum-proxy.ru";
                     do
                     {
-                        if (Stats.CurrentProxy.Ip == firstProxy)
+                        if (Stats.CurrentProxy.HostName == firstProxy)
                         {
                             break;
                         }
@@ -98,7 +99,7 @@ namespace ZPoolMiner.Stats
                             {
                                 Helpers.ConsolePrint("GetPoolApiData", "Received bytes: " +
                                 responseFromServer.Length.ToString() + " from " + url + " " +
-                                CurrentProxy.Ip + ":" + CurrentProxy.HTTPSPort);
+                                CurrentProxy.HostName + ":" + CurrentProxy.HTTPSPort);
                             }
                             break;
                         }
@@ -107,7 +108,7 @@ namespace ZPoolMiner.Stats
                             if (log)
                             {
                                 Helpers.ConsolePrintError("GetPoolApiAsync", "Connect fail via proxy: " +
-                                CurrentProxy.Ip + ":" + CurrentProxy.HTTPSPort.ToString());
+                                CurrentProxy.HostName + ":" + CurrentProxy.HTTPSPort.ToString());
                                 ProxyCheck.ProxyRotate();
                             }
                         }
@@ -127,7 +128,7 @@ namespace ZPoolMiner.Stats
                 if (string.IsNullOrEmpty(responseFromServer))
                 {
                     Helpers.ConsolePrintError("GetPoolApiAsync", "Current proxy: " +
-                        Stats.CurrentProxy.Ip);
+                        Stats.CurrentProxy.HostName);
                     //ProxyCheck.ProxyRotate();
                     //new Task(() => ProxyCheck.GetProxy()).Start();
                 }
@@ -177,11 +178,11 @@ namespace ZPoolMiner.Stats
                     if (log)
                     {
                         Helpers.ConsolePrint("GetPoolApiData", "Try connect to " + url + " via proxy " +
-                        proxy.Ip + ":" + proxy.HTTPSPort.ToString());
+                        proxy.HostName + ":" + proxy.HTTPSPort.ToString());
                     }
                     var _proxy = new WebProxy
                     {
-                        Address = new Uri("http://" + proxy.Ip + ":" + proxy.HTTPSPort.ToString())
+                        Address = new Uri("http://" + proxy.HostName + ":" + proxy.HTTPSPort.ToString())
 
                     };
                     //proxy.Credentials = new NetworkCredential(); //Used to set Proxy logins.
@@ -253,7 +254,7 @@ namespace ZPoolMiner.Stats
                 if (viaProxy)
                 {
                     Helpers.ConsolePrintError("GetPoolApiDataAsync", "Connection error in " + t.ToString() + " ms " + ex.Message + " " +
-                    url + " " + proxy.Ip + ":" + proxy.HTTPSPort.ToString());
+                    url + " " + proxy.HostName + ":" + proxy.HTTPSPort.ToString());
                 } else
                 {
                     Helpers.ConsolePrintError("GetPoolApiDataAsync", "Connection error in " + t.ToString() + 
@@ -330,6 +331,7 @@ namespace ZPoolMiner.Stats
                         var error = coin.Value<string>("error");
                         //testing
                         //if (symbol.Equals("RVN")) estimate = estimate * 5 + 1000;
+                        if (algo.Equals("argon2d4096")) estimate = estimate * 0.5;
                         Coin _coin = new();
                         _coin.name = name;
                         _coin.algo = algo;

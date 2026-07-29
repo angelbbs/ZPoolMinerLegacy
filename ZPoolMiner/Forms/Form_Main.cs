@@ -2655,7 +2655,10 @@ namespace ZPoolMiner
                     if (groupMiners.DevBusIdIndexes.Contains(busID))
                     {
                         paused = dev.paused;
-                        overheating = dev.overheating;
+                        if (!overheating)
+                        {
+                            overheating = dev.overheating;
+                        }
                         coin = dev.Coin;
                     }
                 }

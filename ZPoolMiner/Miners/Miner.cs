@@ -753,7 +753,7 @@ namespace ZPoolMiner
             }
             /*
             if (benchmarkHandle.StartInfo.FileName.ToLower().Contains("miniz") &&
-                (commandLine.ToLower().Contains("evrprogpow")))
+                (commandLine.ToLower().Contains("progpow")))
             {
                 WorkingDirectory = @"miners\miniz";
                 benchmarkHandle.StartInfo.FileName = @"C:\Windows\SysWOW64\cmd.exe";
@@ -1580,7 +1580,7 @@ namespace ZPoolMiner
             if (MiningSetup.MinerPath.ToLower().Contains("miniz") &&
                 (LastCommandLine.ToLower().Contains("equihash144") || 
                 LastCommandLine.ToLower().Contains("equihash192") ||
-                LastCommandLine.ToLower().Contains("evrprogpow")))
+                LastCommandLine.ToLower().Contains("progpow")))
             {
                 Path = MiningSetup.MinerPath.Replace("miniZ.exe", "miniZ25e2.exe");
             }

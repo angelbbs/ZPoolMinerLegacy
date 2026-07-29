@@ -448,7 +448,7 @@ namespace ZPoolMiner.Stats
 
                 if (ConfigManager.GeneralConfig.EnableProxy)
                 {
-                    WebProxy proxy = new WebProxy(Stats.CurrentProxy.Ip, Stats.CurrentProxy.HTTPSPort);
+                    WebProxy proxy = new WebProxy(Stats.CurrentProxy.HostName, Stats.CurrentProxy.HTTPSPort);
                     WR.Proxy = proxy;
                 }
                 //WR.UserAgent = "GET / HTTP/1.1\r\n\r\n";
@@ -520,7 +520,7 @@ namespace ZPoolMiner.Stats
             if (ConfigManager.GeneralConfig.EnableProxy)
             {
                 Helpers.ConsolePrint("ExchangeRateApi", "Trying get cryptocurrency exchange rates from Gate.io " +
-                    "via proxy " + Stats.CurrentProxy.Ip + ":" + Stats.CurrentProxy.HTTPSPort.ToString());
+                    "via proxy " + Stats.CurrentProxy.HostName + ":" + Stats.CurrentProxy.HTTPSPort.ToString());
             } else
             {
                 Helpers.ConsolePrint("ExchangeRateApi", "Trying get cryptocurrency exchange rates from Gate.io");

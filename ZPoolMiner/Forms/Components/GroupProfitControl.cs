@@ -107,6 +107,7 @@ namespace ZPoolMiner.Forms.Components
                     labelBTCRateIndicator.Font = fontBold;
                     labelBTCRateIndicator.ForeColor = Form_Main._foreColor;
                     labelBTCRateIndicator.Text = International.GetText("Form_Main_SuspendedByUser") + "        ";
+                    labelBTCRateIndicator.Update();
                 }
                 
                 if (overheating && button_restart.Enabled)
@@ -114,6 +115,7 @@ namespace ZPoolMiner.Forms.Components
                     labelBTCRateIndicator.Font = fontBold;
                     labelBTCRateIndicator.ForeColor = Color.Red;
                     labelBTCRateIndicator.Text = International.GetText("Form_Main_SuspendedOverheating") + "        ";
+                    labelBTCRateIndicator.Update();
                 }
                 button_restart.Enabled = true;
 

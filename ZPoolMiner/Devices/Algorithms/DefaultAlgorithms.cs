@@ -654,6 +654,7 @@ namespace ZPoolMiner.Devices.Algorithms
             },
             { MinerBaseType.CryptoDredge,
                         new List<Algorithm>() {
+                            new Algorithm(MinerBaseType.CryptoDredge, AlgorithmType.Argon2d4096, "Argon2d4096"),
                             new Algorithm(MinerBaseType.CryptoDredge, AlgorithmType.NeoScrypt, "NeoScrypt"),
                             //после переключения монет реджекты
                             //new Algorithm(MinerBaseType.CryptoDredge, AlgorithmType.Cryptonight_GPU, "Cryptonight_GPU"),

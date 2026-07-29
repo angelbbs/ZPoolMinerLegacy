@@ -13,6 +13,10 @@ namespace ZPoolMiner.Miners
         {
             _curMiningSession?.StopAllMiners();
             _curMiningSession = null;
+            foreach (var dev in ComputeDeviceManager.Available.Devices)
+            {
+                dev.overheating = false;
+            }
         }
 
         public static void StopAllMinersNonProfitable()

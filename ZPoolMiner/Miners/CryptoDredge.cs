@@ -185,6 +185,9 @@ namespace ZPoolMiner.Miners
                 case AlgorithmType.SHA256csm:
                     failover = $" -o stratum+tcp://sha256csm.na.mine.zpool.ca:3341 -u {Globals.DemoUser} -p c=LTC ";
                     break;
+                case AlgorithmType.Argon2d4096:
+                    failover = $" -o stratum+tcp://argon2d4096.na.mine.zpool.ca:4240 -u {Globals.DemoUser} -p c=LTC ";
+                    break;
                 default:
                     break;
             }

@@ -14,6 +14,7 @@ namespace ZPoolMiner.Stats
     {
         public class Proxy
         {
+            public string HostName { get; set; }
             public string Ip { get; set; }
             public int HTTPSPort { get; set; }
             public int Socks5Port { get; set; }
@@ -55,7 +56,7 @@ namespace ZPoolMiner.Stats
                     if (socket.Connected)
                     {
                         success = true;
-                        checkedProxy.Ip = ip;
+                        checkedProxy.HostName = ip;
                         checkedProxy.HTTPSPort = httpsport;
                         checkedProxy.tcpSpeed = (int)watch.ElapsedMilliseconds;
                         checkedProxy.tcpValid = true;

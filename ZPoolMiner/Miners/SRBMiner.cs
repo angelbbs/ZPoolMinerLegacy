@@ -88,9 +88,15 @@ namespace ZPoolMiner.Miners
             }
 
             string autotuneNoLoad = "";
-            if (ConfigManager.GeneralConfig.ProgramAutoUpdate)
+            string gpu_id = "--gpu-id " + GetDevicesCommandString().Trim();
+            if (ConfigManager.GeneralConfig.SRBMinerAutotuneNoLoad)
             {
                 autotuneNoLoad = "--autotune-no-load ";
+            }
+            if (devtype == DeviceType.CPU)
+            {
+                disablePlatform = "--disable-gpu " + autotuneNoLoad;
+                gpu_id = "";
             }
             if (devtype == DeviceType.AMD)
             {
@@ -137,8 +143,7 @@ namespace ZPoolMiner.Miners
                         $"--pool {mainpool},{failoverPool} " + 
                         $"--wallet {wallet}.{ID},{wallet}.{ID} --password {password}" + " " +
                         proxy + " " +
-                        " --give-up-limit 1 --retry-time 1 --gpu-id " +
-                        GetDevicesCommandString().Trim();
+                        " --give-up-limit 1 --retry-time 1 " + gpu_id;
                 } else
                 {
                     /*
@@ -196,13 +201,15 @@ namespace ZPoolMiner.Miners
             BenchmarkAlgorithm.DeviceType = devtype;
 
             string autotuneNoLoad = "";
-            if (ConfigManager.GeneralConfig.ProgramAutoUpdate)
+            string gpu_id = "--gpu-id " + GetDevicesCommandString().Trim();
+            if (ConfigManager.GeneralConfig.SRBMinerAutotuneNoLoad)
             {
                 autotuneNoLoad = "--autotune-no-load ";
             }
             if (devtype == DeviceType.CPU)
             {
                 disablePlatform = "--disable-gpu " + autotuneNoLoad;
+                gpu_id = "";
             }
             if (devtype == DeviceType.AMD)
             {
@@ -419,8 +426,7 @@ namespace ZPoolMiner.Miners
                     "--pool " + mainpool + comma + failoverPool + " " +
                     $"--wallet {demoWallet}{comma}{failoverWallet} --password c=LTC{failoverPassword}" + " " +
                     proxy + " " +
-                    $"--api-enable --api-port {ApiPort} {extras}" + " --give-up-limit 1 --retry-time 1 --gpu-id " +
-                    GetDevicesCommandString().Trim();
+                    $"--api-enable --api-port {ApiPort} {extras}" + " --give-up-limit 1 --retry-time 1 " + gpu_id;
             }
             else
             {
@@ -436,8 +442,7 @@ namespace ZPoolMiner.Miners
                     //$"--wallet {Globals.DemoUser}{failoverWallet2} --password c=LTC{failoverPassword2},mc=*" + " " +
                     $"--wallet {Globals.DemoUser},{failoverWallet2} --password c=LTC{failoverPassword2}" + " " +
                      proxy + " " +
-                    $"--api-enable --api-port {ApiPort} {extras}" + " --give-up-limit 1 --retry-time 1 --gpu-id " +
-                    GetDevicesCommandString().Trim();
+                    $"--api-enable --api-port {ApiPort} {extras}" + " --give-up-limit 1 --retry-time 1 " + gpu_id;
             }
         }
         protected override void _Stop(MinerStopType willswitch)
@@ -484,6 +489,8 @@ namespace ZPoolMiner.Miners
         private double totalsMain_prev = 0;
         private static int[] gpu_prev = new int[32];
         private int _last_job_receivedCount = 0;
+        private int prevUptime = 0;
+        private int reconnections = 0;
         public override async Task<ApiData> GetSummaryAsync()
         {
             string ResponseFromSRBMiner;
@@ -534,6 +541,12 @@ namespace ZPoolMiner.Miners
                 {
                     devtype = mPair.Device.DeviceType;
                 }
+                if (reconnections > 20 && !ConfigManager.GeneralConfig.EnableProxy)
+                {
+                    reconnections = 0;
+                    Helpers.ConsolePrint("SRBMiner", "Too many reconnections. Enabling proxy");
+                    ConfigManager.GeneralConfig.EnableProxy = true;
+                }
 
                 if (resp != null)
                 {
@@ -547,8 +560,18 @@ namespace ZPoolMiner.Miners
                             try
                             {
                                 string token = $"algorithms[0].hashrate.gpu.gpu{mPair.Device.IDByBus}";
+                                string tokenUptime = $"algorithms[0].pool.uptime";
                                 var hash = resp.SelectToken(token);
+                                var _uptime = resp.SelectToken(tokenUptime);
+                                if (_uptime >= prevUptime)
+                                {
+                                    prevUptime = _uptime;
+                                } else
+                                {
+                                    reconnections++;
+                                }
                                 int gpu_hr = (int)Convert.ToDouble(hash, CultureInfo.InvariantCulture.NumberFormat);
+                                int uptime = (int)Convert.ToInt64(_uptime, CultureInfo.InvariantCulture.NumberFormat);
                                 if (gpu_prev[gpuNum] != 0 && gpu_hr > 0 && (gpu_hr * 1.1) < gpu_prev[gpuNum])
                                 {
                                     gpu_hr = gpu_prev[gpuNum];
