@@ -180,6 +180,10 @@ namespace ZPoolMiner.Devices.Algorithms
                             {
                                 ExtraLaunchParameters = "--max-rejected-shares 100"
                             },
+                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.SHA3_256t, "SHA3-256t")
+                            {
+                                ExtraLaunchParameters = "--max-rejected-shares 100"
+                            },
                             /*
                             new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.SHA3d, "SHA3d")
                             {
@@ -204,10 +208,13 @@ namespace ZPoolMiner.Devices.Algorithms
                             {
                                 ExtraLaunchParameters = "--max-rejected-shares 100"
                             },
+                            /*
+                            //реджекты
                             new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.EvrProgPow, "EvrProgPow")
                             {
                                 ExtraLaunchParameters = "--max-rejected-shares 100"
                             },
+                            */
                             new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.KawPow, "KawPow")
                             {
                                 ExtraLaunchParameters = "--max-rejected-shares 100"
@@ -361,6 +368,10 @@ namespace ZPoolMiner.Devices.Algorithms
                                 ExtraLaunchParameters = "--max-rejected-shares 100"
                             },
                             new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.EvrProgPow, "EvrProgPow")
+                            {
+                                ExtraLaunchParameters = "--max-rejected-shares 100"
+                            },
+                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.SHA3_256t, "SHA3-256t")
                             {
                                 ExtraLaunchParameters = "--max-rejected-shares 100"
                             },
@@ -548,11 +559,12 @@ namespace ZPoolMiner.Devices.Algorithms
                             {
                                 ExtraLaunchParameters = "--max-rejected-shares 100"
                             },
-                            /*
-                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.SHA3d, "SHA3d")
+                            
+                            new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.SHA3_256t, "SHA3-256t")
                             {
+                                ExtraLaunchParameters = "--max-rejected-shares 100"
                             },
-                            */
+                            
                             
                             /*
                             new Algorithm(MinerBaseType.SRBMiner, AlgorithmType.Ethash, "Ethash")

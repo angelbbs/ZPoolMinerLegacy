@@ -68,7 +68,7 @@ namespace ZPoolMiner.Stats
         {
             string responseFromServer = "";
             //к walletEx нельзя подключаться через прокси. у зпула лимит на 1-2 подключение в секунду с одного IP
-            if (ConfigManager.GeneralConfig.EnableProxy && proxy)
+            if (ConfigManager.GeneralConfig.EnableProxy && proxy && Stats.CurrentProxy is object)
             {
                 if (!ProxyCheck.localProxyTest)
                 {
@@ -331,7 +331,10 @@ namespace ZPoolMiner.Stats
                         var error = coin.Value<string>("error");
                         //testing
                         //if (symbol.Equals("RVN")) estimate = estimate * 5 + 1000;
-                        if (algo.Equals("argon2d4096")) estimate = estimate * 0.5;
+                        if (algo.Equals("argon2d4096")) estimate = estimate * 0.1;
+                        if (algo.Equals("allium")) estimate = estimate * 0.1;
+                        if (algo.Equals("neoscrypt")) estimate = estimate * 0.1;
+                        if (algo.Equals("sha256csm")) estimate = estimate * 0.1;
                         Coin _coin = new();
                         _coin.name = name;
                         _coin.algo = algo;
@@ -1007,6 +1010,7 @@ namespace ZPoolMiner.Stats
                                 string _algo = cur.SelectToken("algo");
                                 _algo = _algo.Replace("xelisv2-pepew", "xelisv2_pepew");
                                 _algo = _algo.Replace("neoscrypt-xaya", "neoscrypt_xaya");
+                                _algo = _algo.Replace("sha3-256t", "sha3_256t");
                                 string _hashrate = cur.SelectToken("hashrate");
                                 string _ID = cur.SelectToken("ID");
                                 string _password = cur.SelectToken("password");
@@ -1342,6 +1346,7 @@ namespace ZPoolMiner.Stats
 
                 delalgos.Remove("neoscrypt_xaya");
                 delalgos.Remove("xelisv2_pepew");
+                delalgos.Remove("sha3-256t");
                 SetAlgorithmRates(data, 1, false);
             }
             catch (Exception ex)

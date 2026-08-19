@@ -115,7 +115,10 @@ namespace ZPoolMiner.Forms
             Thread.Sleep(2000);
             try
             {
-                Form_Main._autostartTimerDelay.Start();
+                if (Form_Main._autostartTimerDelay is object)
+                {
+                    Form_Main._autostartTimerDelay.Start();
+                }
             } catch (Exception ex)
             {
                 Helpers.ConsolePrint("client_EmergencyDownloadFileCompleted", ex.ToString());

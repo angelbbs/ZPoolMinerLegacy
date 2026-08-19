@@ -39,28 +39,33 @@ namespace ZPoolMiner.Forms.Components
 
             Font fontRegular = new Font(this.Font, FontStyle.Regular);
             Font fontBold = new Font(this.Font, FontStyle.Bold);
-
-            foreach (var wal in Wallets.Wallets.WalletDataList)
+            try
             {
-                var lvi = new ListViewItem();
-                lvi.Checked = wal.Use;
-                lvi.SubItems.Add(wal.Coin);
-                /*
-                if (wal.Treshold == 0)
+                foreach (var wal in Wallets.Wallets.WalletDataList)
                 {
-                    lvi.SubItems.Add("Default");
+                    var lvi = new ListViewItem();
+                    lvi.Checked = wal.Use;
+                    lvi.SubItems.Add(wal.Coin);
+                    /*
+                    if (wal.Treshold == 0)
+                    {
+                        lvi.SubItems.Add("Default");
+                    }
+                    else
+                    {
+                        lvi.SubItems.Add(wal.Treshold.ToString());
+                    }
+                    */
+                    lvi.SubItems.Add(wal.Wallet);
+                    lvi.SubItems.Add(wal.ID);
+                    lvi.Font = fontRegular;
+                    listViewWallets.Items.Add(lvi);
                 }
-                else
-                {
-                    lvi.SubItems.Add(wal.Treshold.ToString());
-                }
-                */
-                lvi.SubItems.Add(wal.Wallet);
-                lvi.SubItems.Add(wal.ID);
-                lvi.Font = fontRegular;
-                listViewWallets.Items.Add(lvi);
+                listViewWallets.EndUpdate();
+            } catch (Exception ex)
+            {
+
             }
-            listViewWallets.EndUpdate();
         }
         public void InitLocale()
         {

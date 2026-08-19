@@ -115,7 +115,10 @@ namespace ZPoolMiner.Miners
             if (ConfigManager.GeneralConfig.EnableProxy)
             {
                 proxy = "--proxy 127.0.0.1:" + Socks5Relay.RelayPort;
-                //proxy = "--proxy srv1.stratum-proxy.ru:13155 ";
+                if (MiningSetup.CurrentAlgorithmType == AlgorithmType.SHA3_256t)
+                {
+                    //proxy = "--proxy srv1.stratum-proxy.ru:13155 ";
+                }
             }
 
             var extras = ExtraLaunchParametersParser.ParseForMiningSetup(MiningSetup, devtype);
@@ -125,6 +128,7 @@ namespace ZPoolMiner.Miners
                 _algo = _algo.Replace("sha512256d", "sha512_256d_radiant");
                 _algo = _algo.Replace("argon2d16000", "argon2d_16000");
                 _algo = _algo.Replace("interchained", "yespowerinterchained");
+                _algo = _algo.Replace("sha3_256t", "sha3t");
 
                 var mainpool = GetServer(MiningSetup.CurrentAlgorithmType.
                                     ToString().ToLower()).Trim().Replace("--pool ", "");
@@ -227,9 +231,11 @@ namespace ZPoolMiner.Miners
             string proxy = "";
             if (ConfigManager.GeneralConfig.EnableProxy)
             {
-                //proxy = "--proxy " + Stats.Stats.CurrentProxyIP + ":" + Stats.Stats.CurrentProxySocks5SPort + " ";
-                proxy = "--proxy stratum-proxy.ru:13155 ";
-                //proxy = "--proxy 127.0.0.1:" + Socks5Relay.RelayPort;
+                proxy = "--proxy 127.0.0.1:" + Socks5Relay.RelayPort;
+                if (MiningSetup.CurrentAlgorithmType == AlgorithmType.SHA3_256t)
+                {
+                    proxy = "--proxy srv1.stratum-proxy.ru:13155 ";
+                }
             }
 
             var extras = ExtraLaunchParametersParser.ParseForMiningSetup(MiningSetup, devtype);
@@ -243,6 +249,7 @@ namespace ZPoolMiner.Miners
             _algo = _algo.Replace("sha512256d", "sha512_256d_radiant");
             _algo = _algo.Replace("argon2d16000", "argon2d_16000");
             _algo = _algo.Replace("interchained", "yespowerinterchained");
+            _algo = _algo.Replace("sha3_256t", "sha3t");
 
             string demoWallet = Globals.DemoUser;
             string failoverPool = "";
@@ -384,6 +391,10 @@ namespace ZPoolMiner.Miners
                     break;
                 case AlgorithmType.EvrProgPow:
                     failoverPool = "stratum+tcp://evrprogpow.na.mine.zpool.ca:1330";
+                    failoverWallet = Globals.DemoUser;
+                    break;
+                case AlgorithmType.SHA3_256t:
+                    failoverPool = "stratum+tcp://sha3-256t.na.mine.zpool.ca:3339";
                     failoverWallet = Globals.DemoUser;
                     break;
                 default:
@@ -541,7 +552,8 @@ namespace ZPoolMiner.Miners
                 {
                     devtype = mPair.Device.DeviceType;
                 }
-                if (reconnections > 20 && !ConfigManager.GeneralConfig.EnableProxy)
+
+                if (reconnections > 30 && !ConfigManager.GeneralConfig.EnableProxy)
                 {
                     reconnections = 0;
                     Helpers.ConsolePrint("SRBMiner", "Too many reconnections. Enabling proxy");
@@ -554,7 +566,6 @@ namespace ZPoolMiner.Miners
                     if (MiningSetup.CurrentSecondaryAlgorithmType.Equals(AlgorithmType.NONE) &&
                         devtype != DeviceType.CPU)//single,
                     {
-                        int gpuNum = 0;
                         foreach (var mPair in sortedMinerPairs)
                         {
                             try
@@ -562,25 +573,27 @@ namespace ZPoolMiner.Miners
                                 string token = $"algorithms[0].hashrate.gpu.gpu{mPair.Device.IDByBus}";
                                 string tokenUptime = $"algorithms[0].pool.uptime";
                                 var hash = resp.SelectToken(token);
-                                var _uptime = resp.SelectToken(tokenUptime);
+                                int _uptime = (int)Convert.ToInt32(resp.SelectToken(tokenUptime), CultureInfo.InvariantCulture.NumberFormat);
                                 if (_uptime >= prevUptime)
                                 {
                                     prevUptime = _uptime;
                                 } else
                                 {
                                     reconnections++;
+                                    prevUptime = 0;
                                 }
                                 int gpu_hr = (int)Convert.ToDouble(hash, CultureInfo.InvariantCulture.NumberFormat);
                                 int uptime = (int)Convert.ToInt64(_uptime, CultureInfo.InvariantCulture.NumberFormat);
-                                if (gpu_prev[gpuNum] != 0 && gpu_hr > 0 && (gpu_hr * 1.1) < gpu_prev[gpuNum])
+                               
+                                if (gpu_prev[mPair.Device.BusID] != 0 && gpu_hr > 0 && (gpu_hr * 1.1) < gpu_prev[mPair.Device.BusID])
                                 {
-                                    gpu_hr = gpu_prev[gpuNum];
+                                    gpu_hr = gpu_prev[mPair.Device.BusID];
                                 }
                                 else
                                 {
-                                    gpu_prev[gpuNum] = gpu_hr;
+                                    gpu_prev[mPair.Device.BusID] = gpu_hr;
                                 }
-
+                                
                                 mPair.Device.MiningHashrate = gpu_hr;
                                 _power = mPair.Device.PowerUsage;
                                 mPair.Device.AlgorithmID = (int)MiningSetup.CurrentAlgorithmType;
@@ -592,7 +605,6 @@ namespace ZPoolMiner.Miners
                             {
                                 Helpers.ConsolePrint("API Exception:", ex.ToString());
                             }
-                            gpuNum++;
                         }
 
                         dynamic _tm = resp.algorithms[0].hashrate.gpu.total;

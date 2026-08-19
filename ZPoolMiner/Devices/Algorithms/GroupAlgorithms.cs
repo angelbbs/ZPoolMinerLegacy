@@ -44,13 +44,6 @@ namespace ZPoolMiner.Devices.Algorithms
                 });
             }
 
-            if (device.GpuRam < (ulong)(1024 * 1024 * 1024 * 5.8))
-            {
-                algoSettings = FilterMinerAlgos(algoSettings, new List<AlgorithmType>
-                {
-                    AlgorithmType.MeowPow
-                });
-            }
             /*
             if (device.GpuRam < (ulong)(1024 * 1024 * 1024 * 8.5))
             {
@@ -81,7 +74,7 @@ namespace ZPoolMiner.Devices.Algorithms
                 });
             }
 
-            if (device.GpuRam < (ulong)(1024 * 1024 * 1024 * 8.5))
+            if (device.GpuRam < (ulong)(1024 * 1024 * 1024 * 10.2))
             {
                 algoSettings = FilterMinerAlgos(algoSettings, new List<AlgorithmType>
                 {

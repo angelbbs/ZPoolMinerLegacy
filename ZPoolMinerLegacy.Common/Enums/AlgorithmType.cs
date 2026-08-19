@@ -81,7 +81,7 @@
         Scryptn2_UNUSED = 1340, //conversion_disabled
         //SHA3d = 1360,
         SHA256csm = 1370,
-        SHA3_256t_UNUSED = 1372,
+        SHA3_256t = 1372,
         SHA512256d_UNUSED = 1390,
         Skein2_UNUSED = 1393,
         Skydoge_UNUSED = 1395,//TT-Miner, conversion_disabled

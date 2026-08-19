@@ -305,7 +305,7 @@ namespace ZPoolMiner.Stats
                                 }
                                 var pc = AddProxyConnectionProcessID();
                                 pc.threadId = threadId;
-                                if (pc.pID > 0)
+                                if (pc.pID > 0 && _port != 0)
                                 {
                                     pc.Pool = _pool;
                                     pc.PoolPort = _port;

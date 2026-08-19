@@ -3794,6 +3794,7 @@ namespace ZPoolMiner.Forms
             ConfigManager.GeneralConfig.EnableProxy = checkBoxEnableProxy.Checked;
             if (checkBoxEnableProxy.Checked)
             {
+                Stats.ProxyCheck.GetProxy();
                 Stats.Stats.GetWalletBalance(null, null);
                 if (!Socks5Relay.Listener.Server.IsBound)
                 {

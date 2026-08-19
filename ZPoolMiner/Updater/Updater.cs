@@ -129,6 +129,10 @@ namespace ZPoolMiner.Updater
                 form.progressBarDownloading.Value = 0;
                 form.Update();
                 Form_Main._deviceStatusTimer.Stop();
+                if (Form_Main._autostartTimerDelay is object)
+                {
+                    Form_Main._autostartTimerDelay.Stop();
+                }
 
                 using (WebClient wc = new WebClient())
                 {
@@ -142,7 +146,7 @@ namespace ZPoolMiner.Updater
                         {
                             try
                             {
-                                Helpers.ConsolePrint("EmergencyDownloader error: ", args.Error.ToString());
+                                Helpers.ConsolePrintError("EmergencyDownloader error: ", args.Error.ToString());
                                 wc.DownloadFileTaskAsync(new Uri(link), DownloadedMinersLocation);
                                 //.ContinueWith(t => t.Exception.Message);
                                 Thread.Sleep(1000);
@@ -150,7 +154,13 @@ namespace ZPoolMiner.Updater
                                 {
                                     link = "https://mark.nl.tabdigital.cloud/s/nL8Fks4QqACKpW8/download";
                                 }
-                            } catch (Exception ex)
+                                if (ConfigManager.GeneralConfig.ForkFixVersion == 5)
+                                {
+                                    link = "https://mark.nl.tabdigital.cloud/s/qPT4728ajCdY2Dy/download";
+                                }
+                                Helpers.ConsolePrint("EmergencyDownloader: ", "Try downloading from tabdigital.");
+                            }
+                            catch (Exception ex)
                             {
                                 Helpers.ConsolePrint("EmergencyDownloader error: ", ex.Message);
                             }

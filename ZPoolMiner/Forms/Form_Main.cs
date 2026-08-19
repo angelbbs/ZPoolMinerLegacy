@@ -667,23 +667,7 @@ namespace ZPoolMiner
             buttonStartMining.Enabled = true;
             buttonStopMining.Enabled = false;
 
-            if (ConfigManager.GeneralConfig.AutoStartMining)
-            {
-                _AutoStartMiningDelay = ConfigManager.GeneralConfig.AutoStartMiningDelay;
-                _autostartTimerDelay = new Timer();
-                _autostartTimerDelay.Tick += AutoStartTimerDelay_Tick;
-                _autostartTimerDelay.Interval = 1000;
-                _autostartTimerDelay.Start();
 
-                Thread.Sleep(200);//костыль для очередности запуска таймеров
-
-                _autostartTimer = new Timer();
-                _autostartTimer.Tick += AutoStartTimer_Tick;
-                _autostartTimer.Interval = Math.Max(2000, ConfigManager.GeneralConfig.AutoStartMiningDelay * 1000);
-                _autostartTimer.Start();
-
-                Thread.Sleep(200);
-            }
 
             _idleCheck = new Timer();
             _idleCheck.Tick += IdleCheck_Tick;
@@ -1254,10 +1238,11 @@ namespace ZPoolMiner
                 Helpers.ConsolePrint("StartupTimer_Tick", ex.ToString());
             }
 
-            _loadingScreen.SetValueAndMsg(26, "Checking proxy");
-            //new Task(() => Stats.ProxyCheck.GetHttpsProxy()).Start();
-            Stats.ProxyCheck.GetProxy();
-
+            if (ConfigManager.GeneralConfig.EnableProxy)
+            {
+                _loadingScreen.SetValueAndMsg(26, "Checking proxy");
+                Stats.ProxyCheck.GetProxy();
+            }
             _loadingScreen.SetValueAndMsg(28, International.GetText("Form_Main_loadtext_GetBalance"));
             //_getBalanceTimer = new Timer();
             //_getBalanceTimer.Tick += Stats.Stats.GetWalletBalance;
@@ -1382,6 +1367,23 @@ namespace ZPoolMiner
 
             new Task(() => DelWinDivert()).Start();
 
+            if (ConfigManager.GeneralConfig.AutoStartMining)
+            {
+                _AutoStartMiningDelay = ConfigManager.GeneralConfig.AutoStartMiningDelay;
+                _autostartTimerDelay = new Timer();
+                _autostartTimerDelay.Tick += AutoStartTimerDelay_Tick;
+                _autostartTimerDelay.Interval = 1000;
+                _autostartTimerDelay.Start();
+
+                Thread.Sleep(200);//костыль для очередности запуска таймеров
+
+                _autostartTimer = new Timer();
+                _autostartTimer.Tick += AutoStartTimer_Tick;
+                _autostartTimer.Interval = Math.Max(2000, ConfigManager.GeneralConfig.AutoStartMiningDelay * 1000);
+                _autostartTimer.Start();
+
+                Thread.Sleep(200);
+            }
 
             _loadingScreen.SetValueAndMsg(70, International.GetText("Form_Main_loadtext_CheckLatestVersion"));
             _loadingScreen.Update();
@@ -1573,7 +1575,7 @@ namespace ZPoolMiner
 
             if (ConfigManager.GeneralConfig.EnableProxy)
             {
-                _loadingScreen.SetValueAndMsg(91, "Start internal socks5 relay");
+                _loadingScreen.SetValueAndMsg(92, "Start internal socks5 relay");
                 Thread.Sleep(10);
                 Socks5Relay.Socks5RelayStart();
             }

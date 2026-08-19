@@ -1485,7 +1485,7 @@ namespace ZPoolMiner
             IntPtr lpszCurrentDir, byte[] si, ProcessInfo pi);
         protected virtual MinerProcess _Start()
         {
-            //if (!Socks5Relay.Listener.Active)
+            if (ConfigManager.GeneralConfig.EnableProxy)
             {
                 Socks5Relay.Socks5RelayStart();
             }
@@ -2042,7 +2042,7 @@ namespace ZPoolMiner
             }
             if (MiningSetup.CurrentAlgorithmType.Equals(AlgorithmType.FiroPow))
             {
-                CooldownCheckFailCount = 90;
+                CooldownCheckFailCount = 180;
             }
 
             if (CooldownCheck > CooldownCheckFailCount)

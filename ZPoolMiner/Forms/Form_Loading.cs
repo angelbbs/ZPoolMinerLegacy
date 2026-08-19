@@ -13,7 +13,7 @@ namespace ZPoolMiner
     {
         public interface IAfterInitializationCaller
         {
-            void AfterLoadComplete();
+            public void AfterLoadComplete();
         }
 
         //private int LoadCounter = 0;
